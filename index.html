@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>代号鸢 · 密探招募录</title>
+
+  <!-- iOS 主屏幕 App 配置 -->
+  <meta name="apple-mobile-web-app-title" content="密探招募录">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="icon.png?v=2">
+  <link rel="apple-touch-icon-precomposed" href="icon.png?v=2">
+  <link rel="icon" type="image/png" href="icon.png?v=2">
+
   <style>
     :root {
       --bg-body: #FAF7F2;
@@ -37,7 +46,6 @@
       padding-bottom: 120px;
     }
 
-    /* 顶部导航 Tabs */
     .nav-tabs {
       position: sticky;
       top: 0;
@@ -76,7 +84,6 @@
       margin: 0 auto;
     }
 
-    /* 限定池横向滑动标签 */
     .sub-tabs-wrapper {
       margin-bottom: 14px;
       display: flex;
@@ -126,7 +133,7 @@
       cursor: pointer;
     }
 
-    /* 9:16 竖屏卡池海报展示区 */
+    /* 9:16 卡池海报展示区 */
     .pool-banner-card {
       margin-bottom: 16px;
       display: flex;
@@ -137,8 +144,8 @@
 
     .pool-poster-wrapper {
       width: 100%;
-      max-width: 240px; /* 控制在手机端的美观阅读高度 */
-      aspect-ratio: 9 / 16; /* 恢复为 9:16 比例 */
+      max-width: 220px;
+      aspect-ratio: 9 / 16;
       border-radius: var(--radius-md);
       overflow: hidden;
       background: #EFE9E1;
@@ -274,7 +281,7 @@
       background: var(--accent-red-bg);
     }
 
-    /* 3:4 密探立绘头像卡 */
+    /* 3:4 密探立绘头像 */
     .char-card-box {
       width: 44px;
       aspect-ratio: 3 / 4;
@@ -382,7 +389,7 @@
       cursor: pointer;
     }
 
-    /* 底部操作工具栏 */
+    /* 底部操作 */
     .bottom-bar {
       margin-top: 24px;
       padding-top: 14px;
@@ -421,7 +428,7 @@
       z-index: 99;
     }
 
-    /* 录入弹窗 */
+    /* 弹窗样式 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -520,7 +527,6 @@
       font-size: 13px;
     }
 
-    /* 弹窗内 3:4 密探立绘上传 */
     .avatar-uploader-row {
       display: flex;
       align-items: center;
@@ -589,13 +595,12 @@
   </header>
 
   <main class="container">
-    <!-- 限定池横向滑动栏 -->
     <section class="sub-tabs-wrapper" id="limitedPoolBar" style="display: none;">
       <div class="sub-tabs-scroll" id="poolTagList"></div>
       <button class="btn-create-pool" onclick="window.promptNewPool()">+ 设新池</button>
     </section>
 
-    <!-- 9:16 竖屏卡池海报展示区（选中单卡池时展示） -->
+    <!-- 9:16 卡池海报区域 -->
     <section class="pool-banner-card" id="poolBannerSection" style="display: none;">
       <div class="pool-poster-wrapper" id="poolPosterWrapper" onclick="document.getElementById('bannerFileInput').click()">
         <div class="pool-poster-tip" id="poolPosterPlaceholder">
@@ -610,7 +615,7 @@
       <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="window.handleBannerUpload(event)">
     </section>
 
-    <!-- 普池统计卡片 -->
+    <!-- 普池统计 -->
     <section class="stat-card" id="standardStats">
       <div class="stat-header"><div class="stat-title">普池概况统计</div></div>
       <div class="stat-grid">
@@ -620,7 +625,7 @@
       </div>
     </section>
 
-    <!-- 限定池统计卡片 -->
+    <!-- 限定池统计 -->
     <section id="limitedStatsContainer" style="display: none;">
       <div class="stat-card">
         <div class="stat-header"><div class="stat-title">限定池总体统计 (全部池)</div></div>
@@ -648,10 +653,10 @@
       </div>
     </section>
 
-    <!-- 记录明细列表 -->
+    <!-- 记录明细 -->
     <section class="record-list" id="recordListContainer"></section>
 
-    <!-- 底部操作 -->
+    <!-- 底部功能栏 -->
     <footer class="bottom-bar">
       <button class="btn-action-tool" onclick="window.exportDataJSON()">导出备份</button>
       <button class="btn-action-tool" onclick="window.triggerImportJSON()">导入备份</button>
@@ -717,11 +722,15 @@
 
   <script>
     (function() {
-      const STORAGE_KEY = 'Yuan_Gacha_App_Data_v6';
+      const DB_NAME = 'YuanGachaDatabase';
+      const DB_VERSION = 1;
+      const STORE_NAME = 'app_state';
+      let dbInstance = null;
+
       let appData = { 
         standard: [], 
         limitedPools: [], 
-        poolBanners: {}, // { [poolName]: base64Data } 存储 9:16 竖版海报
+        poolBanners: {}, 
         limited: [] 
       };
 
@@ -729,35 +738,86 @@
       let currentSelectedPool = 'ALL';
       let formRarity = '绝密';
       let formIsUp = true;
-      let currentAvatarBase64 = ''; // 暂存 3:4 密探立绘
+      let currentAvatarBase64 = '';
 
+      /* 初始化高容量 IndexedDB 数据库引擎 */
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = function(e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME);
+            }
+          };
+          request.onsuccess = function(e) {
+            dbInstance = e.target.result;
+            resolve(dbInstance);
+          };
+          request.onerror = function(e) {
+            reject(e);
+          };
+        });
+      }
+
+      /* 从 IndexedDB 读取数据并自动处理旧版本迁移 */
       function loadData() {
-        try {
-          const cache = localStorage.getItem(STORAGE_KEY);
-          if (cache) {
-            const parsed = JSON.parse(cache);
-            appData = {
-              standard: parsed.standard || [],
-              limitedPools: parsed.limitedPools || [],
-              poolBanners: parsed.poolBanners || {},
-              limited: parsed.limited || []
-            };
-          }
-        } catch (e) {
-          console.warn('本地缓存读取失败');
-        }
+        return new Promise((resolve) => {
+          const tx = dbInstance.transaction(STORE_NAME, 'readonly');
+          const store = tx.objectStore(STORE_NAME);
+          const req = store.get('root_data');
+
+          req.onsuccess = function() {
+            if (req.result) {
+              appData = req.result;
+              resolve();
+            } else {
+              // 自动检测并迁移旧版本 localStorage 数据
+              try {
+                const legacyKeys = ['Yuan_Gacha_App_Data_v6', 'Yuan_Gacha_App_Data_v5', 'Yuan_Gacha_App_Data_v4', 'Yuan_Gacha_App_Data_v3'];
+                for (let k of legacyKeys) {
+                  const oldCache = localStorage.getItem(k);
+                  if (oldCache) {
+                    const parsed = JSON.parse(oldCache);
+                    appData = {
+                      standard: parsed.standard || [],
+                      limitedPools: parsed.limitedPools || [],
+                      poolBanners: parsed.poolBanners || {},
+                      limited: parsed.limited || []
+                    };
+                    localStorage.removeItem(k); // 迁移后清理旧存储
+                    break;
+                  }
+                }
+              } catch (err) {}
+              saveData().then(resolve);
+            }
+          };
+          req.onerror = function() {
+            resolve();
+          };
+        });
       }
 
+      /* 数据持久化写入 IndexedDB (容量几百MB无压力) */
       function saveData() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        } catch (e) {
-          alert('存储空间不足，请清理部分图片或导出备份。');
-        }
-        render();
+        return new Promise((resolve) => {
+          if (!dbInstance) return resolve();
+          const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
+          store.put(appData, 'root_data');
+          tx.oncomplete = function() {
+            render();
+            resolve();
+          };
+          tx.onerror = function() {
+            alert('数据存储异常，请检查手机是否开启了严格隐私模式');
+            resolve();
+          };
+        });
       }
 
-      /* 统一图片按指定宽高比自动居中裁剪与压缩引擎 */
+      /* 图像自动裁剪压缩引擎 (调优压缩质量) */
       function cropAndCompressImage(file, aspectWidth, aspectHeight, targetW, quality, callback) {
         const reader = new FileReader();
         reader.onload = function(evt) {
@@ -796,12 +856,12 @@
         reader.readAsDataURL(file);
       }
 
-      /* 处理 9:16 竖版卡池海报上传 (规格 360 x 640) */
+      /* 处理 9:16 竖屏卡池海报 */
       window.handleBannerUpload = function(e) {
         const file = e.target.files[0];
         if (!file || currentSelectedPool === 'ALL') return;
 
-        cropAndCompressImage(file, 9, 16, 360, 0.85, function(base64) {
+        cropAndCompressImage(file, 9, 16, 320, 0.8, function(base64) {
           appData.poolBanners[currentSelectedPool] = base64;
           saveData();
         });
@@ -815,12 +875,12 @@
         }
       };
 
-      /* 处理 3:4 密探立绘照片上传 (规格 150 x 200) */
+      /* 处理 3:4 密探立绘照片 */
       window.handleAvatarSelect = function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        cropAndCompressImage(file, 3, 4, 150, 0.85, function(base64) {
+        cropAndCompressImage(file, 3, 4, 120, 0.8, function(base64) {
           currentAvatarBase64 = base64;
           const previewBox = document.getElementById('avatarPreviewBox');
           previewBox.innerHTML = `<img src="${currentAvatarBase64}">`;
@@ -1126,8 +1186,7 @@
               poolBanners: data.poolBanners || {},
               limited: data.limited || []
             };
-            saveData();
-            alert('数据导入成功');
+            saveData().then(() => alert('数据导入成功'));
           } catch(err) {
             alert('JSON 文件损坏或格式错误');
           }
@@ -1136,8 +1195,10 @@
         e.target.value = '';
       };
 
-      loadData();
-      render();
+      // 初始化流程
+      openDatabase().then(loadData).then(render).catch(() => {
+        console.error('数据库启动失败');
+      });
     })();
   </script>
 </body>
