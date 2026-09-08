@@ -107,11 +107,17 @@
       background: rgba(234, 231, 180, 0.35);
       padding: 10px 14px; border-radius: var(--radius-md);
       margin-bottom: 14px; border: 1px solid var(--color-peel-citron); font-size: 12px;
+      position: relative;
     }
     .meta-row { display: flex; margin-bottom: 4px; }
     .meta-row:last-child { margin-bottom: 0; }
     .meta-k { color: var(--text-sub); width: 68px; flex-shrink: 0; }
     .meta-v { color: var(--text-main); font-weight: 600; }
+    .btn-edit-current-pool {
+      position: absolute; right: 12px; top: 10px;
+      background: none; border: none; font-size: 12px;
+      color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
+    }
 
     /* 统计卡片与网格 */
     .stat-card { 
@@ -202,6 +208,29 @@
     .form-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; }
     .form-input, .form-select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #FAF6F0; font-size: 15px; color: var(--text-main); outline: none; }
     
+    /* 双日历 Mini 组合框 */
+    .date-range-picker-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .date-input-mini {
+      flex: 1;
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #FAF6F0;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      font-family: inherit;
+    }
+    .date-split-text {
+      font-size: 12px;
+      color: var(--text-sub);
+      flex-shrink: 0;
+    }
+
     .segmented-control { display: flex; gap: 8px; }
     .segment-opt { 
       flex: 1; padding: 9px 0; text-align: center; border: 1px solid var(--border-color); 
@@ -226,17 +255,22 @@
     .btn-upload-fake { background: var(--color-guava-blush); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; cursor: pointer; text-align: center; }
     .btn-clear-photo { background: none; border: none; color: var(--accent-red); font-size: 11px; cursor: pointer; text-align: left; display: none; }
 
-    /* 向下滑动的卡池列表抽屉 */
+    /* 向下滑动的卡池列表抽屉项 */
     .pool-drawer-list { display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; padding-right: 4px; }
     .pool-drawer-item {
       padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      background: #FDFBFA; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s;
+      background: #FDFBFA; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
     }
     .pool-drawer-item.active {
       border-color: var(--color-flesh-sorbet); background: #FFF5F3;
     }
+    .p-item-content { display: flex; flex-direction: column; gap: 3px; flex: 1; overflow: hidden; padding-right: 8px; }
     .p-item-name { font-size: 15px; font-weight: 700; color: var(--text-main); }
     .p-item-meta { font-size: 12px; color: var(--text-sub); }
+    .btn-drawer-edit-pool {
+      background: none; border: none; font-size: 15px; color: var(--text-sub);
+      padding: 4px 6px; cursor: pointer; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -261,12 +295,12 @@
     <section class="pool-meta-badge-box" id="poolMetaBadgeBox" style="display: none;">
       <div class="meta-row"><span class="meta-k">开放周期：</span><span class="meta-v" id="metaDateSpan">-</span></div>
       <div class="meta-row"><span class="meta-k">当期密探：</span><span class="meta-v" id="metaCharsSpan">-</span></div>
+      <button class="btn-edit-current-pool" onclick="window.openEditCurrentPoolModal()">✎ 编辑卡池</button>
     </section>
 
     <!-- 9:16 竖屏卡池海报展示区 -->
     <section class="pool-banner-card" id="poolBannerSection" style="display: none;">
       <div class="pool-poster-wrapper" id="poolPosterWrapper" onclick="document.getElementById('bannerFileInput').click()">
-        <!-- 文案微调：去掉“芭乐立绘/海报”，简洁明了 -->
         <div class="pool-poster-tip" id="poolPosterPlaceholder">
           📷 点击导入<br>9:16 海报
         </div>
@@ -346,23 +380,32 @@
     </div>
   </div>
 
-  <!-- 2. 新建卡池弹窗 -->
+  <!-- 2. 新建/编辑卡池弹窗 (集成 Mini 日历) -->
   <div class="modal-overlay" id="createPoolModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
-      <div class="modal-title">开辟新限定卡池</div>
+      <div class="modal-title" id="poolModalTitle">开辟新限定卡池</div>
+      <input type="hidden" id="editingPoolOriginalName" value="">
+      
       <div class="form-group">
         <label class="form-label">卡池名录</label>
         <input type="text" class="form-input" id="newPoolNameInput" placeholder="例如：提针引线 / 合纵连横">
       </div>
+      
+      <!-- Mini 日历选择器组件：从 2023 年开始 -->
       <div class="form-group">
-        <label class="form-label">开放周期（选填）</label>
-        <input type="text" class="form-input" id="newPoolDateInput" placeholder="例如：2024.03.15 - 2024.04.05">
+        <label class="form-label">开放周期（点击调出 Mini 日历）</label>
+        <div class="date-range-picker-row">
+          <input type="date" class="date-input-mini" id="poolStartDateInput" min="2023-01-01">
+          <span class="date-split-text">至</span>
+          <input type="date" class="date-input-mini" id="poolEndDateInput" min="2023-01-01">
+        </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">当期UP密探（选填）</label>
         <input type="text" class="form-input" id="newPoolCharsInput" placeholder="例如：张仲景、华佗">
       </div>
-      <button class="btn-submit" onclick="window.submitNewPool()">确认创设</button>
+      <button class="btn-submit" id="btnSubmitPoolForm" onclick="window.submitPoolForm()">确认创设</button>
     </div>
   </div>
 
@@ -392,7 +435,6 @@
 
       <div class="form-group">
         <label class="form-label">密探名录</label>
-        <!-- 文案微调：例如：傅融 / 孙策 改为 例如：孙权 / 孙尚香 -->
         <input type="text" class="form-input" id="inputCharName" placeholder="例如：孙权 / 孙尚香">
       </div>
 
@@ -499,67 +541,67 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v6';
+      const DB_NAME = 'YuanGachaDatabase_v7';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      // 53 个全量限定卡池（整合首发活动与复刻卡池）
+      // 53 个全量限定卡池（全面规范起止年限至 YYYY-MM-DD 便于日历回显）
       const MASTER_PRESET_POOLS = [
-        { name: "弓剑江东", dateRange: "4.6 - 5.22", upChars: "孙尚香、孙权" },
-        { name: "鬼城之主", dateRange: "4.29 - 5.17", upChars: "张修、干吉" },
-        { name: "异才奇士复刻", dateRange: "5.25 - 6.20", upChars: "王粲、郭嘉" },
-        { name: "万物化光", dateRange: "6.8 - 7.19", upChars: "张辽、张仲景、小乔" },
-        { name: "山有扶苏", dateRange: "6.21 - 8.2", upChars: "周瑜、葛洪、许曼" },
-        { name: "四方顺时复刻", dateRange: "7.20 - 8.16", upChars: "华佗、郭解" },
-        { name: "王佐之才", dateRange: "8.3 - 9.13", upChars: "庞统、荀彧、陆绩" },
-        { name: "坐照运筹复刻", dateRange: "8.31 - 9.27", upChars: "贾诩、陆逊" },
-        { name: "诗画同律", dateRange: "9.7 - 10.8", upChars: "蔡琰、张飞" },
-        { name: "争光日月", dateRange: "9.28 - 11.8", upChars: "夏侯惇、张角、王异" },
-        { name: "度势攻心复刻", dateRange: "11.2 - 11.29", upChars: "杨修、吕蒙" },
-        { name: "出奇无穷", dateRange: "11.9 - 12.6", upChars: "程昱、马超" },
-        { name: "天曲日未", dateRange: "11.28 - 1.8", upChars: "太史慈、张闿、公孙瓒" },
-        { name: "扬矢摧锋复刻", dateRange: "12.14 - 12.27", upChars: "孙尚香、张辽" },
-        { name: "绝艳惊鸿", dateRange: "12.21 - 1.24", upChars: "徐庶、张郃" },
-        { name: "击金鸣鼓", dateRange: "1.18 - 2.28", upChars: "甘宁、甄宓" },
-        { name: "乘数而一复刻", dateRange: "2.6 - 2.19", upChars: "孙权、张仲景" },
-        { name: "闻斯行诸", dateRange: "2.22 - 3.20", upChars: "孔融、张鲁" },
-        { name: "天门启阖", dateRange: "3.14 - 4.24", upChars: "黄月英、张邈" },
-        { name: "谨司天英", dateRange: "5.9 - 6.19", upChars: "董奉、曹植" },
-        { name: "云雨滂润", dateRange: "5.25 - 6.28", upChars: "诸葛瑾、诸葛诞" },
-        { name: "二柄刑德", dateRange: "7.4 - 8.14", upChars: "满宠、荀攸" },
-        { name: "照以三光复刻", dateRange: "8.15 - 8.28", upChars: "张闿、张飞" },
-        { name: "腾陵张胆", dateRange: "8.29 - 10.9", upChars: "凌统、安期" },
-        { name: "逐奔不远", dateRange: "9.25 - 10.16", upChars: "刘繇、戏学" },
-        { name: "动如雷霆复刻", dateRange: "10.31 - 11.13", upChars: "张辽、马超" },
-        { name: "一体盈虚", dateRange: "11.7 - 12.4", upChars: "马腾、令狐茂" },
-        { name: "搏鸷缚虬", dateRange: "11.15 - 12.29", upChars: "朱然、黄盖" },
-        { name: "黍梦焚舟", dateRange: "12.12 - 12.25", upChars: "陈登·泰王、史子眇·赴烛" },
-        { name: "风兴云蒸", dateRange: "1.9 - 2.19", upChars: "蒯越、祢衡" },
-        { name: "火中取梦", dateRange: "1.23 - 2.5", upChars: "张郃、甄宓" },
-        { name: "深水逐鹿", dateRange: "2.20 - 3.19", upChars: "刘豹、张绣" },
-        { name: "白日昭只", dateRange: "3.13 - 4.23", upChars: "董白、张昭" },
-        { name: "燧象衔尾", dateRange: "4.30 - 6.11", upChars: "程普、士燮" },
-        { name: "暮燕翻雷", dateRange: "5.29 - 6.25", upChars: "虞翻、张燕" },
-        { name: "金相玉质", dateRange: "6.12 - 6.25", upChars: "孔融、黄月英" },
-        { name: "渊鼓铿钟", dateRange: "6.26 - 8.6", upChars: "夏侯渊、钟繇" },
-        { name: "劫烬灰飞", dateRange: "8.21 - 10.1", upChars: "刘璋、庞羲" },
-        { name: "以奉嘉觞", dateRange: "9.11 - 10.8", upChars: "周忠、吕布" },
-        { name: "游说贤士", dateRange: "9.30 - 10.29", upChars: "自选池" },
-        { name: "大和丕应", dateRange: "10.16 - 11.26", upChars: "曹丕、简雍" },
-        { name: "英徽弥亮", dateRange: "11.6 - 12.3", upChars: "诸葛亮、司马徽" },
-        { name: "动静非我", dateRange: "12.11 - 1.21", upChars: "蒯良、郭女王" },
-        { name: "持心离欲", dateRange: "12.23 - 1.5", upChars: "法正、陈群" },
-        { name: "琴载酒/洪匀玄", dateRange: "1.15 - 1.28", upChars: "孙尚香/葛洪/张飞" },
-        { name: "隋珠弹雀", dateRange: "2.5 - 3.18", upChars: "酆公珠、酆公玖" },
-        { name: "坐令千霄", dateRange: "2.26 - 3.25", upChars: "卢植、庞德" },
-        { name: "东阁待贤", dateRange: "3.30 - 4.28", upChars: "自选池" },
-        { name: "影迹陈陈", dateRange: "4.2 - 5.13", upChars: "陈纪、陈应" },
-        { name: "含明隐迹", dateRange: "5.21 - 6.17", upChars: "孙静、孟获" },
-        { name: "松桥辅德", dateRange: "5.28 - 7.8", upChars: "张松、孙辅" },
-        { name: "奉天华盖", dateRange: "7.9 - 7.22", upChars: "董奉、黄盖" },
-        { name: "诚之云乎", dateRange: "7.23 - 9.2", upChars: "司马孚、赵云" },
-        { name: "却月凌风", dateRange: "7.23 - 8.5", upChars: "黄月英、凌统" }
+        { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权" },
+        { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉" },
+        { name: "异才奇士复刻", dateRange: "2023.05.25 - 2023.06.20", upChars: "王粲、郭嘉" },
+        { name: "万物化光", dateRange: "2023.06.08 - 2023.07.19", upChars: "张辽、张仲景、小乔" },
+        { name: "山有扶苏", dateRange: "2023.06.21 - 2023.08.02", upChars: "周瑜、葛洪、许曼" },
+        { name: "四方顺时复刻", dateRange: "2023.07.20 - 2023.08.16", upChars: "华佗、郭解" },
+        { name: "王佐之才", dateRange: "2023.08.03 - 2023.09.13", upChars: "庞统、荀彧、陆绩" },
+        { name: "坐照运筹复刻", dateRange: "2023.08.31 - 2023.09.27", upChars: "贾诩、陆逊" },
+        { name: "诗画同律", dateRange: "2023.09.07 - 2023.10.08", upChars: "蔡琰、张飞" },
+        { name: "争光日月", dateRange: "2023.09.28 - 2023.11.08", upChars: "夏侯惇、张角、王异" },
+        { name: "度势攻心复刻", dateRange: "2023.11.02 - 2023.11.29", upChars: "杨修、吕蒙" },
+        { name: "出奇无穷", dateRange: "2023.11.09 - 2023.12.06", upChars: "程昱、马超" },
+        { name: "天曲日未", dateRange: "2023.11.28 - 2024.01.08", upChars: "太史慈、张闿、公孙瓒" },
+        { name: "扬矢摧锋复刻", dateRange: "2023.12.14 - 2023.12.27", upChars: "孙尚香、张辽" },
+        { name: "绝艳惊鸿", dateRange: "2023.12.21 - 2024.01.24", upChars: "徐庶、张郃" },
+        { name: "击金鸣鼓", dateRange: "2024.01.18 - 2024.02.28", upChars: "甘宁、甄宓" },
+        { name: "乘数而一复刻", dateRange: "2024.02.06 - 2024.02.19", upChars: "孙权、张仲景" },
+        { name: "闻斯行诸", dateRange: "2024.02.22 - 2024.03.20", upChars: "孔融、张鲁" },
+        { name: "天门启阖", dateRange: "2024.03.14 - 2024.04.24", upChars: "黄月英、张邈" },
+        { name: "谨司天英", dateRange: "2024.05.09 - 2024.06.19", upChars: "董奉、曹植" },
+        { name: "云雨滂润", dateRange: "2024.05.25 - 2024.06.28", upChars: "诸葛瑾、诸葛诞" },
+        { name: "二柄刑德", dateRange: "2024.07.04 - 2024.08.14", upChars: "满宠、荀攸" },
+        { name: "照以三光复刻", dateRange: "2024.08.15 - 2024.08.28", upChars: "张闿、张飞" },
+        { name: "腾陵张胆", dateRange: "2024.08.29 - 2024.10.09", upChars: "凌统、安期" },
+        { name: "逐奔不远", dateRange: "2024.09.25 - 2024.10.16", upChars: "刘繇、戏学" },
+        { name: "动如雷霆复刻", dateRange: "2024.10.31 - 2024.11.13", upChars: "张辽、马超" },
+        { name: "一体盈虚", dateRange: "2024.11.07 - 2024.12.04", upChars: "马腾、令狐茂" },
+        { name: "搏鸷缚虬", dateRange: "2024.11.15 - 2024.12.29", upChars: "朱然、黄盖" },
+        { name: "黍梦焚舟", dateRange: "2024.12.12 - 2024.12.25", upChars: "陈登·泰王、史子眇·赴烛" },
+        { name: "风兴云蒸", dateRange: "2025.01.09 - 2025.02.19", upChars: "蒯越、祢衡" },
+        { name: "火中取梦", dateRange: "2025.01.23 - 2025.02.05", upChars: "张郃、甄宓" },
+        { name: "深水逐鹿", dateRange: "2025.02.20 - 2025.03.19", upChars: "刘豹、张绣" },
+        { name: "白日昭只", dateRange: "2025.03.13 - 2025.04.23", upChars: "董白、张昭" },
+        { name: "燧象衔尾", dateRange: "2025.04.30 - 2025.06.11", upChars: "程普、士燮" },
+        { name: "暮燕翻雷", dateRange: "2025.05.29 - 2025.06.25", upChars: "虞翻、张燕" },
+        { name: "金相玉质", dateRange: "2025.06.12 - 2025.06.25", upChars: "孔融、黄月英" },
+        { name: "渊鼓铿钟", dateRange: "2025.06.26 - 2025.08.06", upChars: "夏侯渊、钟繇" },
+        { name: "劫烬灰飞", dateRange: "2025.08.21 - 2025.10.01", upChars: "刘璋、庞羲" },
+        { name: "以奉嘉觞", dateRange: "2025.09.11 - 2025.10.08", upChars: "周忠、吕布" },
+        { name: "游说贤士", dateRange: "2025.09.30 - 2025.10.29", upChars: "自选池" },
+        { name: "大和丕应", dateRange: "2025.10.16 - 2025.11.26", upChars: "曹丕、简雍" },
+        { name: "英徽弥亮", dateRange: "2025.11.06 - 2025.12.03", upChars: "诸葛亮、司马徽" },
+        { name: "动静非我", dateRange: "2025.12.11 - 2026.01.21", upChars: "蒯良、郭女王" },
+        { name: "持心离欲", dateRange: "2025.12.23 - 2026.01.05", upChars: "法正、陈群" },
+        { name: "琴载酒/洪匀玄", dateRange: "2026.01.15 - 2026.01.28", upChars: "孙尚香/葛洪/张飞" },
+        { name: "隋珠弹雀", dateRange: "2026.02.05 - 2026.03.18", upChars: "酆公珠、酆公玖" },
+        { name: "坐令千霄", dateRange: "2026.02.26 - 2026.03.25", upChars: "卢植、庞德" },
+        { name: "东阁待贤", dateRange: "2026.03.30 - 2026.04.28", upChars: "自选池" },
+        { name: "影迹陈陈", dateRange: "2026.04.02 - 2026.05.13", upChars: "陈纪、陈应" },
+        { name: "含明隐迹", dateRange: "2026.05.21 - 2026.06.17", upChars: "孙静、孟获" },
+        { name: "松桥辅德", dateRange: "2026.05.28 - 2026.07.08", upChars: "张松、孙辅" },
+        { name: "奉天华盖", dateRange: "2026.07.09 - 2026.07.22", upChars: "董奉、黄盖" },
+        { name: "诚之云乎", dateRange: "2026.07.23 - 2026.09.02", upChars: "司马孚、赵云" },
+        { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统" }
       ];
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
@@ -589,7 +631,6 @@
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
-        // 自动提取招募记录里出现的所有池名
         if (appData.limited && appData.limited.length > 0) {
           appData.limited.forEach(rec => {
             if (rec.poolName && !appData.pools.some(p => p.name === rec.poolName)) {
@@ -603,7 +644,6 @@
           });
         }
 
-        // 补齐预设官方池
         MASTER_PRESET_POOLS.forEach(pre => {
           const existing = appData.pools.find(p => p.name === pre.name || p.name.includes(pre.name) || pre.name.includes(p.name));
           if (!existing) {
@@ -735,8 +775,10 @@
         const allItem = document.createElement('div');
         allItem.className = 'pool-drawer-item ' + (currentSelectedPool === 'ALL' ? 'active' : '');
         allItem.innerHTML = `
-          <div class="p-item-name">全部限定卡池 (汇总)</div>
-          <div class="p-item-meta">汇总全部 ${appData.pools.length} 个限定招募之机密档案</div>
+          <div class="p-item-content">
+            <div class="p-item-name">全部限定卡池 (汇总)</div>
+            <div class="p-item-meta">汇总全部 ${appData.pools.length} 个限定招募之机密档案</div>
+          </div>
         `;
         allItem.onclick = function() {
           currentSelectedPool = 'ALL';
@@ -749,38 +791,140 @@
           const item = document.createElement('div');
           item.className = 'pool-drawer-item ' + (currentSelectedPool === p.name ? 'active' : '');
           item.innerHTML = `
-            <div class="p-item-name">${p.name}</div>
-            <div class="p-item-meta">周期：${p.dateRange || '未定'} | UP：${p.upChars || '未设'}</div>
+            <div class="p-item-content" onclick="window.selectPoolFromDrawer('${p.name}')">
+              <div class="p-item-name">${p.name}</div>
+              <div class="p-item-meta">周期：${p.dateRange || '未定'} | UP：${p.upChars || '未设'}</div>
+            </div>
+            <button class="btn-drawer-edit-pool" title="编辑卡池" onclick="event.stopPropagation(); window.openEditPoolModalByName('${p.name}')">✎</button>
           `;
-          item.onclick = function() {
-            currentSelectedPool = p.name;
-            window.closeModal('poolDrawerModal');
-            render();
-          };
           drawerList.appendChild(item);
         });
 
         document.getElementById('poolDrawerModal').classList.add('active');
       };
 
+      window.selectPoolFromDrawer = function(poolName) {
+        currentSelectedPool = poolName;
+        window.closeModal('poolDrawerModal');
+        render();
+      };
+
+      // 解析如 "2023.04.06 - 2023.05.22" 或 "4.6 - 5.22" 为标准 YYYY-MM-DD
+      function parseDateToISO(str) {
+        if (!str) return '';
+        const cleaned = str.trim().replace(/\./g, '-').replace(/\//g, '-');
+        const parts = cleaned.split('-');
+        if (parts.length === 3) {
+          const y = parts[0].padStart(4, '20');
+          const m = parts[1].padStart(2, '0');
+          const d = parts[2].padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        } else if (parts.length === 2) {
+          const m = parts[0].padStart(2, '0');
+          const d = parts[1].padStart(2, '0');
+          return `2024-${m}-${d}`;
+        }
+        return '';
+      }
+
+      /* 打开新建卡池弹窗 */
       window.openCreatePoolModal = function() {
         window.closeModal('poolDrawerModal');
+        document.getElementById('poolModalTitle').innerText = '开辟新限定卡池';
+        document.getElementById('btnSubmitPoolForm').innerText = '确认创设';
+        document.getElementById('editingPoolOriginalName').value = '';
+
         document.getElementById('newPoolNameInput').value = '';
-        document.getElementById('newPoolDateInput').value = '';
+        document.getElementById('poolStartDateInput').value = '';
+        document.getElementById('poolEndDateInput').value = '';
         document.getElementById('newPoolCharsInput').value = '';
+
         document.getElementById('createPoolModal').classList.add('active');
       };
 
-      window.submitNewPool = function() {
+      /* 打开编辑指定卡池弹窗 */
+      window.openEditPoolModalByName = function(poolName) {
+        const pool = appData.pools.find(p => p.name === poolName);
+        if (!pool) return;
+
+        window.closeModal('poolDrawerModal');
+        document.getElementById('poolModalTitle').innerText = '编辑限定卡池';
+        document.getElementById('btnSubmitPoolForm').innerText = '保存更动';
+        document.getElementById('editingPoolOriginalName').value = pool.name;
+
+        document.getElementById('newPoolNameInput').value = pool.name;
+        document.getElementById('newPoolCharsInput').value = pool.upChars || '';
+
+        // 智能回显 Mini 日历
+        if (pool.dateRange && pool.dateRange.includes('-')) {
+          const splitArr = pool.dateRange.split('-');
+          document.getElementById('poolStartDateInput').value = parseDateToISO(splitArr[0]);
+          document.getElementById('poolEndDateInput').value = parseDateToISO(splitArr[1]);
+        } else {
+          document.getElementById('poolStartDateInput').value = '';
+          document.getElementById('poolEndDateInput').value = '';
+        }
+
+        document.getElementById('createPoolModal').classList.add('active');
+      };
+
+      window.openEditCurrentPoolModal = function() {
+        if (currentSelectedPool !== 'ALL') {
+          window.openEditPoolModalByName(currentSelectedPool);
+        }
+      };
+
+      /* 统一提交新建或修改卡池 */
+      window.submitPoolForm = function() {
+        const originalName = document.getElementById('editingPoolOriginalName').value;
         const name = document.getElementById('newPoolNameInput').value.trim();
-        const dateRange = document.getElementById('newPoolDateInput').value.trim() || '未定';
+        const startVal = document.getElementById('poolStartDateInput').value;
+        const endVal = document.getElementById('poolEndDateInput').value;
         const upChars = document.getElementById('newPoolCharsInput').value.trim() || '未设';
 
         if (!name) return alert('卡池名录不可为空');
-        if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
 
-        appData.pools.unshift({ name, dateRange, upChars });
-        currentSelectedPool = name;
+        // 生成规范友好的日期周期字符串
+        let dateRangeStr = '未定';
+        if (startVal && endVal) {
+          dateRangeStr = `${startVal.replace(/-/g, '.')} - ${endVal.replace(/-/g, '.')}`;
+        } else if (startVal) {
+          dateRangeStr = `${startVal.replace(/-/g, '.')} 起`;
+        }
+
+        if (originalName) {
+          // 编辑模式
+          if (name !== originalName && appData.pools.some(p => p.name === name)) {
+            return alert('已存在同名的其他限定池，请换一个名称');
+          }
+
+          const targetPool = appData.pools.find(p => p.name === originalName);
+          if (targetPool) {
+            targetPool.name = name;
+            targetPool.dateRange = dateRangeStr;
+            targetPool.upChars = upChars;
+          }
+
+          // 级联同步：同步关联修改过的旧池名与所有招募记录/海报
+          if (name !== originalName) {
+            appData.limited.forEach(rec => {
+              if (rec.poolName === originalName) rec.poolName = name;
+            });
+            if (appData.poolBanners[originalName]) {
+              appData.poolBanners[name] = appData.poolBanners[originalName];
+              delete appData.poolBanners[originalName];
+            }
+            if (currentSelectedPool === originalName) {
+              currentSelectedPool = name;
+            }
+          }
+        } else {
+          // 新建模式
+          if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
+          appData.pools.unshift({ name, dateRange: dateRangeStr, upChars });
+          currentSelectedPool = name;
+        }
+
         saveData();
         window.closeModal('createPoolModal');
       };
@@ -1134,7 +1278,6 @@
         document.getElementById('jsonFileInput').click();
       };
 
-      /* 智能恢复：将备份数据导入，并执行卡池自动发现与收录 */
       window.importDataJSON = function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1159,7 +1302,6 @@
             }
 
             reconcilePools();
-
             saveData().then(() => alert('全档案数据导入成功！历史卡池已全部自动收录恢复。'));
           } catch(err) {
             alert('JSON 文件格式损坏，无法恢复');
