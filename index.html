@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>代号鸢 · 密探招募录</title>
+  <style>
+    :root {
+      --bg-body: #FAF7F2;
+      --card-bg: #FFFFFF;
+      --text-main: #4A4036;
+      --text-sub: #8C827A;
+      --accent-pink: #F7D6D0;
+      --accent-gold: #E8B86D;
+      --accent-gold-bg: #FEF7EA;
+      --accent-red: #D9534F;
+      --accent-red-bg: #FDF2F2;
+      --border-color: #EFE9E1;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-soft: 0 4px 16px rgba(160, 140, 125, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+      line-height: 1.5;
+      padding-bottom: 120px;
+    }
+
+    /* 顶部导航 Tabs */
+    .nav-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      background: rgba(250, 247, 242, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 12px;
+    }
+
+    .nav-tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text-sub);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+
+    .nav-tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-color: var(--border-color);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .container {
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* 限定池横向滑动标签 */
+    .sub-tabs-wrapper {
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sub-tabs-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      flex: 1;
+      scrollbar-width: none;
+    }
+
+    .sub-tabs-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill-btn {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      font-size: 13px;
+      border-radius: 30px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .pill-btn.active {
+      background: var(--accent-pink);
+      color: var(--text-main);
+      border-color: var(--accent-pink);
+      font-weight: 600;
+    }
+
+    .btn-create-pool {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 30px;
+      background: #EBE5DF;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    /* 16:9 横屏卡池 Banner 封面区域 */
+    .pool-banner-card {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .pool-banner-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9; /* 横屏比例 */
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #EFE9E1;
+      border: 1.5px dashed #DDD4C8;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pool-banner-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pool-banner-tip {
+      font-size: 13px;
+      color: var(--text-sub);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .pool-banner-tools {
+      margin-top: 6px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 14px;
+      padding-right: 4px;
+    }
+
+    .btn-banner-action {
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: var(--text-sub);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .btn-banner-action.danger {
+      color: var(--accent-red);
+    }
+
+    /* 统计卡片 */
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .stat-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .stat-action-del {
+      font-size: 12px;
+      color: var(--accent-red);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat-item {
+      background: #FAF8F5;
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+
+    .stat-item.span-2 {
+      grid-column: span 2;
+    }
+
+    .stat-val {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* 记录明细列表 */
+    .record-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .record-item {
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-color);
+      border-left: 5px solid #D1CAC0;
+    }
+
+    .record-item.rarity-SSR {
+      border-left-color: var(--accent-gold);
+    }
+
+    .record-item.is-lost {
+      border-left-color: var(--accent-red) !important;
+      background: var(--accent-red-bg);
+    }
+
+    /* 3:4 竖版密探立绘头像 */
+    .char-card-box {
+      width: 44px;
+      aspect-ratio: 3 / 4; /* 密探立绘保持 3:4 */
+      border-radius: 6px;
+      background: #EFE9E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-right: 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid #E2D9CE;
+    }
+
+    .char-card-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .record-item.rarity-SSR .char-card-box {
+      background: var(--accent-gold-bg);
+      color: var(--accent-gold);
+      border-color: rgba(232, 184, 109, 0.7);
+    }
+
+    .record-item.is-lost .char-card-box {
+      background: #FEE8E8;
+      color: var(--accent-red);
+      border-color: rgba(217, 83, 79, 0.6);
+    }
+
+    .record-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .info-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .char-name {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .record-item.is-lost .char-name {
+      color: var(--accent-red);
+    }
+
+    .tag-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag-up {
+      background: var(--accent-gold);
+      color: #FFF;
+    }
+
+    .tag-lost {
+      background: var(--accent-red);
+      color: #FFF;
+    }
+
+    .info-sub {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .pull-count {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-right: 14px;
+      text-align: right;
+    }
+
+    .record-item.rarity-SSR .pull-count {
+      color: var(--accent-gold);
+    }
+
+    .record-item.is-lost .pull-count {
+      color: var(--accent-red);
+    }
+
+    .btn-del-record {
+      background: transparent;
+      border: none;
+      color: #C5BCB3;
+      font-size: 20px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    /* 底部操作 */
+    .bottom-bar {
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action-tool {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 8px 0;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .fab {
+      position: fixed;
+      right: 20px;
+      bottom: 28px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #796A5B;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      border: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 99;
+    }
+
+    /* 弹窗样式 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1000;
+      display: none;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-panel {
+      background: var(--card-bg);
+      width: 100%;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 20px 20px 36px 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #FAF8F5;
+      font-size: 15px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .segmented-control {
+      display: flex;
+      gap: 8px;
+    }
+
+    .segment-opt {
+      flex: 1;
+      padding: 9px 0;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+      background: #FAF8F5;
+      color: var(--text-sub);
+    }
+
+    .segment-opt.selected {
+      background: var(--text-main);
+      color: #FFF;
+      border-color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: #796A5B;
+      color: #FFF;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .empty-placeholder {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+
+    /* 弹窗内 3:4 密探上传控件 */
+    .avatar-uploader-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FAF8F5;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--border-color);
+    }
+
+    .preview-box-3-4 {
+      width: 51px;
+      aspect-ratio: 3 / 4;
+      border-radius: 6px;
+      background: #EFE9E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      font-size: 11px;
+    }
+
+    .preview-box-3-4 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .uploader-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .btn-upload-fake {
+      background: #E8E1D9;
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-clear-photo {
+      background: none;
+      border: none;
+      color: var(--accent-red);
+      font-size: 11px;
+      cursor: pointer;
+      text-align: left;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav-tabs">
+    <div class="nav-tab-btn active" id="tabStandardBtn" onclick="window.switchMainPool('standard')">绣衣楼密招 (普池)</div>
+    <div class="nav-tab-btn" id="tabLimitedBtn" onclick="window.switchMainPool('limited')">限定特命 (活动池)</div>
+  </header>
+
+  <main class="container">
+    <!-- 限定池横向卡池条 -->
+    <section class="sub-tabs-wrapper" id="limitedPoolBar" style="display: none;">
+      <div class="sub-tabs-scroll" id="poolTagList"></div>
+      <button class="btn-create-pool" onclick="window.promptNewPool()">+ 设新池</button>
+    </section>
+
+    <!-- 横屏 (16:9) 卡池 Banner 封面区域（单卡池选中时展示） -->
+    <section class="pool-banner-card" id="poolBannerSection" style="display: none;">
+      <div class="pool-banner-wrapper" id="poolBannerWrapper" onclick="document.getElementById('bannerFileInput').click()">
+        <div class="pool-banner-tip" id="poolBannerPlaceholder">
+          🖼️ 点击上传横屏卡池海报 (16:9)
+        </div>
+        <img id="poolBannerImg" style="display: none;" src="" alt="卡池横幅海报">
+      </div>
+      <div class="pool-banner-tools">
+        <button class="btn-banner-action" onclick="document.getElementById('bannerFileInput').click()">更换封面</button>
+        <button class="btn-banner-action danger" id="btnRemoveBanner" style="display: none;" onclick="window.removePoolBanner()">移除封面</button>
+      </div>
+      <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="window.handleBannerUpload(event)">
+    </section>
+
+    <!-- 普池统计卡片 -->
+    <section class="stat-card" id="standardStats">
+      <div class="stat-header"><div class="stat-title">普池概况统计</div></div>
+      <div class="stat-grid">
+        <div class="stat-item"><span class="stat-val" id="stdTotalPulls">0</span><span class="stat-label">招募总次数</span></div>
+        <div class="stat-item"><span class="stat-val" id="stdSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
+        <div class="stat-item"><span class="stat-val" id="stdAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
+      </div>
+    </section>
+
+    <!-- 限定池统计卡片组 -->
+    <section id="limitedStatsContainer" style="display: none;">
+      <div class="stat-card">
+        <div class="stat-header"><div class="stat-title">限定池总体统计 (全部池)</div></div>
+        <div class="stat-grid">
+          <div class="stat-item"><span class="stat-val" id="lmtTotalPulls">0</span><span class="stat-label">总招募次数</span></div>
+          <div class="stat-item"><span class="stat-val" id="lmtSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
+          <div class="stat-item"><span class="stat-val" id="lmtAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
+          <div class="stat-item"><span class="stat-val" id="lmtUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+          <div class="stat-item span-2"><span class="stat-val" id="lmtWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+        </div>
+      </div>
+
+      <div class="stat-card" id="singlePoolStatsCard" style="display: none;">
+        <div class="stat-header">
+          <div class="stat-title" id="singlePoolTitle">单池表现</div>
+          <button class="stat-action-del" onclick="window.deleteCurrentPool()">注销此池</button>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-item"><span class="stat-val" id="curTotalPulls">0</span><span class="stat-label">该池总次数</span></div>
+          <div class="stat-item"><span class="stat-val" id="curSsrPulls">0</span><span class="stat-label">绝密数</span></div>
+          <div class="stat-item"><span class="stat-val" id="curAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
+          <div class="stat-item"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+          <div class="stat-item span-2"><span class="stat-val" id="curWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 记录明细列表 -->
+    <section class="record-list" id="recordListContainer"></section>
+
+    <!-- 底部操作 -->
+    <footer class="bottom-bar">
+      <button class="btn-action-tool" onclick="window.exportDataJSON()">导出备份</button>
+      <button class="btn-action-tool" onclick="window.triggerImportJSON()">导入备份</button>
+      <button class="btn-action-tool" onclick="window.clearCurrentPoolData()">清空当前池</button>
+      <input type="file" id="jsonFileInput" style="display: none;" accept=".json" onchange="window.importDataJSON(event)" />
+    </footer>
+  </main>
+
+  <button class="fab" onclick="window.openAddModal()">+</button>
+
+  <!-- 录入面板 -->
+  <div class="modal-overlay" id="recordModal" onclick="window.closeModalOnBg(event)">
+    <div class="modal-panel" onclick="event.stopPropagation()">
+      <div class="modal-title">登记密探招募</div>
+
+      <div class="form-group" id="groupPoolSelect" style="display: none;">
+        <label class="form-label">所属活动池</label>
+        <select class="form-select" id="inputRecordPool"></select>
+      </div>
+
+      <!-- 3:4 密探立绘上传 -->
+      <div class="form-group">
+        <label class="form-label">密探立绘 (3:4 照片)</label>
+        <div class="avatar-uploader-row">
+          <div class="preview-box-3-4" id="avatarPreviewBox">3:4 无像</div>
+          <div class="uploader-actions">
+            <label class="btn-upload-fake" for="avatarInputFile">选择立绘照片</label>
+            <input type="file" id="avatarInputFile" accept="image/*" style="display:none;" onchange="window.handleAvatarSelect(event)">
+            <button class="btn-clear-photo" id="btnClearAvatar" onclick="window.clearAvatarPreview()">移除立绘</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">密探名录</label>
+        <input type="text" class="form-input" id="inputCharName" placeholder="例如：傅融 / 孙策">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">招募机密级别</label>
+        <div class="segmented-control">
+          <div class="segment-opt selected" id="optSSR" onclick="window.selectRarity('绝密')">绝密 (SSR)</div>
+          <div class="segment-opt" id="optSR" onclick="window.selectRarity('密探')">密探 (SR/R)</div>
+        </div>
+      </div>
+
+      <div class="form-group" id="groupUpSetting" style="display: none;">
+        <label class="form-label">限定机制归属</label>
+        <div class="segmented-control">
+          <div class="segment-opt selected" id="optIsUp" onclick="window.selectUpState(true)">当期UP</div>
+          <div class="segment-opt" id="optIsLost" onclick="window.selectUpState(false)">歪了</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">抽中时所耗步数（第几抽出的）</label>
+        <input type="number" class="form-input" id="inputPulls" placeholder="如 10、50、80" inputmode="numeric">
+      </div>
+
+      <button class="btn-submit" onclick="window.submitRecord()">录入密卷</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'Yuan_Gacha_App_Data_v5';
+      let appData = { 
+        standard: [], 
+        limitedPools: [], 
+        poolBanners: {}, // { [poolName]: base64Data } 存储 16:9 横屏海报
+        limited: [] 
+      };
+
+      let activeTab = 'standard';
+      let currentSelectedPool = 'ALL';
+      let formRarity = '绝密';
+      let formIsUp = true;
+      let currentAvatarBase64 = ''; // 暂存 3:4 密探立绘
+
+      function loadData() {
+        try {
+          const cache = localStorage.getItem(STORAGE_KEY);
+          if (cache) {
+            const parsed = JSON.parse(cache);
+            appData = {
+              standard: parsed.standard || [],
+              limitedPools: parsed.limitedPools || [],
+              poolBanners: parsed.poolBanners || {},
+              limited: parsed.limited || []
+            };
+          }
+        } catch (e) {
+          console.warn('本地缓存读取失败');
+        }
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        } catch (e) {
+          alert('存储空间不足，请导出备份或清理部分图片。');
+        }
+        render();
+      }
+
+      /* 统一图片按指定比例居中裁剪与压缩引擎 */
+      function cropAndCompressImage(file, aspectWidth, aspectHeight, targetW, quality, callback) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const targetH = Math.round(targetW * (aspectHeight / aspectWidth));
+            canvas.width = targetW;
+            canvas.height = targetH;
+
+            let srcW = img.width;
+            let srcH = img.height;
+            let sx = 0, sy = 0;
+
+            const targetRatio = aspectWidth / aspectHeight;
+            const srcRatio = srcW / srcH;
+
+            if (srcRatio > targetRatio) {
+              const newSrcW = srcH * targetRatio;
+              sx = (srcW - newSrcW) / 2;
+              srcW = newSrcW;
+            } else {
+              const newSrcH = srcW / targetRatio;
+              sy = (srcH - newSrcH) / 2;
+              srcH = newSrcH;
+            }
+
+            ctx.drawImage(img, sx, sy, srcW, srcH, 0, 0, targetW, targetH);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+            callback(compressedBase64);
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      /* 处理 16:9 横屏卡池 Banner 上传 */
+      window.handleBannerUpload = function(e) {
+        const file = e.target.files[0];
+        if (!file || currentSelectedPool === 'ALL') return;
+
+        // 16:9 横屏规格：640 x 360，兼顾手机端清晰度与存储
+        cropAndCompressImage(file, 16, 9, 640, 0.85, function(base64) {
+          appData.poolBanners[currentSelectedPool] = base64;
+          saveData();
+        });
+        e.target.value = '';
+      };
+
+      window.removePoolBanner = function() {
+        if (currentSelectedPool !== 'ALL' && appData.poolBanners[currentSelectedPool]) {
+          delete appData.poolBanners[currentSelectedPool];
+          saveData();
+        }
+      };
+
+      /* 处理 3:4 密探立绘照片上传 */
+      window.handleAvatarSelect = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 3:4 竖屏规格：150 x 200
+        cropAndCompressImage(file, 3, 4, 150, 0.85, function(base64) {
+          currentAvatarBase64 = base64;
+          const previewBox = document.getElementById('avatarPreviewBox');
+          previewBox.innerHTML = `<img src="${currentAvatarBase64}">`;
+          document.getElementById('btnClearAvatar').style.display = 'inline-block';
+        });
+        e.target.value = '';
+      };
+
+      window.clearAvatarPreview = function() {
+        currentAvatarBase64 = '';
+        document.getElementById('avatarPreviewBox').innerHTML = '3:4 无像';
+        document.getElementById('btnClearAvatar').style.display = 'none';
+      };
+
+      window.switchMainPool = function(tab) {
+        activeTab = tab;
+        document.getElementById('tabStandardBtn').classList.toggle('active', tab === 'standard');
+        document.getElementById('tabLimitedBtn').classList.toggle('active', tab === 'limited');
+        document.getElementById('standardStats').style.display = tab === 'standard' ? 'block' : 'none';
+        document.getElementById('limitedStatsContainer').style.display = tab === 'limited' ? 'block' : 'none';
+        document.getElementById('limitedPoolBar').style.display = tab === 'limited' ? 'flex' : 'none';
+        render();
+      };
+
+      function render() {
+        renderStats();
+        if (activeTab === 'limited') {
+          renderPoolTabs();
+          renderPoolBanner();
+        } else {
+          document.getElementById('poolBannerSection').style.display = 'none';
+        }
+        renderRecordList();
+      }
+
+      function renderPoolTabs() {
+        const container = document.getElementById('poolTagList');
+        container.innerHTML = '';
+
+        const allBtn = document.createElement('button');
+        allBtn.className = 'pill-btn ' + (currentSelectedPool === 'ALL' ? 'active' : '');
+        allBtn.innerText = '全部池';
+        allBtn.onclick = function() { currentSelectedPool = 'ALL'; render(); };
+        container.appendChild(allBtn);
+
+        appData.limitedPools.forEach(function(p) {
+          const btn = document.createElement('button');
+          btn.className = 'pill-btn ' + (currentSelectedPool === p ? 'active' : '');
+          btn.innerText = p;
+          btn.onclick = function() { currentSelectedPool = p; render(); };
+          container.appendChild(btn);
+        });
+      }
+
+      function renderPoolBanner() {
+        const bannerSection = document.getElementById('poolBannerSection');
+        if (currentSelectedPool === 'ALL') {
+          bannerSection.style.display = 'none';
+          return;
+        }
+
+        bannerSection.style.display = 'flex';
+        const img = document.getElementById('poolBannerImg');
+        const tip = document.getElementById('poolBannerPlaceholder');
+        const delBtn = document.getElementById('btnRemoveBanner');
+        const bannerData = appData.poolBanners[currentSelectedPool];
+
+        if (bannerData) {
+          img.src = bannerData;
+          img.style.display = 'block';
+          tip.style.display = 'none';
+          delBtn.style.display = 'inline-block';
+        } else {
+          img.src = '';
+          img.style.display = 'none';
+          tip.style.display = 'block';
+          delBtn.style.display = 'none';
+        }
+      }
+
+      function renderStats() {
+        if (activeTab === 'standard') {
+          const total = appData.standard.reduce((acc, r) => acc + Number(r.pulls), 0);
+          const ssrList = appData.standard.filter(r => r.rarity === '绝密');
+          const ssrCount = ssrList.length;
+          document.getElementById('stdTotalPulls').innerText = total;
+          document.getElementById('stdSsrPulls').innerText = ssrCount;
+          document.getElementById('stdAvgPulls').innerText = ssrCount > 0 ? (total / ssrCount).toFixed(1) : '0.0';
+        } else {
+          const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
+          const allSsr = appData.limited.filter(r => r.rarity === '绝密');
+          const allSsrCount = allSsr.length;
+          const allUpCount = allSsr.filter(r => r.isUp).length;
+          document.getElementById('lmtTotalPulls').innerText = allTotal;
+          document.getElementById('lmtSsrPulls').innerText = allSsrCount;
+          document.getElementById('lmtAvgPulls').innerText = allSsrCount > 0 ? (allTotal / allSsrCount).toFixed(1) : '0.0';
+          document.getElementById('lmtUpPulls').innerText = allUpCount;
+          document.getElementById('lmtWinRate').innerText = allSsrCount > 0 ? ((allUpCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
+
+          const singleCard = document.getElementById('singlePoolStatsCard');
+          if (currentSelectedPool !== 'ALL') {
+            singleCard.style.display = 'block';
+            document.getElementById('singlePoolTitle').innerText = '卡池: ' + currentSelectedPool;
+            const list = appData.limited.filter(r => r.poolName === currentSelectedPool);
+            const poolTotal = list.reduce((acc, r) => acc + Number(r.pulls), 0);
+            const poolSsr = list.filter(r => r.rarity === '绝密');
+            const poolSsrCount = poolSsr.length;
+            const poolUpCount = poolSsr.filter(r => r.isUp).length;
+            document.getElementById('curTotalPulls').innerText = poolTotal;
+            document.getElementById('curSsrPulls').innerText = poolSsrCount;
+            document.getElementById('curAvgPulls').innerText = poolSsrCount > 0 ? (poolTotal / poolSsrCount).toFixed(1) : '0.0';
+            document.getElementById('curUpPulls').innerText = poolUpCount;
+            document.getElementById('curWinRate').innerText = poolSsrCount > 0 ? ((poolUpCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
+          } else {
+            singleCard.style.display = 'none';
+          }
+        }
+      }
+
+      function renderRecordList() {
+        const container = document.getElementById('recordListContainer');
+        container.innerHTML = '';
+        let list = (activeTab === 'standard') 
+          ? [...appData.standard] 
+          : (currentSelectedPool === 'ALL' ? [...appData.limited] : appData.limited.filter(r => r.poolName === currentSelectedPool));
+
+        list.sort((a, b) => b.timestamp - a.timestamp);
+
+        if (list.length === 0) {
+          container.innerHTML = '<div class="empty-placeholder">暂无密探出仕记录</div>';
+          return;
+        }
+
+        list.forEach(function(item) {
+          const node = document.createElement('div');
+          const isSsr = item.rarity === '绝密';
+          const isLost = activeTab === 'limited' && isSsr && !item.isUp;
+          const isUp = activeTab === 'limited' && isSsr && item.isUp;
+
+          node.className = 'record-item ' + (isSsr ? 'rarity-SSR ' : ' ') + (isLost ? 'is-lost' : '');
+          
+          const avatarHtml = item.avatar 
+            ? `<img src="${item.avatar}">` 
+            : (item.name.slice(0, 1) || '秘');
+
+          node.innerHTML = `
+            <div class="char-card-box">${avatarHtml}</div>
+            <div class="record-info">
+              <div class="info-top">
+                <span class="char-name">${item.name}</span>
+                ${isUp ? '<span class="tag-badge tag-up">UP</span>' : ''}
+                ${isLost ? '<span class="tag-badge tag-lost">歪</span>' : ''}
+              </div>
+              <div class="info-sub">${activeTab === 'limited' ? '[' + item.poolName + '] · ' : ''}${item.rarity}</div>
+            </div>
+            <div class="pull-count">${item.pulls} 抽</div>
+            <button class="btn-del-record" onclick="window.deleteRecord('${item.id}')">&times;</button>
+          `;
+          container.appendChild(node);
+        });
+      }
+
+      window.openAddModal = function() {
+        document.getElementById('inputCharName').value = '';
+        document.getElementById('inputPulls').value = '';
+        window.clearAvatarPreview();
+        window.selectRarity('绝密');
+        window.selectUpState(true);
+
+        const poolGroup = document.getElementById('groupPoolSelect');
+        const poolSelect = document.getElementById('inputRecordPool');
+        poolSelect.innerHTML = '';
+
+        if (activeTab === 'limited') {
+          if (appData.limitedPools.length === 0) {
+            alert('请先点击上方「+ 设新池」建立限定活动池。');
+            window.promptNewPool();
+            return;
+          }
+          poolGroup.style.display = 'block';
+          appData.limitedPools.forEach(function(p) {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.innerText = p;
+            if (currentSelectedPool !== 'ALL' && currentSelectedPool === p) opt.selected = true;
+            poolSelect.appendChild(opt);
+          });
+        } else {
+          poolGroup.style.display = 'none';
+        }
+
+        document.getElementById('recordModal').classList.add('active');
+      };
+
+      window.closeModalOnBg = function(e) {
+        document.getElementById('recordModal').classList.remove('active');
+      };
+
+      window.selectRarity = function(r) {
+        formRarity = r;
+        document.getElementById('optSSR').classList.toggle('selected', r === '绝密');
+        document.getElementById('optSR').classList.toggle('selected', r === '密探');
+        document.getElementById('groupUpSetting').style.display = (activeTab === 'limited' && r === '绝密') ? 'block' : 'none';
+      };
+
+      window.selectUpState = function(isUp) {
+        formIsUp = isUp;
+        document.getElementById('optIsUp').classList.toggle('selected', isUp);
+        document.getElementById('optIsLost').classList.toggle('selected', !isUp);
+      };
+
+      window.submitRecord = function() {
+        const name = document.getElementById('inputCharName').value.trim();
+        const pulls = parseInt(document.getElementById('inputPulls').value, 10);
+        if (!name) return alert('请填入密探名字');
+        if (isNaN(pulls) || pulls <= 0) return alert('请填入有效抽数');
+
+        const item = {
+          id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+          name: name,
+          avatar: currentAvatarBase64 || '', 
+          rarity: formRarity,
+          pulls: pulls,
+          timestamp: Date.now()
+        };
+
+        if (activeTab === 'standard') {
+          appData.standard.push(item);
+        } else {
+          item.poolName = document.getElementById('inputRecordPool').value;
+          item.isUp = formRarity === '绝密' ? formIsUp : false;
+          appData.limited.push(item);
+        }
+
+        saveData();
+        document.getElementById('recordModal').classList.remove('active');
+      };
+
+      window.deleteRecord = function(id) {
+        if (!confirm('确认删除此条招募记录？')) return;
+        if (activeTab === 'standard') {
+          appData.standard = appData.standard.filter(r => r.id !== id);
+        } else {
+          appData.limited = appData.limited.filter(r => r.id !== id);
+        }
+        saveData();
+      };
+
+      window.promptNewPool = function() {
+        const p = prompt('请输入新限定卡池名称：');
+        if (!p || !p.trim()) return;
+        const clean = p.trim();
+        if (appData.limitedPools.indexOf(clean) !== -1) return alert('该卡池已存在');
+        appData.limitedPools.push(clean);
+        currentSelectedPool = clean;
+        saveData();
+      };
+
+      window.deleteCurrentPool = function() {
+        if (currentSelectedPool === 'ALL') return;
+        if (!confirm('确认彻底注销「' + currentSelectedPool + '」及其所有封面和记录吗？')) return;
+        
+        delete appData.poolBanners[currentSelectedPool];
+        appData.limitedPools = appData.limitedPools.filter(p => p !== currentSelectedPool);
+        appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
+        currentSelectedPool = 'ALL';
+        saveData();
+      };
+
+      window.clearCurrentPoolData = function() {
+        if (!confirm('确认清空当前卡池的数据记录吗？')) return;
+        if (activeTab === 'standard') {
+          appData.standard = [];
+        } else {
+          if (currentSelectedPool === 'ALL') appData.limited = [];
+          else appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
+        }
+        saveData();
+      };
+
+      window.exportDataJSON = function() {
+        const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '代号鸢招募数据_' + new Date().toISOString().slice(0, 10) + '.json';
+        a.click();
+      };
+
+      window.triggerImportJSON = function() {
+        document.getElementById('jsonFileInput').click();
+      };
+
+      window.importDataJSON = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          try {
+            const data = JSON.parse(evt.target.result);
+            appData = {
+              standard: data.standard || [],
+              limitedPools: data.limitedPools || [],
+              poolBanners: data.poolBanners || {},
+              limited: data.limited || []
+            };
+            saveData();
+            alert('数据导入成功');
+          } catch(err) {
+            alert('JSON 文件损坏或格式错误');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      };
+
+      loadData();
+      render();
+    })();
+  </script>
+</body>
+</html>
