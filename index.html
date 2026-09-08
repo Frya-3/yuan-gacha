@@ -286,7 +286,7 @@
     <section class="pool-select-trigger" id="poolSelectTrigger" style="display: none;" onclick="window.openPoolDrawer()">
       <div class="trigger-info">
         <span class="trigger-title" id="curPoolDisplayTitle">全部限定卡池 (汇总)</span>
-        <span class="trigger-sub" id="curPoolDisplaySub">点击向下滑动浏览及切换 53 个限定卡池</span>
+        <span class="trigger-sub" id="curPoolDisplaySub">点击向下滑动浏览及切换限定卡池</span>
       </div>
       <div class="trigger-icon">▼ 选池</div>
     </section>
@@ -541,12 +541,12 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v7';
+      const DB_NAME = 'YuanGachaDatabase_v8';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      // 53 个全量限定卡池（全面规范起止年限至 YYYY-MM-DD 便于日历回显）
+      // 54 个全量限定卡池（年份从 2023 ~ 2026 全面规范）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权" },
         { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉" },
@@ -628,9 +628,30 @@
         });
       }
 
+      // 从卡池周期文本提取用于排序的起始时间戳
+      function getPoolStartTimestamp(dateRange) {
+        if (!dateRange || dateRange === '未定' || dateRange === '历史活动') return 0;
+        const firstPart = dateRange.split('-')[0].trim().replace('起', '').trim();
+        const iso = parseDateToISO(firstPart);
+        if (!iso) return 0;
+        const time = new Date(iso).getTime();
+        return isNaN(time) ? 0 : time;
+      }
+
+      // 核心排序：时间新的在上方，时间早的在下方（降序）
+      function sortPoolsChronologically() {
+        if (!appData.pools) return;
+        appData.pools.sort((a, b) => {
+          const timeA = getPoolStartTimestamp(a.dateRange);
+          const timeB = getPoolStartTimestamp(b.dateRange);
+          return timeB - timeA;
+        });
+      }
+
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
+        // 自动提取招募记录里出现的所有池名
         if (appData.limited && appData.limited.length > 0) {
           appData.limited.forEach(rec => {
             if (rec.poolName && !appData.pools.some(p => p.name === rec.poolName)) {
@@ -638,21 +659,29 @@
               if (match) {
                 appData.pools.push({ name: rec.poolName, dateRange: match.dateRange, upChars: match.upChars });
               } else {
-                appData.pools.push({ name: rec.poolName, dateRange: '历史录入', upChars: '自定义活动' });
+                appData.pools.push({ name: rec.poolName, dateRange: '2023.01.01 起', upChars: '自定义活动' });
               }
             }
           });
         }
 
+        // 补齐预设官方池
         MASTER_PRESET_POOLS.forEach(pre => {
           const existing = appData.pools.find(p => p.name === pre.name || p.name.includes(pre.name) || pre.name.includes(p.name));
           if (!existing) {
             appData.pools.push(pre);
           } else {
-            if (!existing.dateRange || existing.dateRange === '未定') existing.dateRange = pre.dateRange;
-            if (!existing.upChars || existing.upChars === '未设') existing.upChars = pre.upChars;
+            if (!existing.dateRange || existing.dateRange === '未定' || existing.dateRange.length < 12) {
+              existing.dateRange = pre.dateRange;
+            }
+            if (!existing.upChars || existing.upChars === '未设') {
+              existing.upChars = pre.upChars;
+            }
           }
         });
+
+        // 严格按时间排列
+        sortPoolsChronologically();
       }
 
       function loadData() {
@@ -668,6 +697,7 @@
               saveData().then(resolve);
             } else {
               appData.pools = [...MASTER_PRESET_POOLS];
+              sortPoolsChronologically();
               saveData().then(resolve);
             }
           };
@@ -678,6 +708,7 @@
       function saveData() {
         return new Promise((resolve) => {
           if (!dbInstance) return resolve();
+          sortPoolsChronologically();
           const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
           store.put(appData, 'root_data');
@@ -787,6 +818,7 @@
         };
         drawerList.appendChild(allItem);
 
+        // 已经按时间排好序：上方为最新，下方为早年
         appData.pools.forEach(function(p) {
           const item = document.createElement('div');
           item.className = 'pool-drawer-item ' + (currentSelectedPool === p.name ? 'active' : '');
@@ -809,7 +841,6 @@
         render();
       };
 
-      // 解析如 "2023.04.06 - 2023.05.22" 或 "4.6 - 5.22" 为标准 YYYY-MM-DD
       function parseDateToISO(str) {
         if (!str) return '';
         const cleaned = str.trim().replace(/\./g, '-').replace(/\//g, '-');
@@ -827,7 +858,6 @@
         return '';
       }
 
-      /* 打开新建卡池弹窗 */
       window.openCreatePoolModal = function() {
         window.closeModal('poolDrawerModal');
         document.getElementById('poolModalTitle').innerText = '开辟新限定卡池';
@@ -842,7 +872,6 @@
         document.getElementById('createPoolModal').classList.add('active');
       };
 
-      /* 打开编辑指定卡池弹窗 */
       window.openEditPoolModalByName = function(poolName) {
         const pool = appData.pools.find(p => p.name === poolName);
         if (!pool) return;
@@ -855,7 +884,6 @@
         document.getElementById('newPoolNameInput').value = pool.name;
         document.getElementById('newPoolCharsInput').value = pool.upChars || '';
 
-        // 智能回显 Mini 日历
         if (pool.dateRange && pool.dateRange.includes('-')) {
           const splitArr = pool.dateRange.split('-');
           document.getElementById('poolStartDateInput').value = parseDateToISO(splitArr[0]);
@@ -874,7 +902,6 @@
         }
       };
 
-      /* 统一提交新建或修改卡池 */
       window.submitPoolForm = function() {
         const originalName = document.getElementById('editingPoolOriginalName').value;
         const name = document.getElementById('newPoolNameInput').value.trim();
@@ -884,7 +911,6 @@
 
         if (!name) return alert('卡池名录不可为空');
 
-        // 生成规范友好的日期周期字符串
         let dateRangeStr = '未定';
         if (startVal && endVal) {
           dateRangeStr = `${startVal.replace(/-/g, '.')} - ${endVal.replace(/-/g, '.')}`;
@@ -893,7 +919,6 @@
         }
 
         if (originalName) {
-          // 编辑模式
           if (name !== originalName && appData.pools.some(p => p.name === name)) {
             return alert('已存在同名的其他限定池，请换一个名称');
           }
@@ -905,7 +930,6 @@
             targetPool.upChars = upChars;
           }
 
-          // 级联同步：同步关联修改过的旧池名与所有招募记录/海报
           if (name !== originalName) {
             appData.limited.forEach(rec => {
               if (rec.poolName === originalName) rec.poolName = name;
@@ -919,9 +943,9 @@
             }
           }
         } else {
-          // 新建模式
           if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
-          appData.pools.unshift({ name, dateRange: dateRangeStr, upChars });
+          // 插入新卡池，保存时将自动按时间插入对应顺序
+          appData.pools.push({ name, dateRange: dateRangeStr, upChars });
           currentSelectedPool = name;
         }
 
@@ -1100,6 +1124,7 @@
             return;
           }
           poolGroup.style.display = 'block';
+          // 卡池选项严格倒序排列（最新在上，最早在下）
           appData.pools.forEach(function(p) {
             const opt = document.createElement('option');
             opt.value = p.name;
@@ -1296,13 +1321,13 @@
             if (data.limitedPools && Array.isArray(data.limitedPools)) {
               data.limitedPools.forEach(oldName => {
                 if (!appData.pools.some(p => p.name === oldName)) {
-                  appData.pools.push({ name: oldName, dateRange: '历史活动', upChars: '未指定' });
+                  appData.pools.push({ name: oldName, dateRange: '2023.01.01 起', upChars: '未指定' });
                 }
               });
             }
 
             reconcilePools();
-            saveData().then(() => alert('全档案数据导入成功！历史卡池已全部自动收录恢复。'));
+            saveData().then(() => alert('全档案数据导入成功！历史卡池已按时间正序重新归位。'));
           } catch(err) {
             alert('JSON 文件格式损坏，无法恢复');
           }
