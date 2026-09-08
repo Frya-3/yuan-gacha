@@ -177,14 +177,14 @@
     .btn-edit-record, .btn-del-record { background: transparent; border: none; font-size: 16px; padding: 4px 6px; cursor: pointer; color: var(--text-sub); }
     .btn-del-record { color: #C5BCB3; }
 
-    /* 底部操作工具条 */
+    /* 底部操作 */
     .bottom-bar { margin-top: 24px; padding-top: 14px; border-top: 1px dashed var(--border-color); display: flex; gap: 10px; }
     .btn-action-tool { 
       flex: 1; background: var(--card-bg); border: 1px solid var(--border-color); 
       padding: 8px 0; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-sub); cursor: pointer; 
     }
 
-    /* 悬浮芭乐色加号按钮 */
+    /* 悬浮芭乐加号按钮 */
     .fab { 
       position: fixed; right: 20px; bottom: 28px; width: 56px; height: 56px; 
       border-radius: 50%; background: var(--color-flesh-sorbet); color: #FFFFFF; 
@@ -266,8 +266,9 @@
     <!-- 9:16 竖屏卡池海报展示区 -->
     <section class="pool-banner-card" id="poolBannerSection" style="display: none;">
       <div class="pool-poster-wrapper" id="poolPosterWrapper" onclick="document.getElementById('bannerFileInput').click()">
+        <!-- 文案微调：去掉“芭乐立绘/海报”，简洁明了 -->
         <div class="pool-poster-tip" id="poolPosterPlaceholder">
-          📷 点击导入<br>9:16 芭乐立绘/海报
+          📷 点击导入<br>9:16 海报
         </div>
         <img id="poolPosterImg" style="display: none;" src="" alt="卡池海报">
       </div>
@@ -391,7 +392,8 @@
 
       <div class="form-group">
         <label class="form-label">密探名录</label>
-        <input type="text" class="form-input" id="inputCharName" placeholder="例如：傅融 / 孙策">
+        <!-- 文案微调：例如：傅融 / 孙策 改为 例如：孙权 / 孙尚香 -->
+        <input type="text" class="form-input" id="inputCharName" placeholder="例如：孙权 / 孙尚香">
       </div>
 
       <div class="form-group">
@@ -502,7 +504,7 @@
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      // 两表深度合并后的 53 个全量限定卡池（包含首发活动与各期复刻卡池）
+      // 53 个全量限定卡池（整合首发活动与复刻卡池）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "4.6 - 5.22", upChars: "孙尚香、孙权" },
         { name: "鬼城之主", dateRange: "4.29 - 5.17", upChars: "张修、干吉" },
@@ -584,15 +586,13 @@
         });
       }
 
-      /* 统一卡池自愈与名称归一化对齐 */
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
-        // 1. 扫描当前所有的限定招募记录，只要存在记录里的池名，必须在 pools 中收录
+        // 自动提取招募记录里出现的所有池名
         if (appData.limited && appData.limited.length > 0) {
           appData.limited.forEach(rec => {
             if (rec.poolName && !appData.pools.some(p => p.name === rec.poolName)) {
-              // 尝试从全量预置池中匹配信息
               const match = MASTER_PRESET_POOLS.find(m => m.name === rec.poolName || rec.poolName.includes(m.name) || m.name.includes(rec.poolName));
               if (match) {
                 appData.pools.push({ name: rec.poolName, dateRange: match.dateRange, upChars: match.upChars });
@@ -603,13 +603,12 @@
           });
         }
 
-        // 2. 将预设官方池完整补齐
+        // 补齐预设官方池
         MASTER_PRESET_POOLS.forEach(pre => {
           const existing = appData.pools.find(p => p.name === pre.name || p.name.includes(pre.name) || pre.name.includes(p.name));
           if (!existing) {
             appData.pools.push(pre);
           } else {
-            // 补齐元数据
             if (!existing.dateRange || existing.dateRange === '未定') existing.dateRange = pre.dateRange;
             if (!existing.upChars || existing.upChars === '未设') existing.upChars = pre.upChars;
           }
@@ -1144,7 +1143,6 @@
           try {
             const data = JSON.parse(evt.target.result);
             
-            // 兼容各种旧备份结构
             appData = {
               standard: data.standard || [],
               pools: data.pools || [],
@@ -1152,7 +1150,6 @@
               limited: data.limited || []
             };
 
-            // 如果旧备份里包含老版 string[] 格式的 limitedPools，转化为对象池
             if (data.limitedPools && Array.isArray(data.limitedPools)) {
               data.limitedPools.forEach(oldName => {
                 if (!appData.pools.some(p => p.name === oldName)) {
@@ -1161,7 +1158,6 @@
               });
             }
 
-            // 执行卡池自愈与记录池捕获，确保所有招募记录里的池子都 100% 被收录
             reconcilePools();
 
             saveData().then(() => alert('全档案数据导入成功！历史卡池已全部自动收录恢复。'));
