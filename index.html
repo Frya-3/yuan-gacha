@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>代号鸢 · 密探招募录</title>
 
-  <!-- iOS 主屏幕专属 App 配置与图标内嵌 -->
+  <!-- iOS 主屏幕专属 App 配置 -->
   <meta name="apple-mobile-web-app-title" content="密探招募录">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
-  <!-- 内嵌专属小纸人鸟图标 (免外链、即开即用) -->
   <link rel="apple-touch-icon" id="appleTouchIcon" href="">
   <link rel="apple-touch-icon-precomposed" id="appleTouchIconPre" href="">
   <link rel="icon" id="pageFavicon" type="image/png" href="">
 
   <style>
     :root {
-      /* 芭乐清甜主题色盘 */
+      /* 芭乐清甜主题调色盘 */
       --color-guava-blush:  #FDD7D0; 
       --color-peel-citron:  #EAE7B4; 
       --color-flesh-sorbet: #F19E96; 
@@ -50,7 +49,7 @@
       padding-bottom: 120px; 
     }
 
-    /* 顶部导航 */
+    /* 顶部导航 Tabs */
     .nav-tabs { 
       position: sticky; top: 0; z-index: 20; display: flex; 
       background: rgba(253, 249, 243, 0.95); 
@@ -178,14 +177,14 @@
     .btn-edit-record, .btn-del-record { background: transparent; border: none; font-size: 16px; padding: 4px 6px; cursor: pointer; color: var(--text-sub); }
     .btn-del-record { color: #C5BCB3; }
 
-    /* 底部操作 */
+    /* 底部操作工具条 */
     .bottom-bar { margin-top: 24px; padding-top: 14px; border-top: 1px dashed var(--border-color); display: flex; gap: 10px; }
     .btn-action-tool { 
       flex: 1; background: var(--card-bg); border: 1px solid var(--border-color); 
       padding: 8px 0; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-sub); cursor: pointer; 
     }
 
-    /* 悬浮芭乐加号按钮 */
+    /* 悬浮芭乐色加号按钮 */
     .fab { 
       position: fixed; right: 20px; bottom: 28px; width: 56px; height: 56px; 
       border-radius: 50%; background: var(--color-flesh-sorbet); color: #FFFFFF; 
@@ -253,7 +252,7 @@
     <section class="pool-select-trigger" id="poolSelectTrigger" style="display: none;" onclick="window.openPoolDrawer()">
       <div class="trigger-info">
         <span class="trigger-title" id="curPoolDisplayTitle">全部限定卡池 (汇总)</span>
-        <span class="trigger-sub" id="curPoolDisplaySub">点击向下滑动浏览及切换 38 个限定卡池</span>
+        <span class="trigger-sub" id="curPoolDisplaySub">点击向下滑动浏览及切换 53 个限定卡池</span>
       </div>
       <div class="trigger-icon">▼ 选池</div>
     </section>
@@ -422,41 +421,32 @@
 
   <script>
     (function() {
-      // 动态生成小纸人鸟高清矢量图标并绑定到 Apple-Touch-Icon
+      // 动态绘制并注入专属小纸人鸟 App 图标
       function generateAppIcon() {
         const canvas = document.createElement('canvas');
         canvas.width = 180;
         canvas.height = 180;
         const ctx = canvas.getContext('2d');
 
-        // 1. 绘制温润果肉奶橘底色
         ctx.fillStyle = '#FDD3B4';
         ctx.fillRect(0, 0, 180, 180);
 
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
 
-        // 2. 双腿
         ctx.strokeStyle = '#2B1E19';
         ctx.lineWidth = 9;
-        // 左腿
         ctx.beginPath();
-        ctx.moveTo(58, 142);
-        ctx.lineTo(48, 158);
-        ctx.lineTo(38, 157);
-        ctx.stroke();
-        // 右腿
-        ctx.beginPath();
-        ctx.moveTo(118, 140);
-        ctx.lineTo(122, 160);
-        ctx.lineTo(112, 162);
+        ctx.moveTo(58, 142); ctx.lineTo(48, 158); ctx.lineTo(38, 157);
         ctx.stroke();
 
-        // 3. 头顶标志性翘羽毛
+        ctx.beginPath();
+        ctx.moveTo(118, 140); ctx.lineTo(122, 160); ctx.lineTo(112, 162);
+        ctx.stroke();
+
         ctx.fillStyle = '#C8A97A';
         ctx.strokeStyle = '#2B1E19';
         ctx.lineWidth = 5.5;
-
         ctx.beginPath();
         ctx.moveTo(92, 60);
         ctx.bezierCurveTo(86, 25, 100, 8, 114, 10);
@@ -467,7 +457,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // 4. 身体白色肚皮圆团
         ctx.fillStyle = '#FCF8E9';
         ctx.strokeStyle = '#2B1E19';
         ctx.lineWidth = 6;
@@ -476,30 +465,24 @@
         ctx.fill();
         ctx.stroke();
 
-        // 5. 翅膀羽翼 (左侧黄棕色翅膀)
         ctx.fillStyle = '#C8A97A';
         ctx.beginPath();
         ctx.ellipse(56, 102, 26, 38, -0.25, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // 翅膀内侧细节弧线
         ctx.beginPath();
         ctx.moveTo(60, 84);
         ctx.bezierCurveTo(52, 94, 68, 102, 55, 118);
         ctx.stroke();
 
-        // 6. 胸前经典棕黑色大叉叉「X」
         ctx.strokeStyle = '#2B1E19';
         ctx.lineWidth = 14;
         ctx.beginPath();
-        ctx.moveTo(85, 94);
-        ctx.lineTo(122, 134);
-        ctx.moveTo(122, 94);
-        ctx.lineTo(85, 134);
+        ctx.moveTo(85, 94); ctx.lineTo(122, 134);
+        ctx.moveTo(122, 94); ctx.lineTo(85, 134);
         ctx.stroke();
 
-        // 7. 尾羽杂毛微小细节
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(144, 112); ctx.lineTo(151, 114);
@@ -514,50 +497,67 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v5';
+      const DB_NAME = 'YuanGachaDatabase_v6';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      const PRESET_POOLS = [
-        { name: "巧侧江东 (金窗绣户·孙策)", dateRange: "2023.4.6 - 5.24", upChars: "孙权、孙尚香" },
-        { name: "倾城之手 (桃源·刘辩)", dateRange: "2023.4.29 - 5.17", upChars: "张修、干吉" },
-        { name: "万翎化光 (鸟飞·左慈)", dateRange: "2023.6.8 - 7.19", upChars: "小乔、张仲景、张辽" },
-        { name: "山有扶苏 (三千宇宙)", dateRange: "2023.6.21 - 8.2", upChars: "许曼、周瑜、葛洪" },
-        { name: "王佐之才 (若书之说·袁基)", dateRange: "2023.8.3 - 9.13", upChars: "陆绩、庞统、荀彧" },
-        { name: "丹画同申 (袁氏祖宅·袁基)", dateRange: "2023.9.7 - 10.8", upChars: "蔡琰、张飞" },
-        { name: "龙日月 (乌云白云·傅融)", dateRange: "2023.9.28 - 11.8", upChars: "夏侯惇、张角、王异" },
-        { name: "甲符无方 (仙陨·左慈)", dateRange: "2023.11.9 - 12.6", upChars: "程昱、马超" },
-        { name: "落日未 (浮白与离光·刘辩)", dateRange: "2023.11.28 - 2024.1.8", upChars: "太史慈、张闿、公孙瓒" },
-        { name: "绝艳惊鸿 (广陵成长计划·傅融)", dateRange: "2023.12.21 - 2024.1.24", upChars: "徐庶、张郃" },
-        { name: "云隐惊蛰 (狐截尾·孙策)", dateRange: "2024.1.18 - 2.28", upChars: "甘宁、甄宓" },
-        { name: "行诸 (云梦巫乡·刘辩)", dateRange: "2024.2.22 - 3.20", upChars: "孔融、张鲁" },
-        { name: "天门草阁 (神游·傅融)", dateRange: "2024.3.14 - 4.24", upChars: "黄月英、张邈" },
-        { name: "白日天桑 (紫藤醉日·左慈)", dateRange: "2024.5.9 - 6.19", upChars: "曹植、董奉" },
-        { name: "云门清渊 (梦入浮生·孙策)", dateRange: "2024.5.25 - 6.28", upChars: "诸葛诞、诸葛瑾" },
-        { name: "二柄荆楚 (却扇歌·袁基)", dateRange: "2024.7.4 - 8.14", upChars: "荀攸、满宠" },
-        { name: "红尘惊旅 (极乐之宴·刘辩)", dateRange: "2024.8.29 - 10.9", upChars: "凌统、安期" },
-        { name: "逢刃不屈 (月海夜航船·袁基)", dateRange: "2024.9.12 - 10.16", upChars: "戏学、刘繇" },
-        { name: "一体虚盈 (剑剑剑来·左慈)", dateRange: "2024.11.7 - 12.4", upChars: "令狐茂、马腾" },
-        { name: "师子狩猊 (师子狩猊·孙策)", dateRange: "2024.11.15 - 12.29", upChars: "朱然、黄盖" },
-        { name: "双魂同行 (双魂同行·傅融)", dateRange: "2024.12.12 - 12.25", upChars: "陈登·泰王、史子眇·赴烛" },
-        { name: "闪六云蒸 (璃魂月魂·左慈)", dateRange: "2025.1.9 - 2.19", upChars: "蒯越、祢衡" },
-        { name: "深水连燕 (斧·蝶·梦·刘辩)", dateRange: "2025.2.20 - 3.19", upChars: "张绣、刘豹" },
-        { name: "重山照见 (湖心之梦·傅融)", dateRange: "2025.3.13 - 4.23", upChars: "董白、张昭" },
-        { name: "踩兔蹑尾 (围城·孙策)", dateRange: "2025.4.30 - 6.11", upChars: "士燮、程普" },
-        { name: "莫其柳雪 (陶生·孙策)", dateRange: "2025.5.29 - 6.25", upChars: "虞翻、张燕" },
-        { name: "鼓钲钟 (盛宴·袁基)", dateRange: "2025.6.26 - 8.6", upChars: "钟繇、夏侯渊" },
-        { name: "紫电长飞 (灯之国·刘辩)", dateRange: "2025.8.21 - 10.1", upChars: "刘璋、庞羲" },
-        { name: "风中暮雨 (邺城之战·袁基)", dateRange: "2025.9.11 - 10.8", upChars: "周忠、吕布" },
-        { name: "不废 (欲追日影·左慈)", dateRange: "2025.10.16 - 11.26", upChars: "简雍、曹丕" },
-        { name: "白鹰归堂 (天下隐光·左慈)", dateRange: "2025.11.6 - 12.3", upChars: "诸葛亮、司马徽" },
-        { name: "诸景非我 (梦中雪·傅融)", dateRange: "2025.12.11 - 2026.1.21", upChars: "郭女王、蒯良" },
-        { name: "青心霜狱 (寒夜厄境·傅融)", dateRange: "2025.12.23 - 2026.1.19", upChars: "陈群、法正" },
-        { name: "气浮吹 (魇·刘辩)", dateRange: "2026.2.5 - 3.18", upChars: "酆公玖、酆公珠" },
-        { name: "垄身千霄 (咪教模拟器·刘辩)", dateRange: "2026.2.26 - 3.25", upChars: "庞德、卢植" },
-        { name: "影子阵阵 (欲影·谋影·袁基)", dateRange: "2026.4.2 - 5.13", upChars: "陈纪、陈应" },
-        { name: "含明隐迹 (去去找哀牢·孙策)", dateRange: "2026.5.21 - 6.17", upChars: "孟获、孙静" },
-        { name: "青椿赫赫 (千觞红·孙策)", dateRange: "2026.5.28 - 7.8", upChars: "张纮、列辅" }
+      // 两表深度合并后的 53 个全量限定卡池（包含首发活动与各期复刻卡池）
+      const MASTER_PRESET_POOLS = [
+        { name: "弓剑江东", dateRange: "4.6 - 5.22", upChars: "孙尚香、孙权" },
+        { name: "鬼城之主", dateRange: "4.29 - 5.17", upChars: "张修、干吉" },
+        { name: "异才奇士复刻", dateRange: "5.25 - 6.20", upChars: "王粲、郭嘉" },
+        { name: "万物化光", dateRange: "6.8 - 7.19", upChars: "张辽、张仲景、小乔" },
+        { name: "山有扶苏", dateRange: "6.21 - 8.2", upChars: "周瑜、葛洪、许曼" },
+        { name: "四方顺时复刻", dateRange: "7.20 - 8.16", upChars: "华佗、郭解" },
+        { name: "王佐之才", dateRange: "8.3 - 9.13", upChars: "庞统、荀彧、陆绩" },
+        { name: "坐照运筹复刻", dateRange: "8.31 - 9.27", upChars: "贾诩、陆逊" },
+        { name: "诗画同律", dateRange: "9.7 - 10.8", upChars: "蔡琰、张飞" },
+        { name: "争光日月", dateRange: "9.28 - 11.8", upChars: "夏侯惇、张角、王异" },
+        { name: "度势攻心复刻", dateRange: "11.2 - 11.29", upChars: "杨修、吕蒙" },
+        { name: "出奇无穷", dateRange: "11.9 - 12.6", upChars: "程昱、马超" },
+        { name: "天曲日未", dateRange: "11.28 - 1.8", upChars: "太史慈、张闿、公孙瓒" },
+        { name: "扬矢摧锋复刻", dateRange: "12.14 - 12.27", upChars: "孙尚香、张辽" },
+        { name: "绝艳惊鸿", dateRange: "12.21 - 1.24", upChars: "徐庶、张郃" },
+        { name: "击金鸣鼓", dateRange: "1.18 - 2.28", upChars: "甘宁、甄宓" },
+        { name: "乘数而一复刻", dateRange: "2.6 - 2.19", upChars: "孙权、张仲景" },
+        { name: "闻斯行诸", dateRange: "2.22 - 3.20", upChars: "孔融、张鲁" },
+        { name: "天门启阖", dateRange: "3.14 - 4.24", upChars: "黄月英、张邈" },
+        { name: "谨司天英", dateRange: "5.9 - 6.19", upChars: "董奉、曹植" },
+        { name: "云雨滂润", dateRange: "5.25 - 6.28", upChars: "诸葛瑾、诸葛诞" },
+        { name: "二柄刑德", dateRange: "7.4 - 8.14", upChars: "满宠、荀攸" },
+        { name: "照以三光复刻", dateRange: "8.15 - 8.28", upChars: "张闿、张飞" },
+        { name: "腾陵张胆", dateRange: "8.29 - 10.9", upChars: "凌统、安期" },
+        { name: "逐奔不远", dateRange: "9.25 - 10.16", upChars: "刘繇、戏学" },
+        { name: "动如雷霆复刻", dateRange: "10.31 - 11.13", upChars: "张辽、马超" },
+        { name: "一体盈虚", dateRange: "11.7 - 12.4", upChars: "马腾、令狐茂" },
+        { name: "搏鸷缚虬", dateRange: "11.15 - 12.29", upChars: "朱然、黄盖" },
+        { name: "黍梦焚舟", dateRange: "12.12 - 12.25", upChars: "陈登·泰王、史子眇·赴烛" },
+        { name: "风兴云蒸", dateRange: "1.9 - 2.19", upChars: "蒯越、祢衡" },
+        { name: "火中取梦", dateRange: "1.23 - 2.5", upChars: "张郃、甄宓" },
+        { name: "深水逐鹿", dateRange: "2.20 - 3.19", upChars: "刘豹、张绣" },
+        { name: "白日昭只", dateRange: "3.13 - 4.23", upChars: "董白、张昭" },
+        { name: "燧象衔尾", dateRange: "4.30 - 6.11", upChars: "程普、士燮" },
+        { name: "暮燕翻雷", dateRange: "5.29 - 6.25", upChars: "虞翻、张燕" },
+        { name: "金相玉质", dateRange: "6.12 - 6.25", upChars: "孔融、黄月英" },
+        { name: "渊鼓铿钟", dateRange: "6.26 - 8.6", upChars: "夏侯渊、钟繇" },
+        { name: "劫烬灰飞", dateRange: "8.21 - 10.1", upChars: "刘璋、庞羲" },
+        { name: "以奉嘉觞", dateRange: "9.11 - 10.8", upChars: "周忠、吕布" },
+        { name: "游说贤士", dateRange: "9.30 - 10.29", upChars: "自选池" },
+        { name: "大和丕应", dateRange: "10.16 - 11.26", upChars: "曹丕、简雍" },
+        { name: "英徽弥亮", dateRange: "11.6 - 12.3", upChars: "诸葛亮、司马徽" },
+        { name: "动静非我", dateRange: "12.11 - 1.21", upChars: "蒯良、郭女王" },
+        { name: "持心离欲", dateRange: "12.23 - 1.5", upChars: "法正、陈群" },
+        { name: "琴载酒/洪匀玄", dateRange: "1.15 - 1.28", upChars: "孙尚香/葛洪/张飞" },
+        { name: "隋珠弹雀", dateRange: "2.5 - 3.18", upChars: "酆公珠、酆公玖" },
+        { name: "坐令千霄", dateRange: "2.26 - 3.25", upChars: "卢植、庞德" },
+        { name: "东阁待贤", dateRange: "3.30 - 4.28", upChars: "自选池" },
+        { name: "影迹陈陈", dateRange: "4.2 - 5.13", upChars: "陈纪、陈应" },
+        { name: "含明隐迹", dateRange: "5.21 - 6.17", upChars: "孙静、孟获" },
+        { name: "松桥辅德", dateRange: "5.28 - 7.8", upChars: "张松、孙辅" },
+        { name: "奉天华盖", dateRange: "7.9 - 7.22", upChars: "董奉、黄盖" },
+        { name: "诚之云乎", dateRange: "7.23 - 9.2", upChars: "司马孚、赵云" },
+        { name: "却月凌风", dateRange: "7.23 - 8.5", upChars: "黄月英、凌统" }
       ];
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
@@ -584,6 +584,38 @@
         });
       }
 
+      /* 统一卡池自愈与名称归一化对齐 */
+      function reconcilePools() {
+        if (!appData.pools) appData.pools = [];
+
+        // 1. 扫描当前所有的限定招募记录，只要存在记录里的池名，必须在 pools 中收录
+        if (appData.limited && appData.limited.length > 0) {
+          appData.limited.forEach(rec => {
+            if (rec.poolName && !appData.pools.some(p => p.name === rec.poolName)) {
+              // 尝试从全量预置池中匹配信息
+              const match = MASTER_PRESET_POOLS.find(m => m.name === rec.poolName || rec.poolName.includes(m.name) || m.name.includes(rec.poolName));
+              if (match) {
+                appData.pools.push({ name: rec.poolName, dateRange: match.dateRange, upChars: match.upChars });
+              } else {
+                appData.pools.push({ name: rec.poolName, dateRange: '历史录入', upChars: '自定义活动' });
+              }
+            }
+          });
+        }
+
+        // 2. 将预设官方池完整补齐
+        MASTER_PRESET_POOLS.forEach(pre => {
+          const existing = appData.pools.find(p => p.name === pre.name || p.name.includes(pre.name) || pre.name.includes(p.name));
+          if (!existing) {
+            appData.pools.push(pre);
+          } else {
+            // 补齐元数据
+            if (!existing.dateRange || existing.dateRange === '未定') existing.dateRange = pre.dateRange;
+            if (!existing.upChars || existing.upChars === '未设') existing.upChars = pre.upChars;
+          }
+        });
+      }
+
       function loadData() {
         return new Promise((resolve) => {
           const tx = dbInstance.transaction(STORE_NAME, 'readonly');
@@ -593,14 +625,10 @@
           req.onsuccess = function() {
             if (req.result) {
               appData = req.result;
-              PRESET_POOLS.forEach(pre => {
-                if (!appData.pools.some(p => p.name === pre.name)) {
-                  appData.pools.push(pre);
-                }
-              });
+              reconcilePools();
               saveData().then(resolve);
             } else {
-              appData.pools = [...PRESET_POOLS];
+              appData.pools = [...MASTER_PRESET_POOLS];
               saveData().then(resolve);
             }
           };
@@ -709,7 +737,7 @@
         allItem.className = 'pool-drawer-item ' + (currentSelectedPool === 'ALL' ? 'active' : '');
         allItem.innerHTML = `
           <div class="p-item-name">全部限定卡池 (汇总)</div>
-          <div class="p-item-meta">汇总全部 38+ 限定招募之机密档案</div>
+          <div class="p-item-meta">汇总全部 ${appData.pools.length} 个限定招募之机密档案</div>
         `;
         allItem.onclick = function() {
           currentSelectedPool = 'ALL';
@@ -752,7 +780,7 @@
         if (!name) return alert('卡池名录不可为空');
         if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
 
-        appData.pools.push({ name, dateRange, upChars });
+        appData.pools.unshift({ name, dateRange, upChars });
         currentSelectedPool = name;
         saveData();
         window.closeModal('createPoolModal');
@@ -777,7 +805,7 @@
 
         if (currentSelectedPool === 'ALL') {
           titleSpan.innerText = '全部限定卡池 (汇总)';
-          subSpan.innerText = `已录入 ${appData.pools.length} 个限定卡池 · 点击切换`;
+          subSpan.innerText = `已收录 ${appData.pools.length} 个限定卡池 · 点击切换`;
           metaBox.style.display = 'none';
         } else {
           const poolObj = appData.pools.find(p => p.name === currentSelectedPool);
@@ -1107,6 +1135,7 @@
         document.getElementById('jsonFileInput').click();
       };
 
+      /* 智能恢复：将备份数据导入，并执行卡池自动发现与收录 */
       window.importDataJSON = function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1114,15 +1143,30 @@
         reader.onload = function(evt) {
           try {
             const data = JSON.parse(evt.target.result);
+            
+            // 兼容各种旧备份结构
             appData = {
               standard: data.standard || [],
               pools: data.pools || [],
               poolBanners: data.poolBanners || {},
               limited: data.limited || []
             };
-            saveData().then(() => alert('全档案数据导入复原成功。'));
+
+            // 如果旧备份里包含老版 string[] 格式的 limitedPools，转化为对象池
+            if (data.limitedPools && Array.isArray(data.limitedPools)) {
+              data.limitedPools.forEach(oldName => {
+                if (!appData.pools.some(p => p.name === oldName)) {
+                  appData.pools.push({ name: oldName, dateRange: '历史活动', upChars: '未指定' });
+                }
+              });
+            }
+
+            // 执行卡池自愈与记录池捕获，确保所有招募记录里的池子都 100% 被收录
+            reconcilePools();
+
+            saveData().then(() => alert('全档案数据导入成功！历史卡池已全部自动收录恢复。'));
           } catch(err) {
-            alert('JSON 文件格式损坏');
+            alert('JSON 文件格式损坏，无法恢复');
           }
         };
         reader.readAsText(file);
