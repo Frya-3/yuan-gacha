@@ -148,7 +148,6 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-    /* 各类目对应专属马卡龙轻量配色 */
     .cat-限定       { background: #FFF0EE; color: var(--color-flesh-sorbet); border-color: var(--color-guava-blush); }
     .cat-自选限定   { background: #F6F3DF; color: #7B8528; border-color: var(--color-peel-citron); }
     .cat-复刻       { background: #F2F0ED; color: #73675E; border-color: #E2DBD3; }
@@ -188,7 +187,7 @@
       padding: 40px 12px; font-size: 13px; color: var(--text-sub); text-align: center; line-height: 1.6;
     }
 
-    /* 卡池详细描述徽章栏 */
+    /* 卡池元信息徽章栏 */
     .pool-meta-badge-box {
       background: rgba(234, 231, 180, 0.35); padding: 10px 14px;
       border-radius: var(--radius-md); margin-bottom: 14px;
@@ -480,11 +479,11 @@
       <input type="hidden" id="editingPoolOriginalName" value="">
       
       <div class="form-group">
-        <label class="form-label">卡池名录</label>
+        <label class="form-label">卡池名录 (四字名)</label>
         <input type="text" class="form-input" id="newPoolNameInput" placeholder="例如：提针引线 / 合纵连横">
       </div>
 
-      <!-- 横向滑动气泡类别选择器 (包含照影与各大地宫) -->
+      <!-- 横向滑动气泡类别选择器 -->
       <div class="form-group">
         <label class="form-label">所属类别（左右滑动选择）</label>
         <div class="chips-selector-scroll" id="poolCategoryChipsBar">
@@ -564,7 +563,6 @@
 
   <script>
     (function() {
-      // 9 大指定卡池类目（包含新表中的照影机制）
       const CATEGORY_LIST = [
         "限定", "复刻", "自选限定", "照影",
         "刘辩地宫", "傅融地宫", "袁基地宫", "左慈地宫", "孙策地宫"
@@ -572,7 +570,6 @@
 
       let formSelectedCategory = "限定";
 
-      // 绘制并注入专属小纸人鸟 App 图标
       function generateAppIcon() {
         const canvas = document.createElement('canvas');
         canvas.width = 180;
@@ -647,30 +644,30 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v11';
+      const DB_NAME = 'YuanGachaDatabase_v13';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      // 严格依据最新表格精准核准的 54 个全量限定卡池（含类别）
+      // 54 个全量权威卡池（已剔除 游说贤士、琴载酒/洪匀玄，全面规范为四字名）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "孙策地宫" },
         { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
-        { name: "异才奇士复刻", dateRange: "2023.05.25 - 2023.06.20", upChars: "王粲、郭嘉", category: "复刻" },
+        { name: "异才奇士", dateRange: "2023.05.25 - 2023.06.20", upChars: "王粲、郭嘉", category: "复刻" },
         { name: "万物化光", dateRange: "2023.06.08 - 2023.07.19", upChars: "张辽、张仲景、小乔", category: "左慈地宫" },
         { name: "山有扶苏", dateRange: "2023.06.21 - 2023.08.02", upChars: "周瑜、葛洪、许曼", category: "限定" },
-        { name: "四方顺时复刻", dateRange: "2023.07.20 - 2023.08.16", upChars: "华佗、郭解", category: "复刻" },
+        { name: "四方顺时", dateRange: "2023.07.20 - 2023.08.16", upChars: "华佗、郭解", category: "复刻" },
         { name: "王佐之才", dateRange: "2023.08.03 - 2023.09.13", upChars: "庞统、荀彧、陆绩", category: "袁基地宫" },
-        { name: "坐照运筹复刻", dateRange: "2023.08.31 - 2023.09.27", upChars: "贾诩、陆逊", category: "复刻" },
+        { name: "坐照运筹", dateRange: "2023.08.31 - 2023.09.27", upChars: "贾诩、陆逊", category: "复刻" },
         { name: "诗画同律", dateRange: "2023.09.07 - 2023.10.08", upChars: "蔡琰、张飞", category: "限定" },
         { name: "争光日月", dateRange: "2023.09.28 - 2023.11.08", upChars: "夏侯惇、张角、王异", category: "限定" },
-        { name: "度势攻心复刻", dateRange: "2023.11.02 - 2023.11.29", upChars: "杨修、吕蒙", category: "复刻" },
+        { name: "度势攻心", dateRange: "2023.11.02 - 2023.11.29", upChars: "杨修、吕蒙", category: "复刻" },
         { name: "出奇无穷", dateRange: "2023.11.09 - 2023.12.06", upChars: "程昱、马超", category: "限定" },
         { name: "天曲日未", dateRange: "2023.11.28 - 2024.01.08", upChars: "太史慈、张闿、公孙瓒", category: "刘辩地宫" },
-        { name: "扬矢摧锋", dateRange: "2023.12.14 - 2023.12.27", upChars: "复刻 孙尚香/张辽", category: "复刻" },
+        { name: "扬矢摧锋", dateRange: "2023.12.14 - 2023.12.27", upChars: "孙尚香、张辽", category: "复刻" },
         { name: "绝艳惊鸿", dateRange: "2023.12.21 - 2024.01.24", upChars: "徐庶、张郃", category: "限定" },
         { name: "击金鸣鼓", dateRange: "2024.01.18 - 2024.02.28", upChars: "甘宁、甄宓", category: "孙策地宫" },
-        { name: "乘数而一复刻", dateRange: "2024.02.06 - 2024.02.19", upChars: "孙权、张仲景", category: "复刻" },
+        { name: "乘数而一", dateRange: "2024.02.06 - 2024.02.19", upChars: "孙权、张仲景", category: "复刻" },
         { name: "闻斯行诸", dateRange: "2024.02.22 - 2024.03.20", upChars: "孔融、张鲁", category: "限定" },
         { name: "天门启阖", dateRange: "2024.03.14 - 2024.04.24", upChars: "黄月英、张邈", category: "限定" },
         { name: "谨司天英", dateRange: "2024.05.09 - 2024.06.19", upChars: "董奉、曹植", category: "左慈地宫" },
@@ -682,7 +679,7 @@
         { name: "动如雷霆", dateRange: "2024.10.31 - 2024.11.13", upChars: "张辽、马超", category: "复刻" },
         { name: "一体盈虚", dateRange: "2024.11.07 - 2024.12.04", upChars: "马腾、令狐茂", category: "限定" },
         { name: "搏鸷缚虬", dateRange: "2024.11.15 - 2024.12.29", upChars: "朱然、黄盖", category: "孙策地宫" },
-        { name: "黍梦焚舟", dateRange: "2024.12.12 - 2024.12.25", upChars: "泰王、史子眇·赴烛", category: "照影" },
+        { name: "黍梦焚舟", dateRange: "2024.12.12 - 2024.12.25", upChars: "黍王、史子眇·赴烛", category: "照影" },
         { name: "风兴云蒸", dateRange: "2025.01.09 - 2025.02.19", upChars: "蒯越、祢衡", category: "左慈地宫" },
         { name: "火中取梦", dateRange: "2025.01.23 - 2025.02.05", upChars: "张郃、甄宓", category: "复刻" },
         { name: "深水逐鹿", dateRange: "2025.02.20 - 2025.03.19", upChars: "刘豹、张绣", category: "限定" },
@@ -710,6 +707,21 @@
         { name: "诚之云乎", dateRange: "2026.07.23 - 2026.09.02", upChars: "司马孚、赵云", category: "傅融地宫" },
         { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统", category: "复刻" }
       ];
+
+      // 注销黑名单（永久彻底过滤，不再生成）
+      const BLACKLIST_POOLS = ["游说贤士", "琴载酒/洪匀玄"];
+
+      // 映射重定向
+      const NAME_ALIASES = {
+        "异才奇士复刻": "异才奇士",
+        "四方顺时复刻": "四方顺时",
+        "坐照运筹复刻": "坐照运筹",
+        "度势攻心复刻": "度势攻心",
+        "乘数而一复刻": "乘数而一",
+        "动如雷霆复刻": "动如雷霆",
+        "游说贤士": "求贤访士",
+        "琴载酒/洪匀玄": "抱琴载酒"
+      };
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
       let activeTab = 'standard';
@@ -773,27 +785,54 @@
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
-        // 1. 扫描记录里的卡池
+        // 1. 招募记录与封面键的旧名称平滑迁移
         if (appData.limited && appData.limited.length > 0) {
           appData.limited.forEach(rec => {
-            if (rec.poolName && !appData.pools.some(p => p.name === rec.poolName)) {
-              const match = MASTER_PRESET_POOLS.find(m => m.name === rec.poolName || rec.poolName.includes(m.name) || m.name.includes(rec.poolName));
-              if (match) {
-                appData.pools.push({ name: rec.poolName, dateRange: match.dateRange, upChars: match.upChars, category: match.category || "限定" });
-              } else {
-                appData.pools.push({ name: rec.poolName, dateRange: '2023.01.01 起', upChars: '自定义活动', category: "限定" });
-              }
+            if (rec.poolName && NAME_ALIASES[rec.poolName]) {
+              rec.poolName = NAME_ALIASES[rec.poolName];
+            }
+          });
+        }
+        if (appData.poolBanners) {
+          Object.keys(NAME_ALIASES).forEach(oldKey => {
+            if (appData.poolBanners[oldKey]) {
+              appData.poolBanners[NAME_ALIASES[oldKey]] = appData.poolBanners[oldKey];
+              delete appData.poolBanners[oldKey];
             }
           });
         }
 
-        // 2. 强力对齐：按官方权威表校正类别和日期
+        // 2. 清理黑名单注销卡池（游说贤士、琴载酒/洪匀玄）
+        BLACKLIST_POOLS.forEach(badPool => {
+          delete appData.poolBanners[badPool];
+          appData.pools = appData.pools.filter(p => p.name !== badPool);
+          if (currentSelectedPool === badPool) currentSelectedPool = 'ALL';
+        });
+
+        // 3. 本地卡池名剔除“复刻”字样与映射归一
+        appData.pools.forEach(p => {
+          if (NAME_ALIASES[p.name]) {
+            p.name = NAME_ALIASES[p.name];
+          } else if (p.name.endsWith('复刻') && p.name.length > 4) {
+            p.name = p.name.replace('复刻', '');
+          }
+        });
+
+        // 4. 去重并剔除黑名单卡池
+        const uniquePools = [];
+        appData.pools.forEach(p => {
+          if (!BLACKLIST_POOLS.includes(p.name) && !uniquePools.some(u => u.name === p.name)) {
+            uniquePools.push(p);
+          }
+        });
+        appData.pools = uniquePools;
+
+        // 5. 依据最新权威表校验全量卡池
         MASTER_PRESET_POOLS.forEach(pre => {
-          const existing = appData.pools.find(p => p.name === pre.name || p.name.includes(pre.name) || pre.name.includes(p.name));
+          const existing = appData.pools.find(p => p.name === pre.name);
           if (!existing) {
             appData.pools.push(pre);
           } else {
-            // 依据新表强制同步准确类别与起止时间
             existing.category = pre.category;
             existing.dateRange = pre.dateRange;
             existing.upChars = pre.upChars;
@@ -1460,8 +1499,9 @@
 
             if (data.limitedPools && Array.isArray(data.limitedPools)) {
               data.limitedPools.forEach(oldName => {
-                if (!appData.pools.some(p => p.name === oldName)) {
-                  appData.pools.push({ name: oldName, dateRange: '2023.01.01 起', upChars: '未指定', category: "限定" });
+                const normName = NAME_ALIASES[oldName] || (oldName.endsWith('复刻') ? oldName.replace('复刻', '') : oldName);
+                if (!appData.pools.some(p => p.name === normName)) {
+                  appData.pools.push({ name: normName, dateRange: '2023.01.01 起', upChars: '未指定', category: "限定" });
                 }
               });
             }
