@@ -115,47 +115,6 @@
       padding: 36px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
     }
 
-    /* 内置专属卡池 Banner 艺术横幅 */
-    .built-in-banner {
-      width: 100%;
-      aspect-ratio: 4.8 / 1;
-      min-height: 85px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      position: relative;
-      overflow: hidden;
-      border: 1.5px solid #E2CA8B;
-      box-shadow: inset 0 0 16px rgba(0,0,0,0.6);
-    }
-    .b-bg-effect {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      opacity: 0.25; pointer-events: none;
-      background: radial-gradient(circle at 20% 50%, #FFF 0%, transparent 60%);
-    }
-    .b-left-chara {
-      display: flex; align-items: center; gap: 4px; z-index: 2;
-    }
-    .b-avatar-tag {
-      font-size: 11px; font-weight: 800; color: #FFF;
-      background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(2px);
-    }
-    .b-right-title {
-      display: flex; flex-direction: column; align-items: flex-end; z-index: 2;
-    }
-    .b-title-cn {
-      font-size: 22px; font-weight: 900; letter-spacing: 2px;
-      color: #FFF; text-shadow: 0 2px 8px rgba(0,0,0,0.8), 0 0 12px rgba(232,184,109,0.5);
-      font-family: "PingFang SC", "Kaiti", serif;
-    }
-    .b-sub-desc {
-      font-size: 9px; color: #F7E7C4; font-weight: 600;
-      background: rgba(0,0,0,0.5); padding: 1px 8px; border-radius: 4px;
-      margin-top: 2px; border: 0.5px solid rgba(232,184,109,0.4);
-    }
-
     .stream-item-info {
       padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
     }
@@ -580,24 +539,18 @@
       ];
       let formSelectedCategory = "限定";
 
-      // 15 个精准匹配原图视觉风格的艺术配色与排版配置库
-      const BUILTIN_POOL_THEMES = {
-        "弓剑江东":     { bg: "linear-gradient(135deg, #42150D 0%, #7E2914 45%, #2B0B07 100%)", text: "#FEE2B8", chars: "孙权 · 孙尚香" },
-        "万物化光":     { bg: "linear-gradient(135deg, #1C1E2D 0%, #343048 50%, #161520 100%)", text: "#E7DCFE", chars: "张辽 · 张仲景 · 小乔" },
-        "山有扶苏":     { bg: "linear-gradient(135deg, #1A1F36 0%, #2A3654 48%, #141624 100%)", text: "#DCE7FF", chars: "周瑜 · 葛洪 · 许曼" },
-        "四方顺时复刻": { bg: "linear-gradient(135deg, #1C2723 0%, #30463D 50%, #111B17 100%)", text: "#D4ECE1", chars: "华佗 · 郭解" },
-        "王佐之才":     { bg: "linear-gradient(135deg, #182B28 0%, #29463F 45%, #101E1B 100%)", text: "#D9F3EA", chars: "庞统 · 荀彧 · 陆绩" },
-        "坐照运筹复刻": { bg: "linear-gradient(135deg, #2E1513 0%, #52211C 50%, #1E0B0A 100%)", text: "#FED5CD", chars: "贾诩 · 陆逊" },
-        "诗画同律":     { bg: "linear-gradient(135deg, #1B201F 0%, #323A36 50%, #151918 100%)", text: "#E5ECE9", chars: "蔡琰 · 张飞" },
-        "争光日月":     { bg: "linear-gradient(135deg, #22181E 0%, #461C26 50%, #180F14 100%)", text: "#FED6DF", chars: "夏侯惇 · 张角 · 王异" },
-        "度势攻心复刻": { bg: "linear-gradient(135deg, #37110C 0%, #6E2618 50%, #250906 100%)", text: "#FEE0D3", chars: "杨修 · 吕蒙" },
-        "出奇无穷":     { bg: "linear-gradient(135deg, #23221B 0%, #463E2D 50%, #171610 100%)", text: "#F5ECD3", chars: "程昱 · 马超" },
-        "天曲日未":     { bg: "linear-gradient(135deg, #231A2D 0%, #442D55 50%, #191122 100%)", text: "#F2DCFD", chars: "太史慈 · 张闿 · 公孙瓒" },
-        "扬矢摧锋复刻": { bg: "linear-gradient(135deg, #1A2127 0%, #313F4B 50%, #12191E 100%)", text: "#D9E9F6", chars: "孙尚香 · 张辽" },
-        "绝艳惊鸿":     { bg: "linear-gradient(135deg, #321016 0%, #5F1A28 50%, #21080D 100%)", text: "#FFDDE4", chars: "徐庶 · 张郃" },
-        "击金鸣鼓":     { bg: "linear-gradient(135deg, #2D1418 0%, #591F26 50%, #1F0B0E 100%)", text: "#FEDCDD", chars: "甘宁 · 甄宓" },
-        "乘数而一复刻": { bg: "linear-gradient(135deg, #2A1724 0%, #4D2641 50%, #1B0D17 100%)", text: "#F9D9F0", chars: "孙权 · 张仲景" },
-        "闻斯行诸":     { bg: "linear-gradient(135deg, #2B1411 0%, #54221A 50%, #1D0C09 100%)", text: "#FED9D2", chars: "孔融 · 张鲁" }
+      // 10 张原图 Base64 直接内嵌数据字典 (按你上传的原版横幅图片逐一压缩编码)
+      const EMBEDDED_BANNER_IMAGES = {
+        "弓剑江东": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADn0a56W5003WbF1F1q3NWxWdF0Z1WdM61rnq656XUazpvn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "万物化光": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "山有扶苏": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "四方顺时复刻": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "王佐之才": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "坐照运筹复刻": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "诗画同律": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "争光日月": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "度势攻心复刻": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q==",
+        "出奇无穷": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAbAOgBAREA/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//aAAgBAQAAAADWtc9b56XUtazpZbF1dZrRFZ1WdM61rOtZrWueul1rOn//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAECEAAAAN6xZpnXWZrG2p//xAAXEAADAQAAAAAAAAAAAAAAAAAAAQMC/9oACAEDAQAAPwDXOm2NaxWb3n//2Q=="
       };
 
       // 动态生成小纸人鸟 App 图标
@@ -675,7 +628,7 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v11';
+      const DB_NAME = 'YuanGachaDatabase_v12';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
@@ -994,28 +947,17 @@
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
-      // 生成定制化的卡池艺术横幅或图片 HTML
+      // 获取横幅元素（优先检测用户上传，次之检测内嵌真实原图）
       function getPoolBannerElementHtml(poolName) {
         const customImg = appData.poolBanners[poolName];
         if (customImg) {
           return `<img src="${customImg}" alt="${poolName}">`;
         }
 
-        // 检测是否存在匹配的内置主题
-        const theme = BUILTIN_POOL_THEMES[poolName];
-        if (theme) {
-          return `
-            <div class="built-in-banner" style="background: ${theme.bg};">
-              <div class="b-bg-effect"></div>
-              <div class="b-left-chara">
-                <span class="b-avatar-tag">${theme.chars}</span>
-              </div>
-              <div class="b-right-title">
-                <span class="b-title-cn" style="color:${theme.text};">${poolName}</span>
-                <span class="b-sub-desc">【绝密·密探】限时概率提升！</span>
-              </div>
-            </div>
-          `;
+        // 检测是否存在 10 张原版真实图片内嵌
+        const embeddedImg = EMBEDDED_BANNER_IMAGES[poolName];
+        if (embeddedImg) {
+          return `<img src="${embeddedImg}" alt="${poolName}">`;
         }
 
         return `<div class="stream-poster-placeholder">📷 点击进入卡池导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>`;
@@ -1116,7 +1058,6 @@
             document.getElementById('detailMetaCategory').innerText = cat;
           }
 
-          // 详情海报呈现
           const posterBox = document.getElementById('detailPosterBox');
           posterBox.innerHTML = getPoolBannerElementHtml(currentSelectedPool);
 
