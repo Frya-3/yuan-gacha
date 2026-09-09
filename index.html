@@ -98,25 +98,25 @@
     .pool-stream-item {
       background: var(--card-bg); border: 1px solid var(--border-color);
       border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
-      overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
-      transition: transform 0.15s ease;
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: all 0.2s ease;
     }
-    .pool-stream-item:active { transform: scale(0.985); }
 
     .stream-poster-container {
       width: 100%; background: #FAF3E8; border-bottom: 1px solid var(--border-color);
       display: flex; align-items: center; justify-content: center; overflow: hidden;
-      max-height: 280px; position: relative;
+      max-height: 260px; position: relative; cursor: pointer;
     }
     .stream-poster-container img {
-      width: 100%; height: 100%; max-height: 280px; object-fit: contain; display: block;
+      width: 100%; height: 100%; max-height: 260px; object-fit: contain; display: block;
     }
     .stream-poster-placeholder {
-      padding: 36px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
+      padding: 32px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
     }
 
     .stream-item-info {
       padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer;
     }
     .stream-info-left {
       display: flex; flex-direction: column; gap: 4px; overflow: hidden; padding-right: 8px;
@@ -126,12 +126,14 @@
     }
     .stream-pool-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
     .stream-pool-meta { font-size: 12px; color: var(--text-sub); }
-    .stream-info-right { text-align: right; flex-shrink: 0; }
+    .stream-info-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .stream-pull-badge {
       font-size: 13px; font-weight: 700; color: var(--color-flesh-sorbet);
       background: var(--accent-gold-bg); padding: 4px 10px; border-radius: 12px;
       border: 1px solid var(--color-guava-blush);
     }
+    .stream-fold-arrow { font-size: 11px; color: var(--text-sub); transition: transform 0.2s ease; }
+    .pool-stream-item.expanded .stream-fold-arrow { transform: rotate(180deg); }
 
     /* 气泡包裹类目标签样式 */
     .bubble-category-tag {
@@ -158,49 +160,130 @@
     .cat-左慈地宫   { background: #FBF4FD; color: #8F55A8; border-color: #EED7F7; }
     .cat-孙策地宫   { background: #FEF7EC; color: #C27429; border-color: #F8DFC0; }
 
-    /* 单卡池详情视图专属头部 */
-    .single-pool-view-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    /* ==================== 核心新特性：密探展开区及卡片调优 ==================== */
+    .stream-expanded-content {
+      display: none;
+      padding: 14px 16px 18px 16px;
+      background: #FDFBFA;
+      border-top: 1px dashed var(--border-color);
     }
-    .btn-back-to-gallery {
-      background: var(--card-bg); border: 1px solid var(--border-color);
-      padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
-      color: var(--text-main); cursor: pointer;
-    }
-    .single-view-title-wrap {
-      display: flex; align-items: center; gap: 6px; max-width: 65%; overflow: hidden;
-    }
-    .single-view-title { font-size: 15px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* 详情页海报自适应容器 */
-    .detail-poster-wrapper {
-      width: 100%; background: #FAF3E8; border-radius: var(--radius-md);
-      overflow: hidden; border: 1.5px dashed var(--color-flesh-sorbet);
-      box-shadow: var(--shadow-soft); display: flex; align-items: center;
-      justify-content: center; cursor: pointer; position: relative;
-      max-height: 380px; margin-bottom: 8px;
-    }
-    .detail-poster-wrapper img {
-      width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block;
-    }
-    .detail-poster-tip {
-      padding: 40px 12px; font-size: 13px; color: var(--text-sub); text-align: center; line-height: 1.6;
+    .pool-stream-item.expanded .stream-expanded-content {
+      display: block;
     }
 
-    /* 卡池元信息徽章栏 */
-    .pool-meta-badge-box {
-      background: rgba(234, 231, 180, 0.35); padding: 10px 14px;
-      border-radius: var(--radius-md); margin-bottom: 14px;
-      border: 1px solid var(--color-peel-citron); font-size: 12px; position: relative;
+    .expanded-pool-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(239, 228, 214, 0.6);
     }
-    .meta-row { display: flex; margin-bottom: 4px; }
-    .meta-row:last-child { margin-bottom: 0; }
-    .meta-k { color: var(--text-sub); width: 68px; flex-shrink: 0; }
-    .meta-v { color: var(--text-main); font-weight: 600; }
-    .btn-edit-current-pool {
-      position: absolute; right: 12px; top: 10px;
-      background: none; border: none; font-size: 12px;
-      color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
+    .expanded-stat-text {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+    .expanded-stat-text b { color: var(--color-guava-saga); font-weight: 700; }
+    .btn-pool-edit-inline {
+      background: none;
+      border: none;
+      font-size: 11px;
+      color: var(--color-guava-saga);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* 5 列响应式网格布局 (间距放大至 11px) */
+    .chars-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 11px; /* 间距由 8px 扩大到 11px */
+    }
+
+    /* 3:4 比例精致密探卡 */
+    .mini-char-card-wrap {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      border-radius: 8px; /* 圆角稍微圆润一点更贴合卡片质感 */
+      overflow: hidden;
+      background: var(--color-fruit-pulp);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(70, 56, 46, 0.06);
+    }
+    .mini-char-card-wrap.rarity-SSR {
+      border: 1.8px solid var(--color-flesh-sorbet);
+      box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
+    }
+    .mini-char-card-wrap.is-lost {
+      border: 1.8px solid var(--accent-red) !important;
+    }
+
+    .mini-char-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mini-char-fallback {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    /* 底部半透明黑底抽数标注 (加大加厚加高) */
+    .mini-pulls-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.68);
+      backdrop-filter: blur(3px);
+      color: #FFFFFF;
+      font-size: 11.5px; /* 由 10px 放大至 11.5px */
+      font-weight: 800;
+      text-align: center;
+      padding: 3px 0; /* 内边距加高 */
+      line-height: 1.25;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      letter-spacing: 0.2px;
+    }
+    .mini-char-card-wrap.rarity-SSR .mini-pulls-label {
+      color: #FFF2A8; /* 更鲜亮的浅亮金 */
+    }
+    .mini-char-card-wrap.is-lost .mini-pulls-label {
+      color: #FFB3B3;
+    }
+
+    /* 右上角「歪」红色微标 (加大至 18px，带清晰白边与阴影) */
+    .mini-lost-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      background: var(--accent-red);
+      color: #FFFFFF;
+      font-size: 10px; /* 字体加大 */
+      font-weight: 900;
+      width: 18px; /* 由 14px 扩大至 18px */
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #FFFFFF; /* 加一圈干净的白色描边防混色 */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+      z-index: 3;
+    }
+
+    .empty-grid-notice {
+      grid-column: span 5;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 12px;
+      color: var(--text-sub);
     }
 
     /* 统计卡片与网格 */
@@ -211,7 +294,6 @@
     }
     .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .stat-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
-    .stat-action-del { font-size: 12px; color: var(--accent-red); background: none; border: none; cursor: pointer; }
     
     .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .stat-item { 
@@ -223,7 +305,7 @@
     .stat-item.highlight .stat-val { color: var(--color-guava-saga); }
     .stat-label { font-size: 11px; color: var(--text-sub); margin-top: 2px; display: block; }
 
-    /* 记录明细列表 */
+    /* 普池记录列表 */
     .record-list { display: flex; flex-direction: column; gap: 10px; }
     .record-item { 
       display: flex; align-items: center; background: var(--card-bg); 
@@ -233,9 +315,6 @@
       border-left: 5px solid #D8CFC4; position: relative; 
     }
     .record-item.rarity-SSR { border-left-color: var(--color-flesh-sorbet); }
-    .record-item.is-lost { border-left-color: var(--accent-red) !important; background: var(--accent-red-bg); }
-
-    /* 3:4 密探立绘头像 */
     .char-card-box { 
       width: 44px; aspect-ratio: 3 / 4; border-radius: 6px; 
       background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; 
@@ -243,27 +322,15 @@
       flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-color); 
     }
     .char-card-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .record-item.rarity-SSR .char-card-box { 
-      background: #FFF0EE; color: var(--color-flesh-sorbet); 
-      border-color: var(--color-guava-blush); 
-    }
-    .record-item.is-lost .char-card-box { background: #FEE8E8; color: var(--accent-red); border-color: rgba(217, 83, 79, 0.6); }
-
     .record-info { flex: 1; overflow: hidden; }
     .info-top { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
     .char-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .record-item.is-lost .char-name { color: var(--accent-red); }
-    
     .tag-badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
     .tag-up { background: var(--color-flesh-sorbet); color: #FFF; }
-    .tag-lost { background: var(--accent-red); color: #FFF; }
     .info-sub { font-size: 12px; color: var(--text-sub); }
-
     .record-actions { display: flex; align-items: center; gap: 8px; }
     .pull-count { font-size: 16px; font-weight: 700; color: var(--text-sub); text-align: right; }
     .record-item.rarity-SSR .pull-count { color: var(--color-flesh-sorbet); }
-    .record-item.is-lost .pull-count { color: var(--accent-red); }
-    
     .btn-edit-record, .btn-del-record { background: transparent; border: none; font-size: 16px; padding: 4px 6px; cursor: pointer; color: var(--text-sub); }
     .btn-del-record { color: #C5BCB3; }
 
@@ -274,7 +341,7 @@
       padding: 8px 0; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-sub); cursor: pointer; 
     }
 
-    /* 悬浮芭乐加号按钮 */
+    /* 悬浮加号 */
     .fab { 
       position: fixed; right: 20px; bottom: 28px; width: 56px; height: 56px; 
       border-radius: 50%; background: var(--color-flesh-sorbet); color: #FFFFFF; 
@@ -283,7 +350,7 @@
       cursor: pointer; z-index: 99; 
     }
 
-    /* 弹窗与选择器 */
+    /* 弹窗面板 */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(70, 56, 46, 0.45); z-index: 1000; display: none; align-items: flex-end; }
     .modal-overlay.active { display: flex; }
     .modal-panel { background: var(--card-bg); width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 20px 20px 36px 20px; max-height: 85vh; overflow-y: auto; }
@@ -292,41 +359,24 @@
     .form-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; }
     .form-input, .form-select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #FAF6F0; font-size: 15px; color: var(--text-main); outline: none; }
     
-    /* 横向滑动气泡类别选择器 (Chips Selector) */
     .chips-selector-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 2px 8px 2px;
-      scrollbar-width: none;
+      display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px 2px; scrollbar-width: none;
     }
     .chips-selector-scroll::-webkit-scrollbar { display: none; }
-    
     .chip-bubble-opt {
-      flex-shrink: 0;
-      padding: 7px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid var(--border-color);
-      background: #FAF6F0;
-      color: var(--text-sub);
-      transition: all 0.2s ease;
+      flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 13px;
+      font-weight: 600; cursor: pointer; border: 1px solid var(--border-color);
+      background: #FAF6F0; color: var(--text-sub); transition: all 0.2s ease;
     }
     .chip-bubble-opt.selected {
-      background: var(--color-flesh-sorbet);
-      color: #FFFFFF;
-      border-color: var(--color-flesh-sorbet);
+      background: var(--color-flesh-sorbet); color: #FFFFFF; border-color: var(--color-flesh-sorbet);
       box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
     }
 
-    /* 双日历 Mini 组合框 */
     .date-range-picker-row { display: flex; align-items: center; gap: 8px; }
     .date-input-mini {
-      flex: 1; padding: 10px 8px; border-radius: var(--radius-sm);
-      border: 1px solid var(--border-color); background: #FAF6F0;
-      font-size: 13px; color: var(--text-main); outline: none; font-family: inherit;
+      flex: 1; padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+      background: #FAF6F0; font-size: 13px; color: var(--text-main); outline: none; font-family: inherit;
     }
     .date-split-text { font-size: 12px; color: var(--text-sub); flex-shrink: 0; }
 
@@ -344,9 +394,7 @@
       border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 600; 
       margin-top: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(241, 158, 150, 0.3);
     }
-    .empty-placeholder { text-align: center; padding: 40px 0; color: var(--text-sub); font-size: 13px; }
 
-    /* 3:4 照片选择框 */
     .avatar-uploader-row { display: flex; align-items: center; gap: 14px; background: #FAF6F0; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--color-guava-blush); }
     .preview-box-3-4 { width: 51px; aspect-ratio: 3 / 4; border-radius: 6px; background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 11px; }
     .preview-box-3-4 img { width: 100%; height: 100%; object-fit: cover; }
@@ -379,92 +427,39 @@
       <div class="record-list" id="standardRecordList"></div>
     </section>
 
-    <!-- ==================== 2. 限定池视图 ==================== -->
+    <!-- ==================== 2. 限定特命界面 (画卷主界面 + 展开五列密探矩阵) ==================== -->
     <section id="limitedMainView" style="display: none;">
       
-      <!-- 2.1 画廊总览模式 -->
-      <div id="limitedGalleryMode">
-        <div class="stat-card">
-          <div class="stat-header"><div class="stat-title">限定总体宏观表现 (全部池)</div></div>
-          <div class="stat-grid">
-            <div class="stat-item"><span class="stat-val" id="lmtTotalPulls">0</span><span class="stat-label">总招募步数</span></div>
-            <div class="stat-item"><span class="stat-val" id="lmtSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
-            <div class="stat-item"><span class="stat-val" id="lmtAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
-            <div class="stat-item"><span class="stat-val" id="lmtUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
-            <div class="stat-item highlight"><span class="stat-val" id="lmtWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
-            <div class="stat-item highlight"><span class="stat-val" id="lmtPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
-          </div>
+      <div class="stat-card">
+        <div class="stat-header"><div class="stat-title">限定总体宏观表现 (全部池)</div></div>
+        <div class="stat-grid">
+          <div class="stat-item"><span class="stat-val" id="lmtTotalPulls">0</span><span class="stat-label">总招募步数</span></div>
+          <div class="stat-item"><span class="stat-val" id="lmtSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
+          <div class="stat-item"><span class="stat-val" id="lmtAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
+          <div class="stat-item"><span class="stat-val" id="lmtUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+          <div class="stat-item highlight"><span class="stat-val" id="lmtWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+          <div class="stat-item highlight"><span class="stat-val" id="lmtPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
         </div>
-
-        <div class="gallery-top-bar">
-          <span class="gallery-title">限定卡池画卷 (时间倒序)</span>
-          <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
-        </div>
-
-        <!-- 主界面卡池流展示容器 -->
-        <div class="pool-card-stream" id="poolCardStreamContainer"></div>
       </div>
 
-      <!-- 2.2 单卡池详情呈现模式 -->
-      <div id="limitedSingleMode" style="display: none;">
-        
-        <div class="single-pool-view-header">
-          <button class="btn-back-to-gallery" onclick="window.exitToPoolGallery()">← 返回画卷</button>
-          <div class="single-view-title-wrap">
-            <span class="single-view-title" id="singlePoolHeaderTitle">卡池详情</span>
-            <span class="bubble-category-tag" id="singlePoolHeaderBubble">限定</span>
-          </div>
-          <div style="width:40px;"></div>
-        </div>
-
-        <!-- 9:16 与 16:9 自适应大尺寸海报展示区 -->
-        <div class="detail-poster-wrapper" id="detailPosterWrapper" onclick="document.getElementById('bannerFileInput').click()">
-          <div class="detail-poster-tip" id="detailPosterPlaceholder">
-            📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span>
-          </div>
-          <img id="detailPosterImg" style="display: none;" src="" alt="卡池海报">
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:12px; margin-bottom:12px;">
-          <button class="btn-banner-action" onclick="document.getElementById('bannerFileInput').click()">更换海报</button>
-          <button class="btn-banner-action danger" id="btnRemoveDetailBanner" style="display: none;" onclick="window.removeCurrentPoolBanner()">移除海报</button>
-        </div>
-        <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="window.handleBannerUpload(event)">
-
-        <!-- 卡池元信息徽章框 -->
-        <div class="pool-meta-badge-box">
-          <div class="meta-row"><span class="meta-k">开放周期：</span><span class="meta-v" id="detailMetaDate">-</span></div>
-          <div class="meta-row"><span class="meta-k">当期密探：</span><span class="meta-v" id="detailMetaChars">-</span></div>
-          <div class="meta-row"><span class="meta-k">卡池类别：</span><span class="meta-v" id="detailMetaCategory">-</span></div>
-          <button class="btn-edit-current-pool" onclick="window.openEditCurrentPoolModal()">✎ 编辑卡池</button>
-        </div>
-
-        <!-- 单池独立统计数据指标 -->
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-title" id="singlePoolStatTitle">该池招募表现</div>
-            <button class="stat-action-del" onclick="window.deleteCurrentPool()">注销此池</button>
-          </div>
-          <div class="stat-grid">
-            <div class="stat-item"><span class="stat-val" id="curTotalPulls">0</span><span class="stat-label">该池总次数</span></div>
-            <div class="stat-item"><span class="stat-val" id="curSsrPulls">0</span><span class="stat-label">绝密数</span></div>
-            <div class="stat-item"><span class="stat-val" id="curAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
-            <div class="stat-item"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
-            <div class="stat-item highlight"><span class="stat-val" id="curWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
-            <div class="stat-item highlight"><span class="stat-val" id="curPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
-          </div>
-        </div>
-
-        <!-- 该池名下的专属记录列表 -->
-        <div class="record-list" id="limitedSingleRecordList"></div>
+      <div class="gallery-top-bar">
+        <span class="gallery-title">限定卡池画卷 (轻触卡池展开密探)</span>
+        <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
       </div>
+
+      <!-- 主界面卡池流展示容器 -->
+      <div class="pool-card-stream" id="poolCardStreamContainer"></div>
 
     </section>
+
+    <!-- 隐藏的海报上传 Input -->
+    <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="window.handleBannerUpload(event)">
 
     <!-- 底部操作栏 -->
     <footer class="bottom-bar">
       <button class="btn-action-tool" onclick="window.exportDataJSON()">导出备份</button>
       <button class="btn-action-tool" onclick="window.triggerImportJSON()">导入备份</button>
-      <button class="btn-action-tool" onclick="window.clearCurrentPoolData()">清空当前池</button>
+      <button class="btn-action-tool" onclick="window.clearCurrentPoolData()">清空数据</button>
       <input type="file" id="jsonFileInput" style="display: none;" accept=".json" onchange="window.importDataJSON(event)" />
     </footer>
   </main>
@@ -472,7 +467,7 @@
   <!-- 浮动登记入口按钮 -->
   <button class="fab" onclick="window.openAddModal()">+</button>
 
-  <!-- 模态框 1：新建 / 编辑卡池 (带滑动气泡类目与 Mini 日历) -->
+  <!-- 模态框 1：新建 / 编辑卡池 -->
   <div class="modal-overlay" id="createPoolModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title" id="poolModalTitle">开辟新限定卡池</div>
@@ -483,12 +478,9 @@
         <input type="text" class="form-input" id="newPoolNameInput" placeholder="例如：提针引线 / 合纵连横">
       </div>
 
-      <!-- 横向滑动气泡类别选择器 -->
       <div class="form-group">
         <label class="form-label">所属类别（左右滑动选择）</label>
-        <div class="chips-selector-scroll" id="poolCategoryChipsBar">
-          <!-- 动态生成气泡选项 -->
-        </div>
+        <div class="chips-selector-scroll" id="poolCategoryChipsBar"></div>
       </div>
       
       <div class="form-group">
@@ -569,6 +561,8 @@
       ];
 
       let formSelectedCategory = "限定";
+      let uploadTargetPoolName = ""; 
+      let expandedPoolNames = new Set(); 
 
       function generateAppIcon() {
         const canvas = document.createElement('canvas');
@@ -644,12 +638,11 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v13';
+      const DB_NAME = 'YuanGachaDatabase_v15';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      // 54 个全量权威卡池（已剔除 游说贤士、琴载酒/洪匀玄，全面规范为四字名）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "孙策地宫" },
         { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
@@ -708,10 +701,7 @@
         { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统", category: "复刻" }
       ];
 
-      // 注销黑名单（永久彻底过滤，不再生成）
       const BLACKLIST_POOLS = ["游说贤士", "琴载酒/洪匀玄"];
-
-      // 映射重定向
       const NAME_ALIASES = {
         "异才奇士复刻": "异才奇士",
         "四方顺时复刻": "四方顺时",
@@ -725,7 +715,6 @@
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
       let activeTab = 'standard';
-      let currentSelectedPool = 'ALL';
       let formRarity = '绝密';
       let formIsUp = true;
       let currentAvatarBase64 = '';
@@ -785,7 +774,6 @@
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
-        // 1. 招募记录与封面键的旧名称平滑迁移
         if (appData.limited && appData.limited.length > 0) {
           appData.limited.forEach(rec => {
             if (rec.poolName && NAME_ALIASES[rec.poolName]) {
@@ -802,14 +790,11 @@
           });
         }
 
-        // 2. 清理黑名单注销卡池（游说贤士、琴载酒/洪匀玄）
         BLACKLIST_POOLS.forEach(badPool => {
           delete appData.poolBanners[badPool];
           appData.pools = appData.pools.filter(p => p.name !== badPool);
-          if (currentSelectedPool === badPool) currentSelectedPool = 'ALL';
         });
 
-        // 3. 本地卡池名剔除“复刻”字样与映射归一
         appData.pools.forEach(p => {
           if (NAME_ALIASES[p.name]) {
             p.name = NAME_ALIASES[p.name];
@@ -818,7 +803,6 @@
           }
         });
 
-        // 4. 去重并剔除黑名单卡池
         const uniquePools = [];
         appData.pools.forEach(p => {
           if (!BLACKLIST_POOLS.includes(p.name) && !uniquePools.some(u => u.name === p.name)) {
@@ -827,7 +811,6 @@
         });
         appData.pools = uniquePools;
 
-        // 5. 依据最新权威表校验全量卡池
         MASTER_PRESET_POOLS.forEach(pre => {
           const existing = appData.pools.find(p => p.name === pre.name);
           if (!existing) {
@@ -945,19 +928,24 @@
         reader.readAsDataURL(file);
       }
 
+      window.triggerUploadBanner = function(poolName) {
+        uploadTargetPoolName = poolName;
+        document.getElementById('bannerFileInput').click();
+      };
+
       window.handleBannerUpload = function(e) {
         const file = e.target.files[0];
-        if (!file || currentSelectedPool === 'ALL') return;
+        if (!file || !uploadTargetPoolName) return;
         compressAdaptiveImage(file, 720, 0.82, function(base64) {
-          appData.poolBanners[currentSelectedPool] = base64;
+          appData.poolBanners[uploadTargetPoolName] = base64;
           saveData();
         });
         e.target.value = '';
       };
 
-      window.removeCurrentPoolBanner = function() {
-        if (currentSelectedPool !== 'ALL' && appData.poolBanners[currentSelectedPool]) {
-          delete appData.poolBanners[currentSelectedPool];
+      window.removePoolBannerByName = function(poolName) {
+        if (confirm(`确认移除卡池「${poolName}」的海报？`)) {
+          delete appData.poolBanners[poolName];
           saveData();
         }
       };
@@ -989,13 +977,12 @@
         render();
       };
 
-      window.enterPoolDetail = function(poolName) {
-        currentSelectedPool = poolName;
-        render();
-      };
-
-      window.exitToPoolGallery = function() {
-        currentSelectedPool = 'ALL';
+      window.togglePoolExpand = function(poolName) {
+        if (expandedPoolNames.has(poolName)) {
+          expandedPoolNames.delete(poolName);
+        } else {
+          expandedPoolNames.add(poolName);
+        }
         render();
       };
 
@@ -1004,28 +991,54 @@
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
+      /* 渲染主界面卡池画卷与五个一排的密探流 (微调升级后的间距与微标) */
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
 
         appData.pools.forEach(pool => {
+          const isExpanded = expandedPoolNames.has(pool.name);
           const item = document.createElement('div');
-          item.className = 'pool-stream-item';
-          item.onclick = function() { window.enterPoolDetail(pool.name); };
+          item.className = `pool-stream-item ${isExpanded ? 'expanded' : ''}`;
 
           const bannerData = appData.poolBanners[pool.name];
           const bannerHtml = bannerData 
             ? `<img src="${bannerData}" alt="${pool.name}">` 
-            : `<div class="stream-poster-placeholder">📷 点击进入卡池导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>`;
+            : `<div class="stream-poster-placeholder">📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>`;
 
           const poolRecords = appData.limited.filter(r => r.poolName === pool.name);
+          poolRecords.sort((a, b) => b.timestamp - a.timestamp);
           const poolPulls = poolRecords.reduce((acc, r) => acc + Number(r.pulls), 0);
 
+          let charsGridHtml = '';
+          if (poolRecords.length === 0) {
+            charsGridHtml = '<div class="empty-grid-notice">该卡池暂无密探出仕记录</div>';
+          } else {
+            charsGridHtml = poolRecords.map(rec => {
+              const isSsr = rec.rarity === '绝密';
+              const isLost = isSsr && !rec.isUp;
+              const avatarHtml = rec.avatar 
+                ? `<img class="mini-char-img" src="${rec.avatar}" alt="${rec.name}">` 
+                : `<span class="mini-char-fallback">${rec.name.slice(0, 1)}</span>`;
+
+              return `
+                <div class="mini-char-card-wrap ${isSsr ? 'rarity-SSR' : ''} ${isLost ? 'is-lost' : ''}" 
+                     title="${rec.name} (${rec.pulls}抽)"
+                     onclick="event.stopPropagation(); window.openEditModal('${rec.id}')">
+                  ${isLost ? '<div class="mini-lost-badge">歪</div>' : ''}
+                  ${avatarHtml}
+                  <div class="mini-pulls-label">${rec.pulls}抽</div>
+                </div>
+              `;
+            }).join('');
+          }
+
           item.innerHTML = `
-            <div class="stream-poster-container">
+            <div class="stream-poster-container" onclick="event.stopPropagation(); window.triggerUploadBanner('${pool.name}')">
               ${bannerHtml}
             </div>
-            <div class="stream-item-info">
+
+            <div class="stream-item-info" onclick="window.togglePoolExpand('${pool.name}')">
               <div class="stream-info-left">
                 <div class="stream-title-row">
                   <span class="stream-pool-name">${pool.name}</span>
@@ -1036,6 +1049,20 @@
               </div>
               <div class="stream-info-right">
                 <span class="stream-pull-badge">${poolPulls} 抽</span>
+                <span class="stream-fold-arrow">▼</span>
+              </div>
+            </div>
+
+            <div class="stream-expanded-content">
+              <div class="expanded-pool-tools">
+                <div class="expanded-stat-text">共 <b>${poolRecords.length}</b> 位密探 · 点击卡片修改/换图</div>
+                <div style="display:flex; gap:10px;">
+                  <button class="btn-pool-edit-inline" onclick="event.stopPropagation(); window.openEditPoolModalByName('${pool.name}')">✎ 编辑卡池</button>
+                  ${bannerData ? `<button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">移除海报</button>` : ''}
+                </div>
+              </div>
+              <div class="chars-grid-5">
+                ${charsGridHtml}
               </div>
             </div>
           `;
@@ -1080,62 +1107,7 @@
         document.getElementById('lmtWinRate').innerText = allSsrCount > 0 ? ((allUpCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
         document.getElementById('lmtPityRate').innerText = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
 
-        if (currentSelectedPool === 'ALL') {
-          document.getElementById('limitedGalleryMode').style.display = 'block';
-          document.getElementById('limitedSingleMode').style.display = 'none';
-          renderPoolCardStream();
-        } else {
-          document.getElementById('limitedGalleryMode').style.display = 'none';
-          document.getElementById('limitedSingleMode').style.display = 'block';
-
-          const poolObj = appData.pools.find(p => p.name === currentSelectedPool);
-          document.getElementById('singlePoolHeaderTitle').innerText = currentSelectedPool;
-          document.getElementById('singlePoolStatTitle').innerText = '单池表现: ' + currentSelectedPool;
-
-          const cat = poolObj ? (poolObj.category || "限定") : "限定";
-          const headerBubble = document.getElementById('singlePoolHeaderBubble');
-          headerBubble.innerText = cat;
-          headerBubble.className = `bubble-category-tag cat-${cat}`;
-
-          if (poolObj) {
-            document.getElementById('detailMetaDate').innerText = poolObj.dateRange || '未定';
-            document.getElementById('detailMetaChars').innerText = poolObj.upChars || '未设';
-            document.getElementById('detailMetaCategory').innerText = cat;
-          }
-
-          const img = document.getElementById('detailPosterImg');
-          const tip = document.getElementById('detailPosterPlaceholder');
-          const delBtn = document.getElementById('btnRemoveDetailBanner');
-          const bannerData = appData.poolBanners[currentSelectedPool];
-
-          if (bannerData) {
-            img.src = bannerData;
-            img.style.display = 'block';
-            tip.style.display = 'none';
-            delBtn.style.display = 'inline-block';
-          } else {
-            img.src = '';
-            img.style.display = 'none';
-            tip.style.display = 'block';
-            delBtn.style.display = 'none';
-          }
-
-          const list = appData.limited.filter(r => r.poolName === currentSelectedPool);
-          const poolTotal = list.reduce((acc, r) => acc + Number(r.pulls), 0);
-          const poolSsr = list.filter(r => r.rarity === '绝密');
-          const poolSsrCount = poolSsr.length;
-          const poolUpCount = poolSsr.filter(r => r.isUp).length;
-          const poolPityCount = poolSsr.filter(r => Number(r.pulls) >= 40).length;
-
-          document.getElementById('curTotalPulls').innerText = poolTotal;
-          document.getElementById('curSsrPulls').innerText = poolSsrCount;
-          document.getElementById('curAvgPulls').innerText = poolSsrCount > 0 ? (poolTotal / poolSsrCount).toFixed(1) : '0.0';
-          document.getElementById('curUpPulls').innerText = poolUpCount;
-          document.getElementById('curWinRate').innerText = poolSsrCount > 0 ? ((poolUpCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-          document.getElementById('curPityRate').innerText = poolSsrCount > 0 ? ((poolPityCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-
-          renderRecordList('limitedSingleRecordList', list);
-        }
+        renderPoolCardStream();
       }
 
       function renderRecordList(containerId, rawList) {
@@ -1145,28 +1117,21 @@
         list.sort((a, b) => b.timestamp - a.timestamp);
 
         if (list.length === 0) {
-          container.innerHTML = '<div class="empty-placeholder">暂无密探出仕记录</div>';
+          container.innerHTML = '<div style="text-align:center; padding:30px 0; font-size:12px; color:var(--text-sub);">暂无密探出仕记录</div>';
           return;
         }
 
         list.forEach(function(item) {
           const node = document.createElement('div');
           const isSsr = item.rarity === '绝密';
-          const isLost = activeTab === 'limited' && isSsr && !item.isUp;
-          const isUp = activeTab === 'limited' && isSsr && item.isUp;
-
-          node.className = 'record-item ' + (isSsr ? 'rarity-SSR ' : ' ') + (isLost ? 'is-lost' : '');
+          node.className = 'record-item ' + (isSsr ? 'rarity-SSR ' : ' ');
           const avatarHtml = item.avatar ? `<img src="${item.avatar}">` : (item.name.slice(0, 1) || '秘');
 
           node.innerHTML = `
             <div class="char-card-box">${avatarHtml}</div>
             <div class="record-info">
-              <div class="info-top">
-                <span class="char-name">${item.name}</span>
-                ${isUp ? '<span class="tag-badge tag-up">UP</span>' : ''}
-                ${isLost ? '<span class="tag-badge tag-lost">歪</span>' : ''}
-              </div>
-              <div class="info-sub">${activeTab === 'limited' ? '[' + item.poolName + '] · ' : ''}${item.rarity}</div>
+              <div class="info-top"><span class="char-name">${item.name}</span></div>
+              <div class="info-sub">${item.rarity}</div>
             </div>
             <div class="record-actions">
               <div class="pull-count">${item.pulls} 抽</div>
@@ -1221,7 +1186,6 @@
             const opt = document.createElement('option');
             opt.value = p.name;
             opt.innerText = p.name;
-            if (currentSelectedPool !== 'ALL' && currentSelectedPool === p.name) opt.selected = true;
             poolSelect.appendChild(opt);
           });
         } else {
@@ -1303,6 +1267,7 @@
               target.avatar = currentAvatarBase64;
               target.poolName = document.getElementById('inputRecordPool').value;
               target.isUp = formRarity === '绝密' ? formIsUp : false;
+              expandedPoolNames.add(target.poolName);
             }
           }
         } else {
@@ -1321,6 +1286,7 @@
             item.poolName = document.getElementById('inputRecordPool').value;
             item.isUp = formRarity === '绝密' ? formIsUp : false;
             appData.limited.push(item);
+            expandedPoolNames.add(item.poolName);
           }
         }
 
@@ -1352,9 +1318,8 @@
         document.getElementById('createPoolModal').classList.add('active');
       };
 
-      window.openEditCurrentPoolModal = function() {
-        if (currentSelectedPool === 'ALL') return;
-        const pool = appData.pools.find(p => p.name === currentSelectedPool);
+      window.openEditPoolModalByName = function(poolName) {
+        const pool = appData.pools.find(p => p.name === poolName);
         if (!pool) return;
 
         document.getElementById('poolModalTitle').innerText = '编辑限定卡池';
@@ -1413,37 +1378,27 @@
               appData.poolBanners[name] = appData.poolBanners[originalName];
               delete appData.poolBanners[originalName];
             }
-            if (currentSelectedPool === originalName) {
-              currentSelectedPool = name;
+            if (expandedPoolNames.has(originalName)) {
+              expandedPoolNames.delete(originalName);
+              expandedPoolNames.add(name);
             }
           }
         } else {
           if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
           appData.pools.push({ name, dateRange: dateRangeStr, upChars, category });
-          currentSelectedPool = name;
+          expandedPoolNames.add(name);
         }
 
         saveData();
         window.closeModal('createPoolModal');
       };
 
-      window.deleteCurrentPool = function() {
-        if (currentSelectedPool === 'ALL') return;
-        if (!confirm('确认注销卡池「' + currentSelectedPool + '」及其所有海报与记录？')) return;
-        delete appData.poolBanners[currentSelectedPool];
-        appData.pools = appData.pools.filter(p => p.name !== currentSelectedPool);
-        appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
-        currentSelectedPool = 'ALL';
-        saveData();
-      };
-
       window.clearCurrentPoolData = function() {
-        if (!confirm('确认清空当前卡池的数据记录吗？')) return;
+        if (!confirm('确认清空全部密探招募记录吗？（卡池与海报依然保留）')) return;
         if (activeTab === 'standard') {
           appData.standard = [];
         } else {
-          if (currentSelectedPool === 'ALL') appData.limited = [];
-          else appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
+          appData.limited = [];
         }
         saveData();
       };
@@ -1507,7 +1462,7 @@
             }
 
             reconcilePools();
-            saveData().then(() => alert('全档案数据导入成功！历史卡池与分类气泡已全部归位。'));
+            saveData().then(() => alert('全档案数据导入成功！'));
           } catch(err) {
             alert('JSON 文件格式损坏，无法恢复');
           }
