@@ -16,7 +16,7 @@
 
   <style>
     :root {
-      /* 芭乐夏日主题色标 */
+      /* 芭乐夏日主题调色盘 */
       --color-guava-blush:  #FDD7D0; 
       --color-peel-citron:  #EAE7B4; 
       --color-flesh-sorbet: #F19E96; 
@@ -74,7 +74,7 @@
 
     .container { padding: 16px; max-width: 600px; margin: 0 auto; }
 
-    /* 限定池：卡池总览/画廊模式的顶部操作条 */
+    /* 画廊顶部栏 */
     .gallery-top-bar {
       display: flex;
       justify-content: space-between;
@@ -93,152 +93,105 @@
       cursor: pointer;
     }
 
-    /* 限定池卡片流 (主界面卡池画廊) */
-    .pool-card-stream {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
+    /* 卡池流展示卡片 */
+    .pool-card-stream { display: flex; flex-direction: column; gap: 14px; }
     .pool-stream-item {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-soft);
-      overflow: hidden;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+      overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
+      transition: transform 0.15s ease;
     }
-    .pool-stream-item:active {
-      transform: scale(0.985);
-    }
+    .pool-stream-item:active { transform: scale(0.985); }
 
-    /* 兼容 9:16 竖屏与 16:9 横屏的自适应海报展示容器 */
     .stream-poster-container {
-      width: 100%;
-      background: #FAF3E8;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      /* 限制最大高度，防止超长竖图破坏手机端浏览节奏 */
-      max-height: 280px; 
+      width: 100%; background: #FAF3E8; border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      max-height: 280px; position: relative;
     }
     .stream-poster-container img {
-      width: 100%;
-      height: 100%;
-      max-height: 280px;
-      object-fit: contain; /* 关键：横图竖图完整居中自适应，绝不裁剪失真 */
-      display: block;
+      width: 100%; height: 100%; max-height: 280px; object-fit: contain; display: block;
     }
     .stream-poster-placeholder {
-      padding: 36px 0;
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-sub);
-      line-height: 1.6;
+      padding: 36px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
     }
 
     .stream-item-info {
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
     }
     .stream-info-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      overflow: hidden;
-      padding-right: 8px;
+      display: flex; flex-direction: column; gap: 4px; overflow: hidden; padding-right: 8px;
     }
-    .stream-pool-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-main);
+    .stream-title-row {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     }
-    .stream-pool-meta {
-      font-size: 12px;
-      color: var(--text-sub);
-    }
-    .stream-info-right {
-      text-align: right;
-      flex-shrink: 0;
-    }
+    .stream-pool-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
+    .stream-pool-meta { font-size: 12px; color: var(--text-sub); }
+    .stream-info-right { text-align: right; flex-shrink: 0; }
     .stream-pull-badge {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--color-flesh-sorbet);
-      background: var(--accent-gold-bg);
-      padding: 4px 10px;
-      border-radius: 12px;
+      font-size: 13px; font-weight: 700; color: var(--color-flesh-sorbet);
+      background: var(--accent-gold-bg); padding: 4px 10px; border-radius: 12px;
       border: 1px solid var(--color-guava-blush);
     }
 
-    /* 单卡池详情视图专属头部 */
-    .single-pool-view-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .btn-back-to-gallery {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-main);
-      cursor: pointer;
-    }
-    .single-view-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    /* 详情页海报展示容器（自适应尺寸） */
-    .detail-poster-wrapper {
-      width: 100%;
-      background: #FAF3E8;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      border: 1.5px dashed var(--color-flesh-sorbet);
-      box-shadow: var(--shadow-soft);
-      display: flex;
+    /* 气泡包裹类目标签样式 */
+    .bubble-category-tag {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      position: relative;
-      max-height: 380px;
-      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      line-height: 1.3;
+      letter-spacing: 0.2px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    /* 不同类别气泡对应专属马卡龙柔色 */
+    .cat-限定       { background: #FFF0EE; color: var(--color-flesh-sorbet); border-color: var(--color-guava-blush); }
+    .cat-自选限定   { background: #F6F3DF; color: #7B8528; border-color: var(--color-peel-citron); }
+    .cat-复刻       { background: #F2F0ED; color: #73675E; border-color: #E2DBD3; }
+    .cat-刘辩地宫   { background: #FFF4F2; color: #D65A5A; border-color: #FEDAD6; }
+    .cat-傅融地宫   { background: #F3F5FC; color: #4F6BA8; border-color: #D8E0F7; }
+    .cat-袁基地宫   { background: #F4F8F1; color: #538A4B; border-color: #D3E8CC; }
+    .cat-左慈地宫   { background: #FBF4FD; color: #8F55A8; border-color: #EED7F7; }
+    .cat-孙策地宫   { background: #FEF7EC; color: #C27429; border-color: #F8DFC0; }
+
+    /* 单卡池详情视图专属头部 */
+    .single-pool-view-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    .btn-back-to-gallery {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      color: var(--text-main); cursor: pointer;
+    }
+    .single-view-title-wrap {
+      display: flex; align-items: center; gap: 6px; max-width: 65%; overflow: hidden;
+    }
+    .single-view-title { font-size: 15px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 详情页海报自适应容器 */
+    .detail-poster-wrapper {
+      width: 100%; background: #FAF3E8; border-radius: var(--radius-md);
+      overflow: hidden; border: 1.5px dashed var(--color-flesh-sorbet);
+      box-shadow: var(--shadow-soft); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; position: relative;
+      max-height: 380px; margin-bottom: 8px;
     }
     .detail-poster-wrapper img {
-      width: 100%;
-      height: 100%;
-      max-height: 380px;
-      object-fit: contain;
-      display: block;
+      width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block;
     }
     .detail-poster-tip {
-      padding: 40px 12px;
-      font-size: 13px;
-      color: var(--text-sub);
-      text-align: center;
-      line-height: 1.6;
+      padding: 40px 12px; font-size: 13px; color: var(--text-sub); text-align: center; line-height: 1.6;
     }
 
     /* 卡池详细描述徽章栏 */
     .pool-meta-badge-box {
-      background: rgba(234, 231, 180, 0.35);
-      padding: 10px 14px; border-radius: var(--radius-md);
-      margin-bottom: 14px; border: 1px solid var(--color-peel-citron); font-size: 12px;
-      position: relative;
+      background: rgba(234, 231, 180, 0.35); padding: 10px 14px;
+      border-radius: var(--radius-md); margin-bottom: 14px;
+      border: 1px solid var(--color-peel-citron); font-size: 12px; position: relative;
     }
     .meta-row { display: flex; margin-bottom: 4px; }
     .meta-row:last-child { margin-bottom: 0; }
@@ -330,7 +283,7 @@
       cursor: pointer; z-index: 99; 
     }
 
-    /* 弹窗面板 */
+    /* 弹窗与选择器 */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(70, 56, 46, 0.45); z-index: 1000; display: none; align-items: flex-end; }
     .modal-overlay.active { display: flex; }
     .modal-panel { background: var(--card-bg); width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 20px 20px 36px 20px; max-height: 85vh; overflow-y: auto; }
@@ -339,28 +292,43 @@
     .form-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; }
     .form-input, .form-select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #FAF6F0; font-size: 15px; color: var(--text-main); outline: none; }
     
-    /* 双日历 Mini 组合框 */
-    .date-range-picker-row {
+    /* 横向滑动气泡类别选择器 (Chips Selector) */
+    .chips-selector-scroll {
       display: flex;
-      align-items: center;
       gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 8px 2px;
+      scrollbar-width: none;
     }
-    .date-input-mini {
-      flex: 1;
-      padding: 10px 8px;
-      border-radius: var(--radius-sm);
+    .chips-selector-scroll::-webkit-scrollbar { display: none; }
+    
+    .chip-bubble-opt {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
       border: 1px solid var(--border-color);
       background: #FAF6F0;
-      font-size: 13px;
-      color: var(--text-main);
-      outline: none;
-      font-family: inherit;
-    }
-    .date-split-text {
-      font-size: 12px;
       color: var(--text-sub);
-      flex-shrink: 0;
+      transition: all 0.2s ease;
     }
+    .chip-bubble-opt.selected {
+      background: var(--color-flesh-sorbet);
+      color: #FFFFFF;
+      border-color: var(--color-flesh-sorbet);
+      box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
+    }
+
+    /* 双日历 Mini 组合框 */
+    .date-range-picker-row { display: flex; align-items: center; gap: 8px; }
+    .date-input-mini {
+      flex: 1; padding: 10px 8px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color); background: #FAF6F0;
+      font-size: 13px; color: var(--text-main); outline: none; font-family: inherit;
+    }
+    .date-split-text { font-size: 12px; color: var(--text-sub); flex-shrink: 0; }
 
     .segmented-control { display: flex; gap: 8px; }
     .segment-opt { 
@@ -397,7 +365,7 @@
 
   <main class="container">
 
-    <!-- ==================== 1. 普池主视图 ==================== -->
+    <!-- ==================== 1. 普池视图 ==================== -->
     <section id="standardMainView">
       <div class="stat-card">
         <div class="stat-header"><div class="stat-title">普池招募表现</div></div>
@@ -408,14 +376,13 @@
           <div class="stat-item highlight"><span class="stat-val" id="stdPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
         </div>
       </div>
-      <!-- 普池记录列表 -->
       <div class="record-list" id="standardRecordList"></div>
     </section>
 
-    <!-- ==================== 2. 限定池主视图 ==================== -->
+    <!-- ==================== 2. 限定池视图 ==================== -->
     <section id="limitedMainView" style="display: none;">
       
-      <!-- 2.1 限定池总览模式 (画卷总览 / 卡池流) -->
+      <!-- 2.1 画廊总览模式 -->
       <div id="limitedGalleryMode">
         <div class="stat-card">
           <div class="stat-header"><div class="stat-title">限定总体宏观表现 (全部池)</div></div>
@@ -430,7 +397,7 @@
         </div>
 
         <div class="gallery-top-bar">
-          <span class="gallery-title">限定卡池画卷 (按时间倒序)</span>
+          <span class="gallery-title">限定卡池画卷 (时间倒序)</span>
           <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
         </div>
 
@@ -438,17 +405,19 @@
         <div class="pool-card-stream" id="poolCardStreamContainer"></div>
       </div>
 
-      <!-- 2.2 单卡池独立详情呈现模式 (点击主页任意卡池后进入) -->
+      <!-- 2.2 单卡池详情呈现模式 -->
       <div id="limitedSingleMode" style="display: none;">
         
-        <!-- 详情页返回条 -->
         <div class="single-pool-view-header">
-          <button class="btn-back-to-gallery" onclick="window.exitToPoolGallery()">← 返回卡池画卷</button>
-          <span class="single-view-title" id="singlePoolHeaderTitle">卡池详情</span>
+          <button class="btn-back-to-gallery" onclick="window.exitToPoolGallery()">← 返回画卷</button>
+          <div class="single-view-title-wrap">
+            <span class="single-view-title" id="singlePoolHeaderTitle">卡池详情</span>
+            <span class="bubble-category-tag" id="singlePoolHeaderBubble">限定</span>
+          </div>
           <div style="width:40px;"></div>
         </div>
 
-        <!-- 9:16 与 16:9 自适应大尺寸封面展示区 -->
+        <!-- 9:16 与 16:9 自适应大尺寸海报展示区 -->
         <div class="detail-poster-wrapper" id="detailPosterWrapper" onclick="document.getElementById('bannerFileInput').click()">
           <div class="detail-poster-tip" id="detailPosterPlaceholder">
             📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span>
@@ -461,10 +430,11 @@
         </div>
         <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="window.handleBannerUpload(event)">
 
-        <!-- 卡池元信息及修改入口 -->
+        <!-- 卡池元信息徽章框 -->
         <div class="pool-meta-badge-box">
           <div class="meta-row"><span class="meta-k">开放周期：</span><span class="meta-v" id="detailMetaDate">-</span></div>
           <div class="meta-row"><span class="meta-k">当期密探：</span><span class="meta-v" id="detailMetaChars">-</span></div>
+          <div class="meta-row"><span class="meta-k">卡池类别：</span><span class="meta-v" id="detailMetaCategory">-</span></div>
           <button class="btn-edit-current-pool" onclick="window.openEditCurrentPoolModal()">✎ 编辑卡池</button>
         </div>
 
@@ -502,7 +472,7 @@
   <!-- 浮动登记入口按钮 -->
   <button class="fab" onclick="window.openAddModal()">+</button>
 
-  <!-- 模态框 1：新建 / 编辑卡池 (带 Mini 日历) -->
+  <!-- 模态框 1：新建 / 编辑卡池 (带滑动气泡类目与 Mini 日历) -->
   <div class="modal-overlay" id="createPoolModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title" id="poolModalTitle">开辟新限定卡池</div>
@@ -511,6 +481,14 @@
       <div class="form-group">
         <label class="form-label">卡池名录</label>
         <input type="text" class="form-input" id="newPoolNameInput" placeholder="例如：提针引线 / 合纵连横">
+      </div>
+
+      <!-- 横向滑动气泡类别选择器 (8大指定类目) -->
+      <div class="form-group">
+        <label class="form-label">所属类别（左右滑动选择）</label>
+        <div class="chips-selector-scroll" id="poolCategoryChipsBar">
+          <!-- 动态生成 8 大气泡类别 -->
+        </div>
       </div>
       
       <div class="form-group">
@@ -585,6 +563,14 @@
 
   <script>
     (function() {
+      // 8 大指定卡池类目定义
+      const CATEGORY_LIST = [
+        "限定", "自选限定", "复刻",
+        "刘辩地宫", "傅融地宫", "袁基地宫", "左慈地宫", "孙策地宫"
+      ];
+
+      let formSelectedCategory = "限定";
+
       // 绘制并注入专属小纸人鸟 App 图标
       function generateAppIcon() {
         const canvas = document.createElement('canvas');
@@ -660,72 +646,72 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v9';
+      const DB_NAME = 'YuanGachaDatabase_v10';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
       let dbInstance = null;
 
-      // 54 个全量限定卡池（规范年份与时间范围）
+      // 54 个全量限定卡池（带有默认智能分类 category）
       const MASTER_PRESET_POOLS = [
-        { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权" },
-        { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉" },
-        { name: "异才奇士复刻", dateRange: "2023.05.25 - 2023.06.20", upChars: "王粲、郭嘉" },
-        { name: "万物化光", dateRange: "2023.06.08 - 2023.07.19", upChars: "张辽、张仲景、小乔" },
-        { name: "山有扶苏", dateRange: "2023.06.21 - 2023.08.02", upChars: "周瑜、葛洪、许曼" },
-        { name: "四方顺时复刻", dateRange: "2023.07.20 - 2023.08.16", upChars: "华佗、郭解" },
-        { name: "王佐之才", dateRange: "2023.08.03 - 2023.09.13", upChars: "庞统、荀彧、陆绩" },
-        { name: "坐照运筹复刻", dateRange: "2023.08.31 - 2023.09.27", upChars: "贾诩、陆逊" },
-        { name: "诗画同律", dateRange: "2023.09.07 - 2023.10.08", upChars: "蔡琰、张飞" },
-        { name: "争光日月", dateRange: "2023.09.28 - 2023.11.08", upChars: "夏侯惇、张角、王异" },
-        { name: "度势攻心复刻", dateRange: "2023.11.02 - 2023.11.29", upChars: "杨修、吕蒙" },
-        { name: "出奇无穷", dateRange: "2023.11.09 - 2023.12.06", upChars: "程昱、马超" },
-        { name: "天曲日未", dateRange: "2023.11.28 - 2024.01.08", upChars: "太史慈、张闿、公孙瓒" },
-        { name: "扬矢摧锋复刻", dateRange: "2023.12.14 - 2023.12.27", upChars: "孙尚香、张辽" },
-        { name: "绝艳惊鸿", dateRange: "2023.12.21 - 2024.01.24", upChars: "徐庶、张郃" },
-        { name: "击金鸣鼓", dateRange: "2024.01.18 - 2024.02.28", upChars: "甘宁、甄宓" },
-        { name: "乘数而一复刻", dateRange: "2024.02.06 - 2024.02.19", upChars: "孙权、张仲景" },
-        { name: "闻斯行诸", dateRange: "2024.02.22 - 2024.03.20", upChars: "孔融、张鲁" },
-        { name: "天门启阖", dateRange: "2024.03.14 - 2024.04.24", upChars: "黄月英、张邈" },
-        { name: "谨司天英", dateRange: "2024.05.09 - 2024.06.19", upChars: "董奉、曹植" },
-        { name: "云雨滂润", dateRange: "2024.05.25 - 2024.06.28", upChars: "诸葛瑾、诸葛诞" },
-        { name: "二柄刑德", dateRange: "2024.07.04 - 2024.08.14", upChars: "满宠、荀攸" },
-        { name: "照以三光复刻", dateRange: "2024.08.15 - 2024.08.28", upChars: "张闿、张飞" },
-        { name: "腾陵张胆", dateRange: "2024.08.29 - 2024.10.09", upChars: "凌统、安期" },
-        { name: "逐奔不远", dateRange: "2024.09.25 - 2024.10.16", upChars: "刘繇、戏学" },
-        { name: "动如雷霆复刻", dateRange: "2024.10.31 - 2024.11.13", upChars: "张辽、马超" },
-        { name: "一体盈虚", dateRange: "2024.11.07 - 2024.12.04", upChars: "马腾、令狐茂" },
-        { name: "搏鸷缚虬", dateRange: "2024.11.15 - 2024.12.29", upChars: "朱然、黄盖" },
-        { name: "黍梦焚舟", dateRange: "2024.12.12 - 2024.12.25", upChars: "陈登·泰王、史子眇·赴烛" },
-        { name: "风兴云蒸", dateRange: "2025.01.09 - 2025.02.19", upChars: "蒯越、祢衡" },
-        { name: "火中取梦", dateRange: "2025.01.23 - 2025.02.05", upChars: "张郃、甄宓" },
-        { name: "深水逐鹿", dateRange: "2025.02.20 - 2025.03.19", upChars: "刘豹、张绣" },
-        { name: "白日昭只", dateRange: "2025.03.13 - 2025.04.23", upChars: "董白、张昭" },
-        { name: "燧象衔尾", dateRange: "2025.04.30 - 2025.06.11", upChars: "程普、士燮" },
-        { name: "暮燕翻雷", dateRange: "2025.05.29 - 2025.06.25", upChars: "虞翻、张燕" },
-        { name: "金相玉质", dateRange: "2025.06.12 - 2025.06.25", upChars: "孔融、黄月英" },
-        { name: "渊鼓铿钟", dateRange: "2025.06.26 - 2025.08.06", upChars: "夏侯渊、钟繇" },
-        { name: "劫烬灰飞", dateRange: "2025.08.21 - 2025.10.01", upChars: "刘璋、庞羲" },
-        { name: "以奉嘉觞", dateRange: "2025.09.11 - 2025.10.08", upChars: "周忠、吕布" },
-        { name: "游说贤士", dateRange: "2025.09.30 - 2025.10.29", upChars: "自选池" },
-        { name: "大和丕应", dateRange: "2025.10.16 - 2025.11.26", upChars: "曹丕、简雍" },
-        { name: "英徽弥亮", dateRange: "2025.11.06 - 2025.12.03", upChars: "诸葛亮、司马徽" },
-        { name: "动静非我", dateRange: "2025.12.11 - 2026.01.21", upChars: "蒯良、郭女王" },
-        { name: "持心离欲", dateRange: "2025.12.23 - 2026.01.05", upChars: "法正、陈群" },
-        { name: "琴载酒/洪匀玄", dateRange: "2026.01.15 - 2026.01.28", upChars: "孙尚香/葛洪/张飞" },
-        { name: "隋珠弹雀", dateRange: "2026.02.05 - 2026.03.18", upChars: "酆公珠、酆公玖" },
-        { name: "坐令千霄", dateRange: "2026.02.26 - 2026.03.25", upChars: "卢植、庞德" },
-        { name: "东阁待贤", dateRange: "2026.03.30 - 2026.04.28", upChars: "自选池" },
-        { name: "影迹陈陈", dateRange: "2026.04.02 - 2026.05.13", upChars: "陈纪、陈应" },
-        { name: "含明隐迹", dateRange: "2026.05.21 - 2026.06.17", upChars: "孙静、孟获" },
-        { name: "松桥辅德", dateRange: "2026.05.28 - 2026.07.08", upChars: "张松、孙辅" },
-        { name: "奉天华盖", dateRange: "2026.07.09 - 2026.07.22", upChars: "董奉、黄盖" },
-        { name: "诚之云乎", dateRange: "2026.07.23 - 2026.09.02", upChars: "司马孚、赵云" },
-        { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统" }
+        { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "限定" },
+        { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
+        { name: "异才奇士复刻", dateRange: "2023.05.25 - 2023.06.20", upChars: "王粲、郭嘉", category: "复刻" },
+        { name: "万物化光", dateRange: "2023.06.08 - 2023.07.19", upChars: "张辽、张仲景、小乔", category: "限定" },
+        { name: "山有扶苏", dateRange: "2023.06.21 - 2023.08.02", upChars: "周瑜、葛洪、许曼", category: "限定" },
+        { name: "四方顺时复刻", dateRange: "2023.07.20 - 2023.08.16", upChars: "华佗、郭解", category: "复刻" },
+        { name: "王佐之才", dateRange: "2023.08.03 - 2023.09.13", upChars: "庞统、荀彧、陆绩", category: "限定" },
+        { name: "坐照运筹复刻", dateRange: "2023.08.31 - 2023.09.27", upChars: "贾诩、陆逊", category: "复刻" },
+        { name: "诗画同律", dateRange: "2023.09.07 - 2023.10.08", upChars: "蔡琰、张飞", category: "限定" },
+        { name: "争光日月", dateRange: "2023.09.28 - 2023.11.08", upChars: "夏侯惇、张角、王异", category: "限定" },
+        { name: "度势攻心复刻", dateRange: "2023.11.02 - 2023.11.29", upChars: "杨修、吕蒙", category: "复刻" },
+        { name: "出奇无穷", dateRange: "2023.11.09 - 2023.12.06", upChars: "程昱、马超", category: "限定" },
+        { name: "天曲日未", dateRange: "2023.11.28 - 2024.01.08", upChars: "太史慈、张闿、公孙瓒", category: "限定" },
+        { name: "扬矢摧锋复刻", dateRange: "2023.12.14 - 2023.12.27", upChars: "孙尚香、张辽", category: "复刻" },
+        { name: "绝艳惊鸿", dateRange: "2023.12.21 - 2024.01.24", upChars: "徐庶、张郃", category: "限定" },
+        { name: "击金鸣鼓", dateRange: "2024.01.18 - 2024.02.28", upChars: "甘宁、甄宓", category: "限定" },
+        { name: "乘数而一复刻", dateRange: "2024.02.06 - 2024.02.19", upChars: "孙权、张仲景", category: "复刻" },
+        { name: "闻斯行诸", dateRange: "2024.02.22 - 2024.03.20", upChars: "孔融、张鲁", category: "限定" },
+        { name: "天门启阖", dateRange: "2024.03.14 - 2024.04.24", upChars: "黄月英、张邈", category: "限定" },
+        { name: "谨司天英", dateRange: "2024.05.09 - 2024.06.19", upChars: "董奉、曹植", category: "限定" },
+        { name: "云雨滂润", dateRange: "2024.05.25 - 2024.06.28", upChars: "诸葛瑾、诸葛诞", category: "限定" },
+        { name: "二柄刑德", dateRange: "2024.07.04 - 2024.08.14", upChars: "满宠、荀攸", category: "限定" },
+        { name: "照以三光复刻", dateRange: "2024.08.15 - 2024.08.28", upChars: "张闿、张飞", category: "复刻" },
+        { name: "腾陵张胆", dateRange: "2024.08.29 - 2024.10.09", upChars: "凌统、安期", category: "限定" },
+        { name: "逐奔不远", dateRange: "2024.09.25 - 2024.10.16", upChars: "刘繇、戏学", category: "限定" },
+        { name: "动如雷霆复刻", dateRange: "2024.10.31 - 2024.11.13", upChars: "张辽、马超", category: "复刻" },
+        { name: "一体盈虚", dateRange: "2024.11.07 - 2024.12.04", upChars: "马腾、令狐茂", category: "限定" },
+        { name: "搏鸷缚虬", dateRange: "2024.11.15 - 2024.12.29", upChars: "朱然、黄盖", category: "限定" },
+        { name: "黍梦焚舟", dateRange: "2024.12.12 - 2024.12.25", upChars: "陈登·泰王、史子眇·赴烛", category: "限定" },
+        { name: "风兴云蒸", dateRange: "2025.01.09 - 2025.02.19", upChars: "蒯越、祢衡", category: "限定" },
+        { name: "火中取梦", dateRange: "2025.01.23 - 2025.02.05", upChars: "张郃、甄宓", category: "复刻" },
+        { name: "深水逐鹿", dateRange: "2025.02.20 - 2025.03.19", upChars: "刘豹、张绣", category: "限定" },
+        { name: "白日昭只", dateRange: "2025.03.13 - 2025.04.23", upChars: "董白、张昭", category: "限定" },
+        { name: "燧象衔尾", dateRange: "2025.04.30 - 2025.06.11", upChars: "程普、士燮", category: "限定" },
+        { name: "暮燕翻雷", dateRange: "2025.05.29 - 2025.06.25", upChars: "虞翻、张燕", category: "限定" },
+        { name: "金相玉质", dateRange: "2025.06.12 - 2025.06.25", upChars: "孔融、黄月英", category: "复刻" },
+        { name: "渊鼓铿钟", dateRange: "2025.06.26 - 2025.08.06", upChars: "夏侯渊、钟繇", category: "限定" },
+        { name: "劫烬灰飞", dateRange: "2025.08.21 - 2025.10.01", upChars: "刘璋、庞羲", category: "限定" },
+        { name: "以奉嘉觞", dateRange: "2025.09.11 - 2025.10.08", upChars: "周忠、吕布", category: "限定" },
+        { name: "游说贤士", dateRange: "2025.09.30 - 2025.10.29", upChars: "自选池", category: "自选限定" },
+        { name: "大和丕应", dateRange: "2025.10.16 - 2025.11.26", upChars: "曹丕、简雍", category: "限定" },
+        { name: "英徽弥亮", dateRange: "2025.11.06 - 2025.12.03", upChars: "诸葛亮、司马徽", category: "限定" },
+        { name: "动静非我", dateRange: "2025.12.11 - 2026.01.21", upChars: "蒯良、郭女王", category: "限定" },
+        { name: "持心离欲", dateRange: "2025.12.23 - 2026.01.05", upChars: "法正、陈群", category: "限定" },
+        { name: "琴载酒/洪匀玄", dateRange: "2026.01.15 - 2026.01.28", upChars: "孙尚香/葛洪/张飞", category: "复刻" },
+        { name: "隋珠弹雀", dateRange: "2026.02.05 - 2026.03.18", upChars: "酆公珠、酆公玖", category: "限定" },
+        { name: "坐令千霄", dateRange: "2026.02.26 - 2026.03.25", upChars: "卢植、庞德", category: "限定" },
+        { name: "东阁待贤", dateRange: "2026.03.30 - 2026.04.28", upChars: "自选池", category: "自选限定" },
+        { name: "影迹陈陈", dateRange: "2026.04.02 - 2026.05.13", upChars: "陈纪、陈应", category: "限定" },
+        { name: "含明隐迹", dateRange: "2026.05.21 - 2026.06.17", upChars: "孙静、孟获", category: "限定" },
+        { name: "松桥辅德", dateRange: "2026.05.28 - 2026.07.08", upChars: "张松、孙辅", category: "限定" },
+        { name: "奉天华盖", dateRange: "2026.07.09 - 2026.07.22", upChars: "董奉、黄盖", category: "复刻" },
+        { name: "诚之云乎", dateRange: "2026.07.23 - 2026.09.02", upChars: "司马孚、赵云", category: "限定" },
+        { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统", category: "复刻" }
       ];
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
       let activeTab = 'standard';
-      let currentSelectedPool = 'ALL'; // 'ALL' 对应画廊模式，具体名字对应单池详情模式
+      let currentSelectedPool = 'ALL';
       let formRarity = '绝密';
       let formIsUp = true;
       let currentAvatarBase64 = '';
@@ -756,6 +742,10 @@
           const m = parts[1].padStart(2, '0');
           const d = parts[2].padStart(2, '0');
           return `${y}-${m}-${d}`;
+        } else if (parts.length === 2) {
+          const m = parts[0].padStart(2, '0');
+          const d = parts[1].padStart(2, '0');
+          return `2024-${m}-${d}`;
         }
         return '';
       }
@@ -774,22 +764,21 @@
         appData.pools.sort((a, b) => {
           const timeA = getPoolStartTimestamp(a.dateRange);
           const timeB = getPoolStartTimestamp(b.dateRange);
-          return timeB - timeA; // 降序：最新在上，早年置底
+          return timeB - timeA;
         });
       }
 
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
-        // 智能收录历史记录中的卡池
         if (appData.limited && appData.limited.length > 0) {
           appData.limited.forEach(rec => {
             if (rec.poolName && !appData.pools.some(p => p.name === rec.poolName)) {
               const match = MASTER_PRESET_POOLS.find(m => m.name === rec.poolName || rec.poolName.includes(m.name) || m.name.includes(rec.poolName));
               if (match) {
-                appData.pools.push({ name: rec.poolName, dateRange: match.dateRange, upChars: match.upChars });
+                appData.pools.push({ name: rec.poolName, dateRange: match.dateRange, upChars: match.upChars, category: match.category || "限定" });
               } else {
-                appData.pools.push({ name: rec.poolName, dateRange: '2023.01.01 起', upChars: '自定义活动' });
+                appData.pools.push({ name: rec.poolName, dateRange: '2023.01.01 起', upChars: '自定义活动', category: "限定" });
               }
             }
           });
@@ -805,6 +794,9 @@
             }
             if (!existing.upChars || existing.upChars === '未设') {
               existing.upChars = pre.upChars;
+            }
+            if (!existing.category) {
+              existing.category = pre.category || "限定";
             }
           }
         });
@@ -847,7 +839,6 @@
         });
       }
 
-      /* 智能图片自适应压缩引擎（不强行裁切为固定比例，保持原图 9:16 或 16:9 构图） */
       function compressAdaptiveImage(file, maxDimension, quality, callback) {
         const reader = new FileReader();
         reader.onload = function(evt) {
@@ -855,11 +846,9 @@
           img.onload = function() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
             let w = img.width;
             let h = img.height;
 
-            // 等比缩放，限制最大单边尺寸，兼顾高清与内存
             if (w > h) {
               if (w > maxDimension) {
                 h = Math.round(h * (maxDimension / w));
@@ -882,7 +871,6 @@
         reader.readAsDataURL(file);
       }
 
-      /* 密探专属 3:4 裁剪 */
       function cropAvatar34(file, callback) {
         const reader = new FileReader();
         reader.onload = function(evt) {
@@ -919,11 +907,9 @@
         reader.readAsDataURL(file);
       }
 
-      /* 上传卡池封面海报 (支持横屏或竖屏自适应) */
       window.handleBannerUpload = function(e) {
         const file = e.target.files[0];
         if (!file || currentSelectedPool === 'ALL') return;
-
         compressAdaptiveImage(file, 720, 0.82, function(base64) {
           appData.poolBanners[currentSelectedPool] = base64;
           saveData();
@@ -938,7 +924,6 @@
         }
       };
 
-      /* 密探立绘处理 */
       window.handleAvatarSelect = function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -957,7 +942,6 @@
         document.getElementById('btnClearAvatar').style.display = 'none';
       };
 
-      /* 主 Tab 切换 */
       window.switchMainPool = function(tab) {
         activeTab = tab;
         document.getElementById('tabStandardBtn').classList.toggle('active', tab === 'standard');
@@ -967,19 +951,23 @@
         render();
       };
 
-      /* 进入指定卡池单池详情 */
       window.enterPoolDetail = function(poolName) {
         currentSelectedPool = poolName;
         render();
       };
 
-      /* 从单池详情返回卡池画卷总览 */
       window.exitToPoolGallery = function() {
         currentSelectedPool = 'ALL';
         render();
       };
 
-      /* 渲染卡池主界面画卷流 */
+      // 渲染类别气泡 HTML
+      function getCategoryBubbleHtml(cat) {
+        const c = cat || "限定";
+        return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
+      }
+
+      // 渲染主界面卡池画卷流
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
@@ -992,9 +980,8 @@
           const bannerData = appData.poolBanners[pool.name];
           const bannerHtml = bannerData 
             ? `<img src="${bannerData}" alt="${pool.name}">` 
-            : `<div class="stream-poster-placeholder">📷 点击进入卡池导入海报<br><span style="font-size:11px; color:#A49488;">(适配 9:16 竖版或 16:9 横版)</span></div>`;
+            : `<div class="stream-poster-placeholder">📷 点击进入卡池导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>`;
 
-          // 统计该池的步数
           const poolRecords = appData.limited.filter(r => r.poolName === pool.name);
           const poolPulls = poolRecords.reduce((acc, r) => acc + Number(r.pulls), 0);
 
@@ -1004,7 +991,10 @@
             </div>
             <div class="stream-item-info">
               <div class="stream-info-left">
-                <span class="stream-pool-name">${pool.name}</span>
+                <div class="stream-title-row">
+                  <span class="stream-pool-name">${pool.name}</span>
+                  ${getCategoryBubbleHtml(pool.category)}
+                </div>
                 <span class="stream-pool-meta">周期: ${pool.dateRange || '未定'}</span>
                 <span class="stream-pool-meta">UP: ${pool.upChars || '未设'}</span>
               </div>
@@ -1017,7 +1007,6 @@
         });
       }
 
-      /* 统一主渲染逻辑 */
       function render() {
         if (activeTab === 'standard') {
           renderStandardView();
@@ -1042,7 +1031,6 @@
       }
 
       function renderLimitedView() {
-        // 限定全局统计
         const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
         const allSsr = appData.limited.filter(r => r.rarity === '绝密');
         const allSsrCount = allSsr.length;
@@ -1057,12 +1045,10 @@
         document.getElementById('lmtPityRate').innerText = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
 
         if (currentSelectedPool === 'ALL') {
-          // 展示 2.1 画廊卡片流模式
           document.getElementById('limitedGalleryMode').style.display = 'block';
           document.getElementById('limitedSingleMode').style.display = 'none';
           renderPoolCardStream();
         } else {
-          // 展示 2.2 单卡池详情模式
           document.getElementById('limitedGalleryMode').style.display = 'none';
           document.getElementById('limitedSingleMode').style.display = 'block';
 
@@ -1070,12 +1056,17 @@
           document.getElementById('singlePoolHeaderTitle').innerText = currentSelectedPool;
           document.getElementById('singlePoolStatTitle').innerText = '单池表现: ' + currentSelectedPool;
 
+          const cat = poolObj ? (poolObj.category || "限定") : "限定";
+          const headerBubble = document.getElementById('singlePoolHeaderBubble');
+          headerBubble.innerText = cat;
+          headerBubble.className = `bubble-category-tag cat-${cat}`;
+
           if (poolObj) {
             document.getElementById('detailMetaDate').innerText = poolObj.dateRange || '未定';
             document.getElementById('detailMetaChars').innerText = poolObj.upChars || '未设';
+            document.getElementById('detailMetaCategory').innerText = cat;
           }
 
-          // 详情海报呈现
           const img = document.getElementById('detailPosterImg');
           const tip = document.getElementById('detailPosterPlaceholder');
           const delBtn = document.getElementById('btnRemoveDetailBanner');
@@ -1093,7 +1084,6 @@
             delBtn.style.display = 'none';
           }
 
-          // 单池指标统计
           const list = appData.limited.filter(r => r.poolName === currentSelectedPool);
           const poolTotal = list.reduce((acc, r) => acc + Number(r.pulls), 0);
           const poolSsr = list.filter(r => r.rarity === '绝密');
@@ -1152,7 +1142,25 @@
         });
       }
 
-      /* 弹窗及录入逻辑 */
+      // 初始化横向滑动气泡类别选择栏
+      function initCategoryChips(activeCat) {
+        formSelectedCategory = activeCat || "限定";
+        const container = document.getElementById('poolCategoryChipsBar');
+        container.innerHTML = '';
+
+        CATEGORY_LIST.forEach(cat => {
+          const chip = document.createElement('div');
+          chip.className = `chip-bubble-opt ${formSelectedCategory === cat ? 'selected' : ''}`;
+          chip.innerText = cat;
+          chip.onclick = function() {
+            formSelectedCategory = cat;
+            document.querySelectorAll('.chip-bubble-opt').forEach(el => el.classList.remove('selected'));
+            chip.classList.add('selected');
+          };
+          container.appendChild(chip);
+        });
+      }
+
       window.openAddModal = function() {
         document.getElementById('recordModalTitle').innerText = '登记密探招募';
         document.getElementById('editRecordId').value = '';
@@ -1306,10 +1314,11 @@
         document.getElementById('poolEndDateInput').value = '';
         document.getElementById('newPoolCharsInput').value = '';
 
+        initCategoryChips("限定");
         document.getElementById('createPoolModal').classList.add('active');
       };
 
-      /* 打开编辑当前详情页卡池弹窗 */
+      /* 打开编辑当前卡池弹窗 */
       window.openEditCurrentPoolModal = function() {
         if (currentSelectedPool === 'ALL') return;
         const pool = appData.pools.find(p => p.name === currentSelectedPool);
@@ -1331,15 +1340,18 @@
           document.getElementById('poolEndDateInput').value = '';
         }
 
+        initCategoryChips(pool.category || "限定");
         document.getElementById('createPoolModal').classList.add('active');
       };
 
+      /* 提交卡池表单 (含类目) */
       window.submitPoolForm = function() {
         const originalName = document.getElementById('editingPoolOriginalName').value;
         const name = document.getElementById('newPoolNameInput').value.trim();
         const startVal = document.getElementById('poolStartDateInput').value;
         const endVal = document.getElementById('poolEndDateInput').value;
         const upChars = document.getElementById('newPoolCharsInput').value.trim() || '未设';
+        const category = formSelectedCategory || "限定";
 
         if (!name) return alert('卡池名录不可为空');
 
@@ -1359,6 +1371,7 @@
             targetPool.name = name;
             targetPool.dateRange = dateRangeStr;
             targetPool.upChars = upChars;
+            targetPool.category = category;
           }
           if (name !== originalName) {
             appData.limited.forEach(rec => {
@@ -1374,8 +1387,8 @@
           }
         } else {
           if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
-          appData.pools.push({ name, dateRange: dateRangeStr, upChars });
-          currentSelectedPool = name; // 新建后直接进入该池详情页
+          appData.pools.push({ name, dateRange: dateRangeStr, upChars, category });
+          currentSelectedPool = name;
         }
 
         saveData();
@@ -1455,13 +1468,13 @@
             if (data.limitedPools && Array.isArray(data.limitedPools)) {
               data.limitedPools.forEach(oldName => {
                 if (!appData.pools.some(p => p.name === oldName)) {
-                  appData.pools.push({ name: oldName, dateRange: '2023.01.01 起', upChars: '未指定' });
+                  appData.pools.push({ name: oldName, dateRange: '2023.01.01 起', upChars: '未指定', category: "限定" });
                 }
               });
             }
 
             reconcilePools();
-            saveData().then(() => alert('全档案数据导入成功！历史卡池已按时间正序重新归位。'));
+            saveData().then(() => alert('全档案数据导入成功！历史卡池与分类气泡已全部归位。'));
           } catch(err) {
             alert('JSON 文件格式损坏，无法恢复');
           }
