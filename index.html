@@ -14,6 +14,9 @@
   <link rel="apple-touch-icon-precomposed" id="appleTouchIconPre" href="">
   <link rel="icon" id="pageFavicon" type="image/png" href="">
 
+  <!-- 引入官方轻量 Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       /* 芭乐夏日主题调色盘 */
@@ -49,19 +52,53 @@
       padding-bottom: 120px; 
     }
 
-    /* 顶部导航 Tabs */
+    /* 顶部导航 Tabs 与云端账号胶囊 */
+    .top-header-bar {
+      position: sticky; top: 0; z-index: 30;
+      background: rgba(253, 249, 243, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 16px 8px 16px;
+    }
+    .auth-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .brand-logo-text {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: 0.5px;
+    }
+    .cloud-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card-bg);
+      border: 1px solid var(--color-guava-blush);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(241, 158, 150, 0.15);
+    }
+    .cloud-pill-btn.online {
+      border-color: var(--color-guava-saga);
+      color: var(--color-guava-saga);
+    }
+
     .nav-tabs { 
-      position: sticky; top: 0; z-index: 20; display: flex; 
-      background: rgba(253, 249, 243, 0.95); 
-      backdrop-filter: blur(10px); 
-      padding: 12px 16px; 
-      border-bottom: 1px solid var(--border-color); 
-      gap: 12px; 
+      display: flex; 
+      gap: 10px; 
     }
     .nav-tab-btn { 
-      flex: 1; padding: 10px 0; text-align: center; border: 1px solid transparent; 
+      flex: 1; padding: 9px 0; text-align: center; border: 1px solid transparent; 
       background: rgba(248, 236, 215, 0.5); 
-      color: var(--text-sub); font-size: 14px; font-weight: 600; 
+      color: var(--text-sub); font-size: 13.5px; font-weight: 600; 
       border-radius: var(--radius-md); cursor: pointer; 
       transition: all 0.2s ease;
     }
@@ -160,7 +197,7 @@
     .cat-左慈地宫   { background: #FBF4FD; color: #8F55A8; border-color: #EED7F7; }
     .cat-孙策地宫   { background: #FEF7EC; color: #C27429; border-color: #F8DFC0; }
 
-    /* ==================== 核心新特性：密探展开区及卡片调优 ==================== */
+    /* 密探展开区及卡片调优 */
     .stream-expanded-content {
       display: none;
       padding: 14px 16px 18px 16px;
@@ -193,18 +230,18 @@
       cursor: pointer;
     }
 
-    /* 5 列响应式网格布局 (间距放大至 11px) */
+    /* 5 列响应式网格布局 */
     .chars-grid-5 {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 11px; /* 间距由 8px 扩大到 11px */
+      gap: 11px;
     }
 
     /* 3:4 比例精致密探卡 */
     .mini-char-card-wrap {
       position: relative;
       aspect-ratio: 3 / 4;
-      border-radius: 8px; /* 圆角稍微圆润一点更贴合卡片质感 */
+      border-radius: 8px;
       overflow: hidden;
       background: var(--color-fruit-pulp);
       border: 1px solid var(--border-color);
@@ -234,7 +271,6 @@
       color: var(--text-sub);
     }
 
-    /* 底部半透明黑底抽数标注 (加大加厚加高) */
     .mini-pulls-label {
       position: absolute;
       bottom: 0;
@@ -243,37 +279,32 @@
       background: rgba(0, 0, 0, 0.68);
       backdrop-filter: blur(3px);
       color: #FFFFFF;
-      font-size: 11.5px; /* 由 10px 放大至 11.5px */
+      font-size: 11.5px;
       font-weight: 800;
       text-align: center;
-      padding: 3px 0; /* 内边距加高 */
+      padding: 3px 0;
       line-height: 1.25;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
       letter-spacing: 0.2px;
     }
-    .mini-char-card-wrap.rarity-SSR .mini-pulls-label {
-      color: #FFF2A8; /* 更鲜亮的浅亮金 */
-    }
-    .mini-char-card-wrap.is-lost .mini-pulls-label {
-      color: #FFB3B3;
-    }
+    .mini-char-card-wrap.rarity-SSR .mini-pulls-label { color: #FFF2A8; }
+    .mini-char-card-wrap.is-lost .mini-pulls-label { color: #FFB3B3; }
 
-    /* 右上角「歪」红色微标 (加大至 18px，带清晰白边与阴影) */
     .mini-lost-badge {
       position: absolute;
       top: 3px;
       right: 3px;
       background: var(--accent-red);
       color: #FFFFFF;
-      font-size: 10px; /* 字体加大 */
+      font-size: 10px;
       font-weight: 900;
-      width: 18px; /* 由 14px 扩大至 18px */
+      width: 18px;
       height: 18px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1.5px solid #FFFFFF; /* 加一圈干净的白色描边防混色 */
+      border: 1.5px solid #FFFFFF;
       box-shadow: 0 2px 5px rgba(0,0,0,0.35);
       z-index: 3;
     }
@@ -359,6 +390,22 @@
     .form-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; }
     .form-input, .form-select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #FAF6F0; font-size: 15px; color: var(--text-main); outline: none; }
     
+    /* 显眼的忘记密码通道按钮 */
+    .forgot-pwd-box {
+      margin-top: 8px;
+      text-align: right;
+    }
+    .btn-forgot-pwd {
+      background: none;
+      border: none;
+      font-size: 12.5px;
+      color: #C27429;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 4px;
+    }
+
     .chips-selector-scroll {
       display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px 2px; scrollbar-width: none;
     }
@@ -405,10 +452,18 @@
 </head>
 <body>
 
-  <!-- 顶部主池切换 -->
-  <header class="nav-tabs">
-    <div class="nav-tab-btn active" id="tabStandardBtn" onclick="window.switchMainPool('standard')">绣衣楼密招 (普池)</div>
-    <div class="nav-tab-btn" id="tabLimitedBtn" onclick="window.switchMainPool('limited')">限定特命 (活动池)</div>
+  <!-- 顶部导航栏 (含 Supabase 云端账号状态胶囊) -->
+  <header class="top-header-bar">
+    <div class="auth-status-row">
+      <span class="brand-logo-text">密探招募录</span>
+      <button class="cloud-pill-btn" id="cloudStatusBtn" onclick="window.openAuthModal()">
+        <span id="cloudStatusDot">☁️</span> <span id="cloudStatusText">云端登录 / 注册</span>
+      </button>
+    </div>
+    <nav class="nav-tabs">
+      <div class="nav-tab-btn active" id="tabStandardBtn" onclick="window.switchMainPool('standard')">绣衣楼密招 (普池)</div>
+      <div class="nav-tab-btn" id="tabLimitedBtn" onclick="window.switchMainPool('limited')">限定特命 (活动池)</div>
+    </nav>
   </header>
 
   <main class="container">
@@ -457,15 +512,77 @@
 
     <!-- 底部操作栏 -->
     <footer class="bottom-bar">
+      <button class="btn-action-tool" onclick="window.syncToCloudNow()">手动上传云端</button>
       <button class="btn-action-tool" onclick="window.exportDataJSON()">导出备份</button>
       <button class="btn-action-tool" onclick="window.triggerImportJSON()">导入备份</button>
-      <button class="btn-action-tool" onclick="window.clearCurrentPoolData()">清空数据</button>
       <input type="file" id="jsonFileInput" style="display: none;" accept=".json" onchange="window.importDataJSON(event)" />
     </footer>
   </main>
 
   <!-- 浮动登记入口按钮 -->
   <button class="fab" onclick="window.openAddModal()">+</button>
+
+  <!-- 模态框 0：Supabase 云端账号登录 / 注册 / 找回密码 (UI 重构版) -->
+  <div class="modal-overlay" id="authModal" onclick="window.closeModalOnBg(event)">
+    <div class="modal-panel" onclick="event.stopPropagation()">
+      <div class="modal-title" id="authModalTitle">云端数据账户</div>
+      
+      <!-- 0.1 登录与注册主视图 -->
+      <div id="authFormArea">
+        <div class="form-group">
+          <label class="form-label">账号邮箱</label>
+          <input type="email" class="form-input" id="authEmailInput" placeholder="输入接收邮件的常用邮箱">
+        </div>
+        <div class="form-group">
+          <label class="form-label">登录密码 (不少于6位)</label>
+          <input type="password" class="form-input" id="authPasswordInput" placeholder="输入登录密码">
+          <!-- 显眼醒目的“忘记密码”按钮 -->
+          <div class="forgot-pwd-box">
+            <button class="btn-forgot-pwd" type="button" onclick="window.switchAuthView('forgot')">🔑 忘记密码？点击找回</button>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="btn-submit" style="flex:1;" onclick="window.handleLogin()">登录同步</button>
+          <button class="btn-submit" style="flex:1; background:var(--color-peel-citron); color:var(--text-main); border:1px solid rgba(178,186,105,0.4);" onclick="window.handleSignUp()">注册新号</button>
+        </div>
+      </div>
+
+      <!-- 0.2 找回密码视图 -->
+      <div id="authForgotArea" style="display: none;">
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px; line-height: 1.6;">
+          请输入你注册时使用的邮箱，我们将向你发送一封包含密码重置安全链接的邮件：
+        </p>
+        <div class="form-group">
+          <label class="form-label">注册邮箱</label>
+          <input type="email" class="form-input" id="authForgotEmailInput" placeholder="your_email@example.com">
+        </div>
+        <button class="btn-submit" onclick="window.handleSendResetEmail()">发送重置邮件</button>
+        <div style="text-align: center; margin-top: 14px;">
+          <button class="btn-forgot-pwd" type="button" style="color:var(--text-sub);" onclick="window.switchAuthView('login')">← 返回登录</button>
+        </div>
+      </div>
+
+      <!-- 0.3 设置新密码视图 (邮件链接唤醒后自动呈现) -->
+      <div id="authResetArea" style="display: none;">
+        <p style="font-size: 13px; color: var(--color-guava-saga); font-weight: 700; margin-bottom: 12px;">
+          ✓ 安全凭证验证成功，请输入你的全新密码：
+        </p>
+        <div class="form-group">
+          <label class="form-label">设置新密码 (不少于6位)</label>
+          <input type="password" class="form-input" id="authNewPasswordInput" placeholder="输入新密码">
+        </div>
+        <button class="btn-submit" onclick="window.handleUpdatePassword()">确认更新并登录</button>
+      </div>
+
+      <!-- 0.4 已登录信息卡片 -->
+      <div id="authLoggedInArea" style="display: none; text-align: center; padding: 10px 0;">
+        <p style="font-size: 14px; color: var(--text-main); margin-bottom: 6px;">已登录账号：<b id="loggedInUserEmail">-</b></p>
+        <p style="font-size: 11px; color: var(--color-guava-saga); margin-bottom: 16px;">✓ 抽卡数据已开启全自动实时云端备份</p>
+        <button class="btn-submit" style="background:#FAF6F0; color:var(--accent-red); border:1px solid var(--border-color);" onclick="window.handleLogout()">退出当前账号</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 模态框 1：新建 / 编辑卡池 -->
   <div class="modal-overlay" id="createPoolModal" onclick="window.closeModalOnBg(event)">
@@ -555,6 +672,16 @@
 
   <script>
     (function() {
+      // 1. Supabase 凭据配置
+      const SUPABASE_URL = "https://qcllfqakucmkkijmoxrg.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbGxmcWFrdWNta2tpam1veHJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MzY0ODYsImV4cCI6MjA5ODExMjQ4Nn0.uI3nvPWb36OhG2Qj0uMaULzm1DHOuZkrD7P87ib_C-8";
+      
+      const supabaseClient = (window.supabase && window.supabase.createClient) 
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+        : null;
+
+      let currentUser = null;
+
       const CATEGORY_LIST = [
         "限定", "复刻", "自选限定", "照影",
         "刘辩地宫", "傅融地宫", "袁基地宫", "左慈地宫", "孙策地宫"
@@ -638,9 +765,10 @@
 
       generateAppIcon();
 
-      const DB_NAME = 'YuanGachaDatabase_v15';
+      const DB_NAME = 'YuanGachaDatabase_Master';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
+      const BACKUP_STORAGE_KEY = 'YuanGacha_Dual_Backup_Master';
       let dbInstance = null;
 
       const MASTER_PRESET_POOLS = [
@@ -771,6 +899,58 @@
         });
       }
 
+      async function trySalvageFromLegacyDbs() {
+        const legacyDbNames = [
+          'YuanGachaDatabase_v15', 'YuanGachaDatabase_v14', 'YuanGachaDatabase_v13',
+          'YuanGachaDatabase_v12', 'YuanGachaDatabase_v11', 'YuanGachaDatabase_v10',
+          'YuanGachaDatabase_v9', 'YuanGachaDatabase_v8', 'YuanGachaDatabase_v7',
+          'YuanGachaDatabase_v6', 'YuanGachaDatabase_v5', 'YuanGachaDatabase_v4',
+          'YuanGachaDatabase_v3', 'YuanGachaDatabase_v2', 'YuanGachaDatabase'
+        ];
+
+        for (const oldDbName of legacyDbNames) {
+          try {
+            const data = await new Promise((res) => {
+              const req = indexedDB.open(oldDbName);
+              req.onsuccess = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                  db.close();
+                  return res(null);
+                }
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const getReq = store.get('root_data');
+                getReq.onsuccess = () => { db.close(); res(getReq.result); };
+                getReq.onerror = () => { db.close(); res(null); };
+              };
+              req.onerror = () => res(null);
+            });
+
+            if (data && ((data.limited && data.limited.length > 0) || (data.standard && data.standard.length > 0) || (data.poolBanners && Object.keys(data.poolBanners).length > 0))) {
+              return data;
+            }
+          } catch(e) {}
+        }
+
+        const legacyStorageKeys = [
+          BACKUP_STORAGE_KEY, 'Yuan_Gacha_App_Data_v6', 'Yuan_Gacha_App_Data_v5',
+          'Yuan_Gacha_App_Data_v4', 'Yuan_Gacha_App_Data_v3', 'Yuan_Gacha_App_Data_v2'
+        ];
+        for (const k of legacyStorageKeys) {
+          try {
+            const cache = localStorage.getItem(k);
+            if (cache) {
+              const parsed = JSON.parse(cache);
+              if (parsed && ((parsed.limited && parsed.limited.length > 0) || (parsed.standard && parsed.standard.length > 0))) {
+                return parsed;
+              }
+            }
+          } catch(e) {}
+        }
+        return null;
+      }
+
       function reconcilePools() {
         if (!appData.pools) appData.pools = [];
 
@@ -825,40 +1005,274 @@
         sortPoolsChronologically();
       }
 
-      function loadData() {
-        return new Promise((resolve) => {
+      async function loadData() {
+        return new Promise(async (resolve) => {
           const tx = dbInstance.transaction(STORE_NAME, 'readonly');
           const store = tx.objectStore(STORE_NAME);
           const req = store.get('root_data');
 
-          req.onsuccess = function() {
-            if (req.result) {
-              appData = req.result;
+          req.onsuccess = async function() {
+            let data = req.result;
+            if (!data || (!data.limited || data.limited.length === 0)) {
+              const salvaged = await trySalvageFromLegacyDbs();
+              if (salvaged) data = salvaged;
+            }
+
+            if (data) {
+              appData = {
+                standard: data.standard || [],
+                pools: data.pools || [],
+                poolBanners: data.poolBanners || {},
+                limited: data.limited || []
+              };
               reconcilePools();
-              saveData().then(resolve);
+              await saveData(false);
+              resolve();
             } else {
               appData.pools = [...MASTER_PRESET_POOLS];
               sortPoolsChronologically();
-              saveData().then(resolve);
+              await saveData(false);
+              resolve();
             }
           };
           req.onerror = function() { resolve(); };
         });
       }
 
-      function saveData() {
+      function saveData(shouldSyncCloud = true) {
         return new Promise((resolve) => {
           if (!dbInstance) return resolve();
           sortPoolsChronologically();
+
           const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
           store.put(appData, 'root_data');
+
+          try {
+            localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify(appData));
+          } catch(e) {}
+
           tx.oncomplete = function() {
             render();
+            if (shouldSyncCloud && currentUser) {
+              pushDataToCloudSilent();
+            }
             resolve();
           };
+          tx.onerror = function() { resolve(); };
         });
       }
+
+      // ==================== 2. Supabase 账号与找回密码功能 ====================
+      async function checkAuthSession() {
+        if (!supabaseClient) return;
+        try {
+          supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+              window.openResetPasswordModal();
+            } else if (session && session.user) {
+              currentUser = session.user;
+              updateAuthUI(true, currentUser.email);
+            } else {
+              currentUser = null;
+              updateAuthUI(false);
+            }
+          });
+
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session && session.user) {
+            currentUser = session.user;
+            updateAuthUI(true, currentUser.email);
+            await pullDataFromCloud();
+          } else {
+            updateAuthUI(false);
+          }
+        } catch(e) {
+          updateAuthUI(false);
+        }
+      }
+
+      function updateAuthUI(isLoggedIn, email) {
+        const btn = document.getElementById('cloudStatusBtn');
+        const text = document.getElementById('cloudStatusText');
+        const dot = document.getElementById('cloudStatusDot');
+
+        if (isLoggedIn) {
+          btn.classList.add('online');
+          dot.innerText = '●';
+          text.innerText = email.split('@')[0] + ' (云端同步中)';
+          window.switchAuthView('loggedin');
+          document.getElementById('loggedInUserEmail').innerText = email;
+        } else {
+          btn.classList.remove('online');
+          dot.innerText = '☁️';
+          text.innerText = '云端登录 / 注册';
+          window.switchAuthView('login');
+        }
+      }
+
+      window.switchAuthView = function(view) {
+        document.getElementById('authFormArea').style.display = (view === 'login') ? 'block' : 'none';
+        document.getElementById('authForgotArea').style.display = (view === 'forgot') ? 'block' : 'none';
+        document.getElementById('authResetArea').style.display = (view === 'reset') ? 'block' : 'none';
+        document.getElementById('authLoggedInArea').style.display = (view === 'loggedin') ? 'block' : 'none';
+
+        const titleEl = document.getElementById('authModalTitle');
+        if (view === 'login') titleEl.innerText = '云端数据账户';
+        if (view === 'forgot') titleEl.innerText = '找回登录密码';
+        if (view === 'reset') titleEl.innerText = '设置全新密码';
+        if (view === 'loggedin') titleEl.innerText = '已连接云端';
+      };
+
+      window.handleSendResetEmail = async function() {
+        const email = document.getElementById('authForgotEmailInput').value.trim();
+        if (!email) return alert('请输入接收重置链接的邮箱');
+
+        try {
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + window.location.pathname
+          });
+          if (error) throw error;
+          alert(`密码重置邮件已发送至 ${email}！\n请前往邮箱查收邮件并点击链接，即可直接设置新密码。`);
+          window.switchAuthView('login');
+        } catch(err) {
+          alert('发送失败：' + (err.message || '请确认邮箱是否正确'));
+        }
+      };
+
+      window.openResetPasswordModal = function() {
+        window.openAuthModal();
+        window.switchAuthView('reset');
+      };
+
+      window.handleUpdatePassword = async function() {
+        const newPassword = document.getElementById('authNewPasswordInput').value.trim();
+        if (!newPassword || newPassword.length < 6) return alert('新密码不能少于6位');
+
+        try {
+          const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
+          if (error) throw error;
+          alert('密码修改成功！已自动使用新密码保持登录。');
+          if (data.user) {
+            currentUser = data.user;
+            updateAuthUI(true, currentUser.email);
+            await pullDataFromCloud();
+          }
+          window.closeModal('authModal');
+        } catch(err) {
+          alert('密码更新失败：' + (err.message || '凭证已失效，请重新发起找回'));
+        }
+      };
+
+      async function pushDataToCloudSilent() {
+        if (!supabaseClient || !currentUser) return;
+        try {
+          await supabaseClient
+            .from('user_gacha_data')
+            .upsert({
+              id: currentUser.id,
+              data: appData,
+              updated_at: new Date().toISOString()
+            });
+        } catch(e) {}
+      }
+
+      window.syncToCloudNow = async function() {
+        if (!currentUser) {
+          alert('请先点击顶部「云端登录 / 注册」进入你的专属账户');
+          window.openAuthModal();
+          return;
+        }
+        try {
+          const { error } = await supabaseClient
+            .from('user_gacha_data')
+            .upsert({
+              id: currentUser.id,
+              data: appData,
+              updated_at: new Date().toISOString()
+            });
+          if (error) throw error;
+          alert('当前所有抽卡记录、立绘与卡池配置已 100% 稳妥保存至 Supabase 云端！');
+        } catch(e) {
+          alert('上传失败，请检查网络：' + e.message);
+        }
+      };
+
+      async function pullDataFromCloud() {
+        if (!supabaseClient || !currentUser) return;
+        try {
+          const { data, error } = await supabaseClient
+            .from('user_gacha_data')
+            .select('data')
+            .eq('id', currentUser.id)
+            .single();
+
+          if (data && data.data) {
+            const cloudData = data.data;
+            if (cloudData.limited && cloudData.limited.length > 0) {
+              appData = cloudData;
+              reconcilePools();
+              await saveData(false);
+              render();
+            } else {
+              await pushDataToCloudSilent();
+            }
+          } else {
+            await pushDataToCloudSilent();
+          }
+        } catch(e) {}
+      }
+
+      window.openAuthModal = function() {
+        document.getElementById('authModal').classList.add('active');
+      };
+
+      window.handleLogin = async function() {
+        const email = document.getElementById('authEmailInput').value.trim();
+        const password = document.getElementById('authPasswordInput').value.trim();
+        if (!email || !password) return alert('请填入账号邮箱与密码');
+
+        try {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          currentUser = data.user;
+          updateAuthUI(true, currentUser.email);
+          await pullDataFromCloud();
+          alert('登录成功！已连线云端数据库，数据已完全同步。');
+          window.closeModal('authModal');
+        } catch(err) {
+          alert('登录失败：' + (err.message || '请确认账号密码是否正确'));
+        }
+      };
+
+      window.handleSignUp = async function() {
+        const email = document.getElementById('authEmailInput').value.trim();
+        const password = document.getElementById('authPasswordInput').value.trim();
+        if (!email || !password) return alert('请填入账号邮箱与密码');
+        if (password.length < 6) return alert('密码长度不能少于6位');
+
+        try {
+          const { data, error } = await supabaseClient.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.user) {
+            currentUser = data.user;
+            updateAuthUI(true, currentUser.email);
+            await pushDataToCloudSilent();
+            alert('注册并登录成功！当前本地数据已直接备份上云端。');
+            window.closeModal('authModal');
+          }
+        } catch(err) {
+          alert('注册失败：' + (err.message || '网络连接异常'));
+        }
+      };
+
+      window.handleLogout = async function() {
+        if (!confirm('确认退出当前云端账号？（退出后本地数据依然保留）')) return;
+        if (supabaseClient) await supabaseClient.auth.signOut();
+        currentUser = null;
+        updateAuthUI(false);
+        window.closeModal('authModal');
+      };
 
       function compressAdaptiveImage(file, maxDimension, quality, callback) {
         const reader = new FileReader();
@@ -991,7 +1405,6 @@
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
-      /* 渲染主界面卡池画卷与五个一排的密探流 (微调升级后的间距与微标) */
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
@@ -1471,9 +1884,13 @@
         e.target.value = '';
       };
 
-      openDatabase().then(loadData).then(render).catch(() => {
-        console.error('IndexedDB 启动异常');
-      });
+      openDatabase()
+        .then(loadData)
+        .then(render)
+        .then(checkAuthSession)
+        .catch(() => {
+          console.error('存储引擎启动异常');
+        });
     })();
   </script>
 </body>
