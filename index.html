@@ -216,28 +216,19 @@
       padding-bottom: 6px;
       border-bottom: 1px solid rgba(239, 228, 214, 0.6);
     }
-    .expanded-stat-text {
-      font-size: 11px;
-      color: var(--text-sub);
-    }
+    .expanded-stat-text { font-size: 11px; color: var(--text-sub); }
     .expanded-stat-text b { color: var(--color-guava-saga); font-weight: 700; }
     .btn-pool-edit-inline {
-      background: none;
-      border: none;
-      font-size: 11px;
-      color: var(--color-guava-saga);
-      font-weight: 700;
-      cursor: pointer;
+      background: none; border: none; font-size: 11px;
+      color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
     }
 
-    /* 5 列响应式网格布局 */
     .chars-grid-5 {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 11px;
     }
 
-    /* 3:4 比例精致密探卡 */
     .mini-char-card-wrap {
       position: relative;
       aspect-ratio: 3 / 4;
@@ -255,9 +246,7 @@
       border: 1.8px solid var(--color-flesh-sorbet);
       box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
     }
-    .mini-char-card-wrap.is-lost {
-      border: 1.8px solid var(--accent-red) !important;
-    }
+    .mini-char-card-wrap.is-lost { border: 1.8px solid var(--accent-red) !important; }
 
     .mini-char-img {
       width: 100%;
@@ -434,7 +423,7 @@
 
     .avatar-uploader-row { display: flex; align-items: center; gap: 14px; background: #FAF6F0; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--color-guava-blush); }
     .preview-box-3-4 { width: 51px; aspect-ratio: 3 / 4; border-radius: 6px; background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 11px; }
-    .preview-box-3-4 img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .preview-box-3-4 img { width: 100%; height: 100%; object-fit: cover; }
     .uploader-actions { display: flex; flex-direction: column; gap: 5px; }
     .btn-upload-fake { background: var(--color-guava-blush); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; cursor: pointer; text-align: center; }
     .btn-clear-photo { background: none; border: none; color: var(--accent-red); font-size: 11px; cursor: pointer; text-align: left; display: none; }
@@ -760,7 +749,7 @@
       const BACKUP_STORAGE_KEY = 'YuanGacha_Dual_Backup_Master';
       let dbInstance = null;
 
-      // 55 个全量权威卡池（已加入全新「周宙之璋」）
+      // 55 个全量权威卡池（已校正为「周庙之璋」）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "孙策地宫" },
         { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
@@ -817,7 +806,7 @@
         { name: "奉天华盖", dateRange: "2026.07.09 - 2026.07.22", upChars: "董奉、黄盖", category: "复刻" },
         { name: "诚之云乎", dateRange: "2026.07.23 - 2026.09.02", upChars: "司马孚、赵云", category: "傅融地宫" },
         { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统", category: "复刻" },
-        { name: "周宙之璋", dateRange: "2026.09.10 - 2026.10.07", upChars: "周泰、陈琳", category: "限定" }
+        { name: "周庙之璋", dateRange: "2026.09.10 - 2026.10.07", upChars: "周泰、陈琳", category: "限定" }
       ];
 
       const BLACKLIST_POOLS = ["游说贤士", "琴载酒/洪匀玄"];
@@ -829,7 +818,8 @@
         "乘数而一复刻": "乘数而一",
         "动如雷霆复刻": "动如雷霆",
         "游说贤士": "求贤访士",
-        "琴载酒/洪匀玄": "抱琴载酒"
+        "琴载酒/洪匀玄": "抱琴载酒",
+        "周宙之璋": "周庙之璋" // 自动将错别字重定向矫正为 周庙之璋
       };
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
@@ -1265,78 +1255,11 @@
         window.closeModal('authModal');
       };
 
-      function compressAdaptiveImage(file, maxDimension, quality, callback) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            let w = img.width;
-            let h = img.height;
-
-            if (w > h) {
-              if (w > maxDimension) {
-                h = Math.round(h * (maxDimension / w));
-                w = maxDimension;
-              }
-            } else {
-              if (h > maxDimension) {
-                w = Math.round(w * (maxDimension / h));
-                h = maxDimension;
-              }
-            }
-
-            canvas.width = w;
-            canvas.height = h;
-            ctx.drawImage(img, 0, 0, w, h);
-            callback(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-
-      function cropAvatar34(file, callback) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const targetW = 120;
-            const targetH = 160;
-            canvas.width = targetW;
-            canvas.height = targetH;
-
-            let srcW = img.width;
-            let srcH = img.height;
-            let sx = 0, sy = 0;
-            const targetRatio = 3 / 4;
-            const srcRatio = srcW / srcH;
-
-            if (srcRatio > targetRatio) {
-              const newSrcW = srcH * targetRatio;
-              sx = (srcW - newSrcW) / 2;
-              srcW = newSrcW;
-            } else {
-              const newSrcH = srcW / targetRatio;
-              sy = (srcH - newSrcH) / 2;
-              srcH = newSrcH;
-            }
-
-            ctx.drawImage(img, sx, sy, srcW, srcH, 0, 0, targetW, targetH);
-            callback(canvas.toDataURL('image/jpeg', 0.82));
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-
-      window.triggerUploadBanner = function(poolName) {
+      function triggerUploadBanner(poolName) {
         uploadTargetPoolName = poolName;
         document.getElementById('bannerFileInput').click();
-      };
+      }
+      window.triggerUploadBanner = triggerUploadBanner;
 
       window.handleBannerUpload = function(e) {
         const file = e.target.files[0];
@@ -1795,6 +1718,16 @@
 
         saveData();
         window.closeModal('createPoolModal');
+      };
+
+      window.clearCurrentPoolData = function() {
+        if (!confirm('确认清空全部密探招募记录吗？（卡池与海报依然保留）')) return;
+        if (activeTab === 'standard') {
+          appData.standard = [];
+        } else {
+          appData.limited = [];
+        }
+        saveData();
       };
 
       window.selectRarity = function(r) {
