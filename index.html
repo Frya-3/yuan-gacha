@@ -215,12 +215,19 @@
       margin-bottom: 12px;
       padding-bottom: 6px;
       border-bottom: 1px solid rgba(239, 228, 214, 0.6);
+      flex-wrap: wrap;
+      gap: 6px;
     }
     .expanded-stat-text { font-size: 11px; color: var(--text-sub); }
     .expanded-stat-text b { color: var(--color-guava-saga); font-weight: 700; }
     .btn-pool-edit-inline {
       background: none; border: none; font-size: 11px;
       color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
+    }
+    .btn-view-detail-page {
+      background: #FFF0EE; border: 1px solid var(--color-guava-blush);
+      color: var(--color-flesh-sorbet); font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 12px; cursor: pointer;
     }
 
     .chars-grid-5 {
@@ -230,16 +237,10 @@
     }
 
     .mini-char-card-wrap {
-      position: relative;
-      aspect-ratio: 3 / 4;
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--color-fruit-pulp);
-      border: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      position: relative; aspect-ratio: 3 / 4; border-radius: 8px;
+      overflow: hidden; background: var(--color-fruit-pulp);
+      border: 1px solid var(--border-color); display: flex;
+      align-items: center; justify-content: center; cursor: pointer;
       box-shadow: 0 2px 6px rgba(70, 56, 46, 0.06);
     }
     .mini-char-card-wrap.rarity-SSR {
@@ -247,32 +248,14 @@
       box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
     }
     .mini-char-card-wrap.is-lost { border: 1.8px solid var(--accent-red) !important; }
-
-    .mini-char-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .mini-char-fallback {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-sub);
-    }
+    .mini-char-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .mini-char-fallback { font-size: 13px; font-weight: 700; color: var(--text-sub); }
 
     .mini-pulls-label {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.68);
-      backdrop-filter: blur(3px);
-      color: #FFFFFF;
-      font-size: 11.5px;
-      font-weight: 800;
-      text-align: center;
-      padding: 3px 0;
-      line-height: 1.25;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0, 0, 0, 0.68); backdrop-filter: blur(3px);
+      color: #FFFFFF; font-size: 11.5px; font-weight: 800;
+      text-align: center; padding: 3px 0; line-height: 1.25;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
       letter-spacing: 0.2px;
     }
@@ -280,30 +263,58 @@
     .mini-char-card-wrap.is-lost .mini-pulls-label { color: #FFB3B3; }
 
     .mini-lost-badge {
-      position: absolute;
-      top: 3px;
-      right: 3px;
-      background: var(--accent-red);
-      color: #FFFFFF;
-      font-size: 10px;
-      font-weight: 900;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1.5px solid #FFFFFF;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.35);
-      z-index: 3;
+      position: absolute; top: 3px; right: 3px;
+      background: var(--accent-red); color: #FFFFFF;
+      font-size: 10px; font-weight: 900; width: 18px; height: 18px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.35); z-index: 3;
     }
 
     .empty-grid-notice {
-      grid-column: span 5;
-      text-align: center;
-      padding: 20px 0;
-      font-size: 12px;
-      color: var(--text-sub);
+      grid-column: span 5; text-align: center; padding: 20px 0; font-size: 12px; color: var(--text-sub);
+    }
+
+    /* 单卡池独立详情大页样式 */
+    .single-pool-view-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    .btn-back-to-gallery {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      color: var(--text-main); cursor: pointer;
+    }
+    .single-view-title-wrap {
+      display: flex; align-items: center; gap: 6px; max-width: 65%; overflow: hidden;
+    }
+    .single-view-title { font-size: 15px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .detail-poster-wrapper {
+      width: 100%; background: #FAF3E8; border-radius: var(--radius-md);
+      overflow: hidden; border: 1.5px dashed var(--color-flesh-sorbet);
+      box-shadow: var(--shadow-soft); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; position: relative;
+      max-height: 380px; margin-bottom: 8px;
+    }
+    .detail-poster-wrapper img {
+      width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block;
+    }
+    .detail-poster-tip {
+      padding: 40px 12px; font-size: 13px; color: var(--text-sub); text-align: center; line-height: 1.6;
+    }
+
+    .pool-meta-badge-box {
+      background: rgba(234, 231, 180, 0.35); padding: 10px 14px;
+      border-radius: var(--radius-md); margin-bottom: 14px;
+      border: 1px solid var(--color-peel-citron); font-size: 12px; position: relative;
+    }
+    .meta-row { display: flex; margin-bottom: 4px; }
+    .meta-row:last-child { margin-bottom: 0; }
+    .meta-k { color: var(--text-sub); width: 68px; flex-shrink: 0; }
+    .meta-v { color: var(--text-main); font-weight: 600; }
+    .btn-edit-current-pool {
+      position: absolute; right: 12px; top: 10px;
+      background: none; border: none; font-size: 12px;
+      color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
     }
 
     /* 统计卡片与网格 */
@@ -314,6 +325,7 @@
     }
     .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .stat-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
+    .stat-action-del { font-size: 12px; color: var(--accent-red); background: none; border: none; cursor: pointer; }
     
     .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .stat-item { 
@@ -325,7 +337,7 @@
     .stat-item.highlight .stat-val { color: var(--color-guava-saga); }
     .stat-label { font-size: 11px; color: var(--text-sub); margin-top: 2px; display: block; }
 
-    /* 普池记录列表 */
+    /* 记录明细列表 */
     .record-list { display: flex; flex-direction: column; gap: 10px; }
     .record-item { 
       display: flex; align-items: center; background: var(--card-bg); 
@@ -335,6 +347,8 @@
       border-left: 5px solid #D8CFC4; position: relative; 
     }
     .record-item.rarity-SSR { border-left-color: var(--color-flesh-sorbet); }
+    .record-item.is-lost { border-left-color: var(--accent-red) !important; background: var(--accent-red-bg); }
+
     .char-card-box { 
       width: 44px; aspect-ratio: 3 / 4; border-radius: 6px; 
       background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; 
@@ -342,23 +356,45 @@
       flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-color); 
     }
     .char-card-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .record-item.rarity-SSR .char-card-box { 
+      background: #FFF0EE; color: var(--color-flesh-sorbet); border-color: var(--color-guava-blush); 
+    }
+    .record-item.is-lost .char-card-box { background: #FEE8E8; color: var(--accent-red); border-color: rgba(217, 83, 79, 0.6); }
+
     .record-info { flex: 1; overflow: hidden; }
     .info-top { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
     .char-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .record-item.is-lost .char-name { color: var(--accent-red); }
     .tag-badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
     .tag-up { background: var(--color-flesh-sorbet); color: #FFF; }
+    .tag-lost { background: var(--accent-red); color: #FFF; }
     .info-sub { font-size: 12px; color: var(--text-sub); }
+
     .record-actions { display: flex; align-items: center; gap: 8px; }
     .pull-count { font-size: 16px; font-weight: 700; color: var(--text-sub); text-align: right; }
     .record-item.rarity-SSR .pull-count { color: var(--color-flesh-sorbet); }
+    .record-item.is-lost .pull-count { color: var(--accent-red); }
     .btn-edit-record, .btn-del-record { background: transparent; border: none; font-size: 16px; padding: 4px 6px; cursor: pointer; color: var(--text-sub); }
     .btn-del-record { color: #C5BCB3; }
 
     /* 底部操作 */
-    .bottom-bar { margin-top: 24px; padding-top: 14px; border-top: 1px dashed var(--border-color); display: flex; gap: 10px; }
+    .bottom-bar { 
+      margin-top: 24px; padding-top: 14px; 
+      border-top: 1px dashed var(--border-color); 
+      display: flex; gap: 8px; flex-wrap: wrap; 
+    }
     .btn-action-tool { 
-      flex: 1; background: var(--card-bg); border: 1px solid var(--border-color); 
-      padding: 8px 0; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-sub); cursor: pointer; 
+      flex: 1 1 28%; min-width: 80px; 
+      background: var(--card-bg); border: 1px solid var(--border-color); 
+      padding: 9px 4px; border-radius: var(--radius-sm); 
+      font-size: 12px; font-weight: 600; color: var(--text-sub); 
+      cursor: pointer; text-align: center;
+    }
+    .btn-action-tool.highlight-btn {
+      background: var(--color-flesh-sorbet);
+      color: #FFFFFF;
+      border-color: var(--color-flesh-sorbet);
+      box-shadow: 0 2px 8px rgba(241, 158, 150, 0.35);
     }
 
     /* 悬浮加号 */
@@ -427,6 +463,18 @@
     .uploader-actions { display: flex; flex-direction: column; gap: 5px; }
     .btn-upload-fake { background: var(--color-guava-blush); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; cursor: pointer; text-align: center; }
     .btn-clear-photo { background: none; border: none; color: var(--accent-red); font-size: 11px; cursor: pointer; text-align: left; display: none; }
+
+    /* 图鉴长图导出预览容器 */
+    .export-preview-container {
+      width: 100%; max-height: 60vh; overflow-y: auto;
+      border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      background: #FAF6F0; text-align: center; padding: 8px; margin-bottom: 12px;
+    }
+    .export-preview-container img {
+      width: 100%; height: auto; display: block; border-radius: var(--radius-sm);
+      box-shadow: 0 4px 14px rgba(70,56,46,0.1);
+    }
+    .export-tip-text { font-size: 12px; color: var(--text-sub); text-align: center; margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -461,28 +509,83 @@
       <div class="record-list" id="standardRecordList"></div>
     </section>
 
-    <!-- ==================== 2. 限定特命界面 (画卷主界面 + 展开五列密探矩阵) ==================== -->
+    <!-- ==================== 2. 限定特命界面 ==================== -->
     <section id="limitedMainView" style="display: none;">
       
-      <div class="stat-card">
-        <div class="stat-header"><div class="stat-title">限定总体宏观表现 (全部池)</div></div>
-        <div class="stat-grid">
-          <div class="stat-item"><span class="stat-val" id="lmtTotalPulls">0</span><span class="stat-label">总招募步数</span></div>
-          <div class="stat-item"><span class="stat-val" id="lmtSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
-          <div class="stat-item"><span class="stat-val" id="lmtAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
-          <div class="stat-item"><span class="stat-val" id="lmtUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
-          <div class="stat-item highlight"><span class="stat-val" id="lmtWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
-          <div class="stat-item highlight"><span class="stat-val" id="lmtPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
+      <!-- 2.1 卡池画卷总览主界面 (支持展开五列密探矩阵) -->
+      <div id="limitedGalleryMode">
+        <div class="stat-card">
+          <div class="stat-header"><div class="stat-title">限定总体宏观表现 (全部池)</div></div>
+          <div class="stat-grid">
+            <div class="stat-item"><span class="stat-val" id="lmtTotalPulls">0</span><span class="stat-label">总招募步数</span></div>
+            <div class="stat-item"><span class="stat-val" id="lmtSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
+            <div class="stat-item"><span class="stat-val" id="lmtAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
+            <div class="stat-item"><span class="stat-val" id="lmtUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+            <div class="stat-item highlight"><span class="stat-val" id="lmtWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+            <div class="stat-item highlight"><span class="stat-val" id="lmtPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
+          </div>
         </div>
+
+        <div class="gallery-top-bar">
+          <span class="gallery-title">限定卡池画卷 (轻触展开密探)</span>
+          <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
+        </div>
+
+        <!-- 主界面卡池流展示容器 -->
+        <div class="pool-card-stream" id="poolCardStreamContainer"></div>
       </div>
 
-      <div class="gallery-top-bar">
-        <span class="gallery-title">限定卡池画卷 (轻触卡池展开密探)</span>
-        <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
-      </div>
+      <!-- 2.2 单卡池专属详情大页 (包含该池独家表现、海报自适应、抽中密探及移除卡池) -->
+      <div id="limitedSingleMode" style="display: none;">
+        
+        <div class="single-pool-view-header">
+          <button class="btn-back-to-gallery" onclick="window.exitToPoolGallery()">← 返回画卷</button>
+          <div class="single-view-title-wrap">
+            <span class="single-view-title" id="singlePoolHeaderTitle">卡池详情</span>
+            <span class="bubble-category-tag" id="singlePoolHeaderBubble">限定</span>
+          </div>
+          <div style="width:40px;"></div>
+        </div>
 
-      <!-- 主界面卡池流展示容器 -->
-      <div class="pool-card-stream" id="poolCardStreamContainer"></div>
+        <!-- 大尺寸自适应海报封面展示区 -->
+        <div class="detail-poster-wrapper" id="detailPosterWrapper" onclick="window.triggerUploadBanner(currentSelectedPool)">
+          <div class="detail-poster-tip" id="detailPosterPlaceholder">
+            📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span>
+          </div>
+          <img id="detailPosterImg" style="display: none;" src="" alt="卡池海报">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-bottom:12px;">
+          <button class="btn-banner-action" onclick="window.triggerUploadBanner(currentSelectedPool)">更换海报</button>
+          <button class="btn-banner-action danger" id="btnRemoveDetailBanner" style="display: none;" onclick="window.removePoolBannerByName(currentSelectedPool)">移除海报</button>
+        </div>
+
+        <!-- 卡池元信息徽章框 -->
+        <div class="pool-meta-badge-box">
+          <div class="meta-row"><span class="meta-k">开放周期：</span><span class="meta-v" id="detailMetaDate">-</span></div>
+          <div class="meta-row"><span class="meta-k">当期密探：</span><span class="meta-v" id="detailMetaChars">-</span></div>
+          <div class="meta-row"><span class="meta-k">卡池类别：</span><span class="meta-v" id="detailMetaCategory">-</span></div>
+          <button class="btn-edit-current-pool" onclick="window.openEditPoolModalByName(currentSelectedPool)">✎ 编辑卡池</button>
+        </div>
+
+        <!-- 单池独立统计数据指标 (带“注销此池”入口) -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-title" id="singlePoolStatTitle">该池招募表现</div>
+            <button class="stat-action-del" onclick="window.deleteCurrentPool()">注销此池</button>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-item"><span class="stat-val" id="curTotalPulls">0</span><span class="stat-label">该池总次数</span></div>
+            <div class="stat-item"><span class="stat-val" id="curSsrPulls">0</span><span class="stat-label">绝密数</span></div>
+            <div class="stat-item"><span class="stat-val" id="curAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
+            <div class="stat-item"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+            <div class="stat-item highlight"><span class="stat-val" id="curWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+            <div class="stat-item highlight"><span class="stat-val" id="curPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
+          </div>
+        </div>
+
+        <!-- 该池名下的专属大图记录明细列表 -->
+        <div class="record-list" id="limitedSingleRecordList"></div>
+      </div>
 
     </section>
 
@@ -491,7 +594,8 @@
 
     <!-- 底部操作栏 -->
     <footer class="bottom-bar">
-      <button class="btn-action-tool" onclick="window.syncToCloudNow()">手动上传云端</button>
+      <button class="btn-action-tool highlight-btn" onclick="window.generateAtlasImage()">🖼️ 导出图鉴画报</button>
+      <button class="btn-action-tool" onclick="window.syncToCloudNow()">上传云端</button>
       <button class="btn-action-tool" onclick="window.exportDataJSON()">导出备份</button>
       <button class="btn-action-tool" onclick="window.triggerImportJSON()">导入备份</button>
       <input type="file" id="jsonFileInput" style="display: none;" accept=".json" onchange="window.importDataJSON(event)" />
@@ -506,7 +610,6 @@
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title" id="authModalTitle">云端数据账户</div>
       
-      <!-- 0.1 登录与注册主视图 -->
       <div id="authFormArea">
         <div class="form-group">
           <label class="form-label">账号邮箱</label>
@@ -526,7 +629,6 @@
         </div>
       </div>
 
-      <!-- 0.2 找回密码视图 -->
       <div id="authForgotArea" style="display: none;">
         <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px; line-height: 1.6;">
           请输入你注册时使用的邮箱，我们将向你发送一封包含密码重置安全链接的邮件：
@@ -541,7 +643,6 @@
         </div>
       </div>
 
-      <!-- 0.3 设置新密码视图 -->
       <div id="authResetArea" style="display: none;">
         <p style="font-size: 13px; color: var(--color-guava-saga); font-weight: 700; margin-bottom: 12px;">
           ✓ 安全凭证验证成功，请输入你的全新密码：
@@ -553,7 +654,6 @@
         <button class="btn-submit" onclick="window.handleUpdatePassword()">确认更新并登录</button>
       </div>
 
-      <!-- 0.4 已登录信息卡片 -->
       <div id="authLoggedInArea" style="display: none; text-align: center; padding: 10px 0;">
         <p style="font-size: 14px; color: var(--text-main); margin-bottom: 6px;">已登录账号：<b id="loggedInUserEmail">-</b></p>
         <p style="font-size: 11px; color: var(--color-guava-saga); margin-bottom: 16px;">✓ 抽卡数据已开启全自动实时云端备份</p>
@@ -648,6 +748,18 @@
     </div>
   </div>
 
+  <!-- 模态框 3：专属图鉴长图预览与保存 -->
+  <div class="modal-overlay" id="atlasModal" onclick="window.closeModalOnBg(event)">
+    <div class="modal-panel" onclick="event.stopPropagation()">
+      <div class="modal-title">密探图鉴长图已就绪</div>
+      <p class="export-tip-text">📱 手机端可<b>长按下方图片</b>直接存储至相册，或点击按钮下载：</p>
+      <div class="export-preview-container">
+        <img id="atlasExportImg" src="" alt="密探图鉴画报">
+      </div>
+      <a id="btnDownloadAtlas" href="#" download="代号鸢_密探招募全图鉴.png" class="btn-submit" style="display:block; text-align:center; text-decoration:none;">保存高清原图</a>
+    </div>
+  </div>
+
   <script>
     (function() {
       // 1. Supabase 凭据配置
@@ -668,6 +780,7 @@
       let formSelectedCategory = "限定";
       let uploadTargetPoolName = ""; 
       let expandedPoolNames = new Set(); 
+      let currentSelectedPool = "ALL"; // "ALL" 为画卷流总览，具体名称为单池详情页
 
       function generateAppIcon() {
         const canvas = document.createElement('canvas');
@@ -749,7 +862,6 @@
       const BACKUP_STORAGE_KEY = 'YuanGacha_Dual_Backup_Master';
       let dbInstance = null;
 
-      // 55 个全量权威卡池（已校正为「周庙之璋」）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "孙策地宫" },
         { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
@@ -819,7 +931,7 @@
         "动如雷霆复刻": "动如雷霆",
         "游说贤士": "求贤访士",
         "琴载酒/洪匀玄": "抱琴载酒",
-        "周宙之璋": "周庙之璋" // 自动将错别字重定向矫正为 周庙之璋
+        "周宙之璋": "周庙之璋"
       };
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
@@ -1044,7 +1156,7 @@
         });
       }
 
-      // ==================== 2. Supabase 账号与找回密码功能 ====================
+      // 2. Supabase 账号与找回密码
       async function checkAuthSession() {
         if (!supabaseClient) return;
         try {
@@ -1255,6 +1367,74 @@
         window.closeModal('authModal');
       };
 
+      function compressAdaptiveImage(file, maxDimension, quality, callback) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            let w = img.width;
+            let h = img.height;
+
+            if (w > h) {
+              if (w > maxDimension) {
+                h = Math.round(h * (maxDimension / w));
+                w = maxDimension;
+              }
+            } else {
+              if (h > maxDimension) {
+                w = Math.round(w * (maxDimension / h));
+                h = maxDimension;
+              }
+            }
+
+            canvas.width = w;
+            canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function cropAvatar34(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const targetW = 120;
+            const targetH = 160;
+            canvas.width = targetW;
+            canvas.height = targetH;
+
+            let srcW = img.width;
+            let srcH = img.height;
+            let sx = 0, sy = 0;
+            const targetRatio = 3 / 4;
+            const srcRatio = srcW / srcH;
+
+            if (srcRatio > targetRatio) {
+              const newSrcW = srcH * targetRatio;
+              sx = (srcW - newSrcW) / 2;
+              srcW = newSrcW;
+            } else {
+              const newSrcH = srcW / targetRatio;
+              sy = (srcH - newSrcH) / 2;
+              srcH = newSrcH;
+            }
+
+            ctx.drawImage(img, sx, sy, srcW, srcH, 0, 0, targetW, targetH);
+            callback(canvas.toDataURL('image/jpeg', 0.82));
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
       function triggerUploadBanner(poolName) {
         uploadTargetPoolName = poolName;
         document.getElementById('bannerFileInput').click();
@@ -1314,11 +1494,23 @@
         render();
       };
 
+      // ==================== 核心新增：进入与退出单池独立详情大页 ====================
+      window.enterPoolDetail = function(poolName) {
+        currentSelectedPool = poolName;
+        render();
+      };
+
+      window.exitToPoolGallery = function() {
+        currentSelectedPool = "ALL";
+        render();
+      };
+
       function getCategoryBubbleHtml(cat) {
         const c = cat || "限定";
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
+      /* 渲染主界面卡池画卷与五个一排密探流 */
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
@@ -1383,8 +1575,10 @@
             <div class="stream-expanded-content">
               <div class="expanded-pool-tools">
                 <div class="expanded-stat-text">共 <b>${poolRecords.length}</b> 位密探 · 点击卡片修改/换图</div>
-                <div style="display:flex; gap:10px;">
-                  <button class="btn-pool-edit-inline" onclick="event.stopPropagation(); window.openEditPoolModalByName('${pool.name}')">✎ 编辑卡池</button>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <!-- 进独立详情大页通道 -->
+                  <button class="btn-view-detail-page" onclick="event.stopPropagation(); window.enterPoolDetail('${pool.name}')">📄 单池详情 ➔</button>
+                  <button class="btn-pool-edit-inline" onclick="event.stopPropagation(); window.openEditPoolModalByName('${pool.name}')">✎ 编辑</button>
                   ${bannerData ? `<button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">移除海报</button>` : ''}
                 </div>
               </div>
@@ -1421,6 +1615,7 @@
       }
 
       function renderLimitedView() {
+        // 限定全局统计看板计算
         const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
         const allSsr = appData.limited.filter(r => r.rarity === '绝密');
         const allSsrCount = allSsr.length;
@@ -1434,7 +1629,66 @@
         document.getElementById('lmtWinRate').innerText = allSsrCount > 0 ? ((allUpCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
         document.getElementById('lmtPityRate').innerText = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
 
-        renderPoolCardStream();
+        if (currentSelectedPool === "ALL") {
+          // 展示画卷流模式
+          document.getElementById('limitedGalleryMode').style.display = 'block';
+          document.getElementById('limitedSingleMode').style.display = 'none';
+          renderPoolCardStream();
+        } else {
+          // 展示单池详情独立大页
+          document.getElementById('limitedGalleryMode').style.display = 'none';
+          document.getElementById('limitedSingleMode').style.display = 'block';
+
+          const poolObj = appData.pools.find(p => p.name === currentSelectedPool);
+          document.getElementById('singlePoolHeaderTitle').innerText = currentSelectedPool;
+          document.getElementById('singlePoolStatTitle').innerText = '单池表现: ' + currentSelectedPool;
+
+          const cat = poolObj ? (poolObj.category || "限定") : "限定";
+          const headerBubble = document.getElementById('singlePoolHeaderBubble');
+          headerBubble.innerText = cat;
+          headerBubble.className = `bubble-category-tag cat-${cat}`;
+
+          if (poolObj) {
+            document.getElementById('detailMetaDate').innerText = poolObj.dateRange || '未定';
+            document.getElementById('detailMetaChars').innerText = poolObj.upChars || '未设';
+            document.getElementById('detailMetaCategory').innerText = cat;
+          }
+
+          // 海报展示
+          const img = document.getElementById('detailPosterImg');
+          const tip = document.getElementById('detailPosterPlaceholder');
+          const delBtn = document.getElementById('btnRemoveDetailBanner');
+          const bannerData = appData.poolBanners[currentSelectedPool];
+
+          if (bannerData) {
+            img.src = bannerData;
+            img.style.display = 'block';
+            tip.style.display = 'none';
+            delBtn.style.display = 'inline-block';
+          } else {
+            img.src = '';
+            img.style.display = 'none';
+            tip.style.display = 'block';
+            delBtn.style.display = 'none';
+          }
+
+          // 单池指标数据统计
+          const list = appData.limited.filter(r => r.poolName === currentSelectedPool);
+          const poolTotal = list.reduce((acc, r) => acc + Number(r.pulls), 0);
+          const poolSsr = list.filter(r => r.rarity === '绝密');
+          const poolSsrCount = poolSsr.length;
+          const poolUpCount = poolSsr.filter(r => r.isUp).length;
+          const poolPityCount = poolSsr.filter(r => Number(r.pulls) >= 40).length;
+
+          document.getElementById('curTotalPulls').innerText = poolTotal;
+          document.getElementById('curSsrPulls').innerText = poolSsrCount;
+          document.getElementById('curAvgPulls').innerText = poolSsrCount > 0 ? (poolTotal / poolSsrCount).toFixed(1) : '0.0';
+          document.getElementById('curUpPulls').innerText = poolUpCount;
+          document.getElementById('curWinRate').innerText = poolSsrCount > 0 ? ((poolUpCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
+          document.getElementById('curPityRate').innerText = poolSsrCount > 0 ? ((poolPityCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
+
+          renderRecordList('limitedSingleRecordList', list);
+        }
       }
 
       function renderRecordList(containerId, rawList) {
@@ -1444,20 +1698,27 @@
         list.sort((a, b) => b.timestamp - a.timestamp);
 
         if (list.length === 0) {
-          container.innerHTML = '<div style="text-align:center; padding:30px 0; font-size:12px; color:var(--text-sub);">暂无密探出仕记录</div>';
+          container.innerHTML = '<div style="text-align:center; padding:30px 0; font-size:12px; color:var(--text-sub);">该池暂无密探出仕记录</div>';
           return;
         }
 
         list.forEach(function(item) {
           const node = document.createElement('div');
           const isSsr = item.rarity === '绝密';
-          node.className = 'record-item ' + (isSsr ? 'rarity-SSR ' : ' ');
+          const isLost = activeTab === 'limited' && isSsr && !item.isUp;
+          const isUp = activeTab === 'limited' && isSsr && item.isUp;
+
+          node.className = 'record-item ' + (isSsr ? 'rarity-SSR ' : ' ') + (isLost ? 'is-lost' : '');
           const avatarHtml = item.avatar ? `<img src="${item.avatar}">` : (item.name.slice(0, 1) || '秘');
 
           node.innerHTML = `
             <div class="char-card-box">${avatarHtml}</div>
             <div class="record-info">
-              <div class="info-top"><span class="char-name">${item.name}</span></div>
+              <div class="info-top">
+                <span class="char-name">${item.name}</span>
+                ${isUp ? '<span class="tag-badge tag-up">UP</span>' : ''}
+                ${isLost ? '<span class="tag-badge tag-lost">歪</span>' : ''}
+              </div>
               <div class="info-sub">${item.rarity}</div>
             </div>
             <div class="record-actions">
@@ -1513,6 +1774,7 @@
             const opt = document.createElement('option');
             opt.value = p.name;
             opt.innerText = p.name;
+            if (currentSelectedPool !== 'ALL' && currentSelectedPool === p.name) opt.selected = true;
             poolSelect.appendChild(opt);
           });
         } else {
@@ -1709,6 +1971,9 @@
               expandedPoolNames.delete(originalName);
               expandedPoolNames.add(name);
             }
+            if (currentSelectedPool === originalName) {
+              currentSelectedPool = name;
+            }
           }
         } else {
           if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
@@ -1720,13 +1985,17 @@
         window.closeModal('createPoolModal');
       };
 
-      window.clearCurrentPoolData = function() {
-        if (!confirm('确认清空全部密探招募记录吗？（卡池与海报依然保留）')) return;
-        if (activeTab === 'standard') {
-          appData.standard = [];
-        } else {
-          appData.limited = [];
-        }
+      // ==================== 核心新增：注销/移除指定卡池 ====================
+      window.deleteCurrentPool = function() {
+        if (currentSelectedPool === 'ALL') return;
+        if (!confirm(`确认注销并移除卡池「${currentSelectedPool}」？\n注意：该卡池的海报封面及名下的所有抽卡记录将被一并清理！`)) return;
+
+        delete appData.poolBanners[currentSelectedPool];
+        appData.pools = appData.pools.filter(p => p.name !== currentSelectedPool);
+        appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
+        expandedPoolNames.delete(currentSelectedPool);
+
+        currentSelectedPool = 'ALL'; // 移除后平滑返回画卷总览
         saveData();
       };
 
@@ -1798,6 +2067,295 @@
         e.target.value = '';
       };
 
+      // ==================== 3. 高清密探图鉴长图 Canvas 生成引擎 ====================
+      function loadImageAsync(src) {
+        return new Promise((resolve) => {
+          if (!src) return resolve(null);
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = src;
+        });
+      }
+
+      function drawRoundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (fill) ctx.fill();
+        if (stroke) ctx.stroke();
+      }
+
+      window.generateAtlasImage = async function() {
+        const poolsToRender = appData.pools.filter(p => {
+          const recs = appData.limited.filter(r => r.poolName === p.name);
+          return recs.length > 0 || appData.poolBanners[p.name];
+        });
+
+        if (poolsToRender.length === 0) {
+          return alert('当前限定池暂无任何密探招募记录或海报，快去登记几条再生成图鉴吧～');
+        }
+
+        const btn = document.querySelector('.highlight-btn');
+        const originalText = btn.innerText;
+        btn.innerText = '⏳ 正在绘制高清图鉴...';
+
+        try {
+          const canvasW = 900;
+          const padding = 40;
+          const innerW = canvasW - padding * 2;
+
+          let estimatedH = 340;
+          for (const pool of poolsToRender) {
+            estimatedH += 30;
+            if (appData.poolBanners[pool.name]) estimatedH += 320;
+            estimatedH += 80;
+            const recs = appData.limited.filter(r => r.poolName === pool.name);
+            const rowCount = Math.ceil(recs.length / 5);
+            if (rowCount > 0) {
+              const cardW = (innerW - 32 - 12 * 4) / 5;
+              const cardH = cardW * (4 / 3);
+              estimatedH += rowCount * (cardH + 12) + 20;
+            }
+          }
+          estimatedH += 120;
+
+          const canvas = document.createElement('canvas');
+          canvas.width = canvasW;
+          canvas.height = estimatedH;
+          const ctx = canvas.getContext('2d');
+
+          ctx.fillStyle = '#FDF9F3';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          let curY = padding;
+
+          ctx.fillStyle = '#46382E';
+          ctx.font = 'bold 36px -apple-system, sans-serif';
+          ctx.fillText('代号鸢 · 密探招募录全图鉴', padding, curY + 36);
+
+          ctx.fillStyle = '#8D7B6F';
+          ctx.font = '16px -apple-system, sans-serif';
+          const userStr = currentUser ? `广陵楼主档案 (${currentUser.email})` : '广陵楼主秘卷档案';
+          ctx.fillText(`${userStr} · 生成日期: ${new Date().toLocaleDateString()}`, padding, curY + 70);
+          curY += 95;
+
+          const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
+          const allSsr = appData.limited.filter(r => r.rarity === '绝密');
+          const allSsrCount = allSsr.length;
+          const allUpCount = allSsr.filter(r => r.isUp).length;
+          const allPityCount = allSsr.filter(r => Number(r.pulls) >= 40).length;
+          const avgPulls = allSsrCount > 0 ? (allTotal / allSsrCount).toFixed(1) : '0.0';
+          const winRate = allSsrCount > 0 ? ((allUpCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
+          const pityRate = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.strokeStyle = '#EFE4D6';
+          ctx.lineWidth = 2;
+          drawRoundRect(ctx, padding, curY, innerW, 110, 16, true, true);
+
+          const statCols = [
+            { k: '总招募步数', v: allTotal },
+            { k: '绝密总数', v: allSsrCount },
+            { k: '绝密平均抽数', v: avgPulls },
+            { k: 'UP不歪率', v: winRate, color: '#B2BA69' },
+            { k: '硬保底率(≥40)', v: pityRate, color: '#F19E96' }
+          ];
+
+          const colW = innerW / 5;
+          statCols.forEach((col, idx) => {
+            const cx = padding + colW * idx + colW / 2;
+            ctx.fillStyle = col.color || '#46382E';
+            ctx.font = 'bold 26px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(String(col.v), cx, curY + 46);
+
+            ctx.fillStyle = '#8D7B6F';
+            ctx.font = '13px -apple-system, sans-serif';
+            ctx.fillText(col.k, cx, curY + 80);
+          });
+          ctx.textAlign = 'left';
+          curY += 135;
+
+          for (const pool of poolsToRender) {
+            const recs = appData.limited.filter(r => r.poolName === pool.name);
+            recs.sort((a, b) => b.timestamp - a.timestamp);
+            const poolPulls = recs.reduce((acc, r) => acc + Number(r.pulls), 0);
+
+            const hasBanner = !!appData.poolBanners[pool.name];
+            const bannerH = hasBanner ? 300 : 0;
+            const gridCols = 5;
+            const cardGap = 12;
+            const cardW = (innerW - 32 - cardGap * 4) / 5;
+            const cardH = cardW * (4 / 3);
+            const rowCount = Math.ceil(recs.length / gridCols);
+            const gridH = rowCount > 0 ? (rowCount * (cardH + cardGap) + 10) : 0;
+            const poolCardH = bannerH + 80 + gridH;
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.strokeStyle = '#EFE4D6';
+            ctx.lineWidth = 1.5;
+            drawRoundRect(ctx, padding, curY, innerW, poolCardH, 16, true, true);
+
+            let cardContentY = curY;
+
+            if (hasBanner) {
+              const bannerImg = await loadImageAsync(appData.poolBanners[pool.name]);
+              if (bannerImg) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(padding + 16, cardContentY);
+                ctx.lineTo(padding + innerW - 16, cardContentY);
+                ctx.quadraticCurveTo(padding + innerW, cardContentY, padding + innerW, cardContentY + 16);
+                ctx.lineTo(padding + innerW, cardContentY + bannerH);
+                ctx.lineTo(padding, cardContentY + bannerH);
+                ctx.lineTo(padding, cardContentY + 16);
+                ctx.quadraticCurveTo(padding, cardContentY, padding + 16, cardContentY);
+                ctx.closePath();
+                ctx.clip();
+
+                ctx.fillStyle = '#FAF3E8';
+                ctx.fillRect(padding, cardContentY, innerW, bannerH);
+
+                const ratio = Math.min(innerW / bannerImg.width, bannerH / bannerImg.height);
+                const dw = bannerImg.width * ratio;
+                const dh = bannerImg.height * ratio;
+                const dx = padding + (innerW - dw) / 2;
+                const dy = cardContentY + (bannerH - dh) / 2;
+                ctx.drawImage(bannerImg, dx, dy, dw, dh);
+                ctx.restore();
+              }
+              cardContentY += bannerH;
+            }
+
+            ctx.fillStyle = '#46382E';
+            ctx.font = 'bold 22px -apple-system, sans-serif';
+            ctx.fillText(pool.name, padding + 16, cardContentY + 34);
+
+            const cat = pool.category || '限定';
+            const catTagW = ctx.measureText(cat).width + 16;
+            ctx.fillStyle = '#FFF0EE';
+            ctx.strokeStyle = '#FDD7D0';
+            ctx.lineWidth = 1;
+            drawRoundRect(ctx, padding + 20 + ctx.measureText(pool.name).width + 8, cardContentY + 16, catTagW, 24, 12, true, true);
+            ctx.fillStyle = '#F19E96';
+            ctx.font = 'bold 12px -apple-system, sans-serif';
+            ctx.fillText(cat, padding + 20 + ctx.measureText(pool.name).width + 16, cardContentY + 32);
+
+            ctx.fillStyle = '#8D7B6F';
+            ctx.font = '13px -apple-system, sans-serif';
+            ctx.fillText(`周期: ${pool.dateRange || '未定'}   |   UP: ${pool.upChars || '未设'}`, padding + 16, cardContentY + 60);
+
+            const pullBadgeStr = `${poolPulls} 抽`;
+            ctx.font = 'bold 15px -apple-system, sans-serif';
+            const badgeW = ctx.measureText(pullBadgeStr).width + 20;
+            ctx.fillStyle = '#FFF3F1';
+            ctx.strokeStyle = '#FDD7D0';
+            drawRoundRect(ctx, padding + innerW - badgeW - 16, cardContentY + 22, badgeW, 28, 14, true, true);
+            ctx.fillStyle = '#F19E96';
+            ctx.fillText(pullBadgeStr, padding + innerW - badgeW - 6, cardContentY + 41);
+
+            cardContentY += 80;
+
+            for (let i = 0; i < recs.length; i++) {
+              const rec = recs[i];
+              const col = i % 5;
+              const row = Math.floor(i / 5);
+              const cx = padding + 16 + col * (cardW + cardGap);
+              const cy = cardContentY + row * (cardH + cardGap);
+
+              const isSsr = rec.rarity === '绝密';
+              const isLost = isSsr && !rec.isUp;
+
+              ctx.save();
+              drawRoundRect(ctx, cx, cy, cardW, cardH, 8, false, false);
+              ctx.clip();
+
+              ctx.fillStyle = isSsr ? '#FFF0EE' : '#F8ECD7';
+              ctx.fillRect(cx, cy, cardW, cardH);
+
+              if (rec.avatar) {
+                const avatarImg = await loadImageAsync(rec.avatar);
+                if (avatarImg) {
+                  ctx.drawImage(avatarImg, cx, cy, cardW, cardH);
+                }
+              } else {
+                ctx.fillStyle = '#8D7B6F';
+                ctx.font = 'bold 20px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(rec.name.slice(0, 1), cx + cardW / 2, cy + cardH / 2 + 6);
+                ctx.textAlign = 'left';
+              }
+
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.68)';
+              ctx.fillRect(cx, cy + cardH - 24, cardW, 24);
+              ctx.fillStyle = isLost ? '#FFB3B3' : (isSsr ? '#FFF2A8' : '#FFFFFF');
+              ctx.font = 'bold 12px -apple-system, sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText(`${rec.pulls}抽`, cx + cardW / 2, cy + cardH - 7);
+
+              ctx.restore();
+
+              ctx.strokeStyle = isLost ? '#D9534F' : (isSsr ? '#F19E96' : '#EFE4D6');
+              ctx.lineWidth = isSsr ? 2.5 : 1.2;
+              drawRoundRect(ctx, cx, cy, cardW, cardH, 8, false, true);
+
+              if (isLost) {
+                const badgeR = 10;
+                const bx = cx + cardW - badgeR - 2;
+                const by = cy + badgeR + 2;
+                ctx.fillStyle = '#D9534F';
+                ctx.beginPath();
+                ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 11px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('歪', bx, by + 4);
+                ctx.textAlign = 'left';
+              }
+            }
+
+            curY += poolCardH + 30;
+          }
+
+          ctx.fillStyle = '#B2BA69';
+          ctx.font = 'bold 15px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('🌸 代号鸢 · 密探招募录 · 纯自用云端图鉴生成', canvasW / 2, curY + 20);
+
+          const finalCanvas = document.createElement('canvas');
+          finalCanvas.width = canvasW;
+          finalCanvas.height = curY + 50;
+          const finalCtx = finalCanvas.getContext('2d');
+          finalCtx.drawImage(canvas, 0, 0);
+
+          const finalDataUrl = finalCanvas.toDataURL('image/png', 0.95);
+          document.getElementById('atlasExportImg').src = finalDataUrl;
+          document.getElementById('btnDownloadAtlas').href = finalDataUrl;
+          document.getElementById('atlasModal').classList.add('active');
+
+        } catch(err) {
+          alert('图鉴生成异常：' + err.message);
+        } finally {
+          btn.innerText = originalText;
+        }
+      };
+
+      // 系统初始化启动
       openDatabase()
         .then(loadData)
         .then(render)
