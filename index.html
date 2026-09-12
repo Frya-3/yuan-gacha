@@ -945,10 +945,8 @@
       // ==================== 智能海报加载与多通道容错管线 ====================
       // 获取当前站点的绝对根目录路径（自动适配二级仓库目录）
       function getAppBasePath() {
-        const path = window.location.pathname;
-        const dir = path.substring(0, path.lastIndexOf('/') + 1);
-        return window.location.origin + dir;
-      }
+  return 'https://frya-3.github.io/yuan-gacha/';
+}
 
       function buildBannerCandidateUrls(poolName) {
         const base = getAppBasePath();
