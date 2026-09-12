@@ -148,7 +148,7 @@
       width: 100%; height: 100%; max-height: 260px; object-fit: contain; display: block;
     }
     .stream-poster-placeholder {
-      padding: 32px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
+      padding: 36px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
     }
 
     .stream-item-info {
@@ -577,7 +577,7 @@
             <div class="stat-item"><span class="stat-val" id="curTotalPulls">0</span><span class="stat-label">该池总次数</span></div>
             <div class="stat-item"><span class="stat-val" id="curSsrPulls">0</span><span class="stat-label">绝密数</span></div>
             <div class="stat-item"><span class="stat-val" id="curAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
-            <div class="stat-item highlight"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+            <div class="stat-item"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
             <div class="stat-item highlight"><span class="stat-val" id="curWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
             <div class="stat-item highlight"><span class="stat-val" id="curPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
           </div>
@@ -933,7 +933,21 @@
         "游说贤士": "求贤访士",
         "琴载酒/洪匀玄": "抱琴载酒",
         "周宙之璋": "周庙之璋",
-        "诚之云乎": "诚之云孚" // 自动将错别字重定向矫正为 诚之云孚
+        "诚之云乎": "诚之云孚"
+      };
+
+      // 反向别名候选表：如果按标准名找不到，自动尝试旧别名
+      const NAME_FALLBACK_CANDIDATES = {
+        "异才奇士": ["异才奇士", "异才奇士复刻"],
+        "四方顺时": ["四方顺时", "四方顺时复刻"],
+        "坐照运筹": ["坐照运筹", "坐照运筹复刻"],
+        "度势攻心": ["度势攻心", "度势攻心复刻"],
+        "乘数而一": ["乘数而一", "乘数而一复刻"],
+        "动如雷霆": ["动如雷霆", "动如雷霆复刻"],
+        "求贤访士": ["求贤访士", "游说贤士"],
+        "抱琴载酒": ["抱琴载酒", "琴载酒/洪匀玄"],
+        "诚之云孚": ["诚之云孚", "诚之云乎"],
+        "周庙之璋": ["周庙之璋", "周宙之璋"]
       };
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
@@ -942,14 +956,13 @@
       let formIsUp = true;
       let currentAvatarBase64 = '';
 
-      // ==================== 智能海报侦测管线（通吃常见图片格式与大小写） ====================
+      // ==================== 智能海报探针（多格式、多别名遍历） ====================
       const IMAGE_EXTENSIONS = ['.jpg', '.png', '.jpeg', '.webp', '.JPG', '.PNG', '.JPEG'];
 
-      // 绑定图片到 DOM 元素，带多格式探针防碎图机制
       function bindPoolBannerWithFallback(imgEl, placeholderEl, poolName) {
         if (!imgEl) return;
 
-        // 1. 优先使用用户在本地或云端自定义上传的海报
+        // 1. 优先采用用户自定义上传海报
         if (appData.poolBanners && appData.poolBanners[poolName]) {
           imgEl.src = appData.poolBanners[poolName];
           imgEl.style.display = 'block';
@@ -957,17 +970,24 @@
           return;
         }
 
-        // 2. 依次轮询检索 GitHub 仓库 banners/ 目录下的各种可能格式
-        let extIndex = 0;
-        function tryNextExtension() {
-          if (extIndex >= IMAGE_EXTENSIONS.length) {
-            // 全格式均未找到，展现优雅占位符
+        // 2. 生成所有可能的文件名与后缀组合
+        const nameCandidates = NAME_FALLBACK_CANDIDATES[poolName] || [poolName];
+        const probeList = [];
+        nameCandidates.forEach(n => {
+          IMAGE_EXTENSIONS.forEach(ext => {
+            probeList.push(`./banners/${encodeURIComponent(n.trim())}${ext}`);
+            probeList.push(`./banners/${n.trim()}${ext}`); // 针对部分未转码服务器的兜底
+          });
+        });
+
+        let probeIdx = 0;
+        function tryNext() {
+          if (probeIdx >= probeList.length) {
             imgEl.style.display = 'none';
             if (placeholderEl) placeholderEl.style.display = 'block';
             return;
           }
-          const currentExt = IMAGE_EXTENSIONS[extIndex++];
-          imgEl.src = `./banners/${encodeURIComponent(poolName)}${currentExt}`;
+          imgEl.src = probeList[probeIdx++];
         }
 
         imgEl.onload = function() {
@@ -976,10 +996,10 @@
         };
 
         imgEl.onerror = function() {
-          tryNextExtension();
+          tryNext();
         };
 
-        tryNextExtension();
+        tryNext();
       }
 
       function openDatabase() {
@@ -1551,7 +1571,7 @@
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
-      /* 渲染主界面卡池画卷与五个一排密探流（搭载多格式容错侦测） */
+      /* 渲染主界面卡池画卷与五个一排密探流（使用更严密的 DOM 容器操作） */
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
@@ -1590,8 +1610,8 @@
 
           item.innerHTML = `
             <div class="stream-poster-container" onclick="event.stopPropagation(); window.triggerUploadBanner('${pool.name}')">
-              <img id="poster-stream-${encodeURIComponent(pool.name)}" style="display:none;" alt="${pool.name}">
-              <div class="stream-poster-placeholder" id="ph-stream-${encodeURIComponent(pool.name)}">📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>
+              <img style="display:none;" alt="${pool.name}">
+              <div class="stream-poster-placeholder">📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>
             </div>
 
             <div class="stream-item-info" onclick="window.togglePoolExpand('${pool.name}')">
@@ -1623,12 +1643,14 @@
               </div>
             </div>
           `;
-          streamContainer.appendChild(item);
 
-          // 挂载多格式探针
-          const imgEl = item.querySelector(`#poster-stream-${CSS.escape(encodeURIComponent(pool.name))}`);
-          const phEl = item.querySelector(`#ph-stream-${CSS.escape(encodeURIComponent(pool.name))}`);
+          // 直接通过局部容器抓取子节点，免除一切字符转义失败隐患
+          const posterContainer = item.querySelector('.stream-poster-container');
+          const imgEl = posterContainer.querySelector('img');
+          const phEl = posterContainer.querySelector('.stream-poster-placeholder');
           bindPoolBannerWithFallback(imgEl, phEl, pool.name);
+
+          streamContainer.appendChild(item);
         });
       }
 
@@ -2104,15 +2126,17 @@
         });
       }
 
-      // 异步探测获取海报 Image 对象（按扩展名轮询）
       async function resolvePoolBannerImageAsync(poolName) {
         if (appData.poolBanners && appData.poolBanners[poolName]) {
           return await loadImageAsync(appData.poolBanners[poolName]);
         }
-        for (const ext of IMAGE_EXTENSIONS) {
-          const src = `./banners/${encodeURIComponent(poolName)}${ext}`;
-          const img = await loadImageAsync(src);
-          if (img) return img;
+        const nameCandidates = NAME_FALLBACK_CANDIDATES[poolName] || [poolName];
+        for (const n of nameCandidates) {
+          for (const ext of IMAGE_EXTENSIONS) {
+            const src = `./banners/${encodeURIComponent(n.trim())}${ext}`;
+            const img = await loadImageAsync(src);
+            if (img) return img;
+          }
         }
         return null;
       }
