@@ -459,7 +459,7 @@
 
     .avatar-uploader-row { display: flex; align-items: center; gap: 14px; background: #FAF6F0; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--color-guava-blush); }
     .preview-box-3-4 { width: 51px; aspect-ratio: 3 / 4; border-radius: 6px; background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 11px; }
-    .preview-box-3-4 img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-box-3-4 img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .uploader-actions { display: flex; flex-direction: column; gap: 5px; }
     .btn-upload-fake { background: var(--color-guava-blush); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; cursor: pointer; text-align: center; }
     .btn-clear-photo { background: none; border: none; color: var(--accent-red); font-size: 11px; cursor: pointer; text-align: left; display: none; }
@@ -556,7 +556,7 @@
         </div>
         <div style="display:flex; justify-content:flex-end; gap:12px; margin-bottom:12px;">
           <button class="btn-banner-action" onclick="window.triggerUploadBanner(currentSelectedPool)">更换海报</button>
-          <button class="btn-banner-action danger" id="btnRemoveDetailBanner" style="display: none;" onclick="window.removePoolBannerByName(currentSelectedPool)">移除海报</button>
+          <button class="btn-banner-action danger" id="btnRemoveDetailBanner" style="display: none;" onclick="window.removePoolBannerByName(currentSelectedPool)">恢复默认海报</button>
         </div>
 
         <!-- 卡池元信息徽章框 -->
@@ -577,7 +577,7 @@
             <div class="stat-item"><span class="stat-val" id="curTotalPulls">0</span><span class="stat-label">该池总次数</span></div>
             <div class="stat-item"><span class="stat-val" id="curSsrPulls">0</span><span class="stat-label">绝密数</span></div>
             <div class="stat-item"><span class="stat-val" id="curAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
-            <div class="stat-item highlight"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
+            <div class="stat-item"><span class="stat-val" id="curUpPulls">0</span><span class="stat-label">UP绝密数</span></div>
             <div class="stat-item highlight"><span class="stat-val" id="curWinRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
             <div class="stat-item highlight"><span class="stat-val" id="curPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
           </div>
@@ -933,7 +933,7 @@
         "游说贤士": "求贤访士",
         "琴载酒/洪匀玄": "抱琴载酒",
         "周宙之璋": "周庙之璋",
-        "诚之云乎": "诚之云孚" // 自动将错别字重定向矫正为 诚之云孚
+        "诚之云乎": "诚之云孚"
       };
 
       let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
@@ -942,14 +942,33 @@
       let formIsUp = true;
       let currentAvatarBase64 = '';
 
-      // ==================== 智能海报侦测管线（通吃常见图片格式与大小写） ====================
-      const IMAGE_EXTENSIONS = ['.jpg', '.png', '.jpeg', '.webp', '.JPG', '.PNG', '.JPEG'];
+      // ==================== 智能海报加载与多通道容错管线 ====================
+      // 获取当前站点的绝对根目录路径（自动适配二级仓库目录）
+      function getAppBasePath() {
+        const path = window.location.pathname;
+        const dir = path.substring(0, path.lastIndexOf('/') + 1);
+        return window.location.origin + dir;
+      }
 
-      // 绑定图片到 DOM 元素，带多格式探针防碎图机制
+      function buildBannerCandidateUrls(poolName) {
+        const base = getAppBasePath();
+        const urls = [];
+        // 依次测试常见大小写格式
+        const exts = ['.jpg', '.png', '.jpeg', '.webp', '.JPG', '.PNG', '.JPEG'];
+        exts.forEach(ext => {
+          // 通道 1：URI 编码路径 (处理非 ASCII 中文字符)
+          urls.push(`${base}banners/${encodeURIComponent(poolName)}${ext}`);
+          // 通道 2：原始中文字符路径 (部分环境需要)
+          urls.push(`${base}banners/${poolName}${ext}`);
+        });
+        return urls;
+      }
+
+      // 绑定海报到图片元素
       function bindPoolBannerWithFallback(imgEl, placeholderEl, poolName) {
         if (!imgEl) return;
 
-        // 1. 优先使用用户在本地或云端自定义上传的海报
+        // 1. 用户自定义上传
         if (appData.poolBanners && appData.poolBanners[poolName]) {
           imgEl.src = appData.poolBanners[poolName];
           imgEl.style.display = 'block';
@@ -957,17 +976,17 @@
           return;
         }
 
-        // 2. 依次轮询检索 GitHub 仓库 banners/ 目录下的各种可能格式
-        let extIndex = 0;
-        function tryNextExtension() {
-          if (extIndex >= IMAGE_EXTENSIONS.length) {
-            // 全格式均未找到，展现优雅占位符
+        // 2. 轮询候选 URL
+        const candidates = buildBannerCandidateUrls(poolName);
+        let idx = 0;
+
+        function tryNext() {
+          if (idx >= candidates.length) {
             imgEl.style.display = 'none';
             if (placeholderEl) placeholderEl.style.display = 'block';
             return;
           }
-          const currentExt = IMAGE_EXTENSIONS[extIndex++];
-          imgEl.src = `./banners/${encodeURIComponent(poolName)}${currentExt}`;
+          imgEl.src = candidates[idx++];
         }
 
         imgEl.onload = function() {
@@ -976,10 +995,10 @@
         };
 
         imgEl.onerror = function() {
-          tryNextExtension();
+          tryNext();
         };
 
-        tryNextExtension();
+        tryNext();
       }
 
       function openDatabase() {
@@ -1494,7 +1513,7 @@
       };
 
       window.removePoolBannerByName = function(poolName) {
-        if (confirm(`确认清除卡池「${poolName}」的自定义海报？（将自动恢复为 GitHub 默认封面）`)) {
+        if (confirm(`确认恢复卡池「${poolName}」为默认海报？`)) {
           delete appData.poolBanners[poolName];
           saveData();
         }
@@ -1551,7 +1570,7 @@
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
-      /* 渲染主界面卡池画卷与五个一排密探流（搭载多格式容错侦测） */
+      /* 渲染主界面卡池画卷与五个一排密探流（搭载绝对路径与智能探针） */
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
@@ -1615,7 +1634,7 @@
                 <div style="display:flex; gap:8px; align-items:center;">
                   <button class="btn-view-detail-page" onclick="event.stopPropagation(); window.enterPoolDetail('${pool.name}')">📄 单池详情 ➔</button>
                   <button class="btn-pool-edit-inline" onclick="event.stopPropagation(); window.openEditPoolModalByName('${pool.name}')">✎ 编辑</button>
-                  <button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">清除自定义</button>
+                  ${(appData.poolBanners && appData.poolBanners[pool.name]) ? `<button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">恢复默认</button>` : ''}
                 </div>
               </div>
               <div class="chars-grid-5">
@@ -1625,7 +1644,7 @@
           `;
           streamContainer.appendChild(item);
 
-          // 挂载多格式探针
+          // 绑定自适应路径探针
           const imgEl = item.querySelector(`#poster-stream-${CSS.escape(encodeURIComponent(pool.name))}`);
           const phEl = item.querySelector(`#ph-stream-${CSS.escape(encodeURIComponent(pool.name))}`);
           bindPoolBannerWithFallback(imgEl, phEl, pool.name);
@@ -2104,14 +2123,13 @@
         });
       }
 
-      // 异步探测获取海报 Image 对象（按扩展名轮询）
       async function resolvePoolBannerImageAsync(poolName) {
         if (appData.poolBanners && appData.poolBanners[poolName]) {
           return await loadImageAsync(appData.poolBanners[poolName]);
         }
-        for (const ext of IMAGE_EXTENSIONS) {
-          const src = `./banners/${encodeURIComponent(poolName)}${ext}`;
-          const img = await loadImageAsync(src);
+        const candidates = buildBannerCandidateUrls(poolName);
+        for (const url of candidates) {
+          const img = await loadImageAsync(url);
           if (img) return img;
         }
         return null;
