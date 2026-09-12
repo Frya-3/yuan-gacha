@@ -156,7 +156,7 @@
       </button>
     </div>
     <nav class="nav-tabs">
-      <div class="nav-tab-btn active" id="tabStandardBtn" onclick="window.switchMainPool('standard')">绣衣楼密招 (普池)</div>
+      <div class="nav-tab-btn active" id="tabStandardBtn" onclick="window.switchMainPool('standard')">绣衣天下 (普池)</div>
       <div class="nav-tab-btn" id="tabLimitedBtn" onclick="window.switchMainPool('limited')">限定特命 (活动池)</div>
     </nav>
   </header>
@@ -166,11 +166,15 @@
       <div class="stat-card">
         <div class="stat-header"><div class="stat-title">普池招募表现</div></div>
         <div class="stat-grid">
-          <div class="stat-item"><span class="stat-val" id="stdTotalPulls">0</span><span class="stat-label">总招募步数</span></div>
-          <div class="stat-item"><span class="stat-val" id="stdSsrPulls">0</span><span class="stat-label">绝密总数</span></div>
+          <div class="stat-item"><span class="stat-val" id="stdTotalPulls">0</span><span class="stat-label">总招募次数</span></div>
+          <div class="stat-item"><span class="stat-val" id="stdSsrPulls">0</span><span class="stat-label">绝密密探总数</span></div>
           <div class="stat-item"><span class="stat-val" id="stdAvgPulls">0.0</span><span class="stat-label">绝密平均抽数</span></div>
           <div class="stat-item highlight"><span class="stat-val" id="stdPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
         </div>
+      </div>
+            <div class="stat-card" id="stdFrequentArea" style="display:none">
+        <div class="stat-header"><div class="stat-title">🏆 出场最多的密探</div></div>
+        <div class="chars-grid-5" id="stdFrequentGrid"></div>
       </div>
       <div class="record-list" id="standardRecordList"></div>
     </section>
@@ -188,6 +192,10 @@
             <div class="stat-item highlight"><span class="stat-val" id="lmtPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
           </div>
         </div>
+              <div class="stat-card" id="lmtLostArea" style="display:none">
+        <div class="stat-header"><div class="stat-title">😭 歪得最多的密探</div></div>
+        <div class="chars-grid-5" id="lmtLostGrid"></div>
+      </div>
         <div class="gallery-top-bar">
           <span class="gallery-title">限定卡池画卷 (轻触展开密探)</span>
           <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
@@ -544,7 +552,7 @@
       // ==================== 渲染引擎 ====================
       function render(){activeTab==='standard'?renderStd():renderLtd()}
 
-      function renderStd(){
+            function renderStd(){
         const total=appData.standard.reduce((a,r)=>a+Number(r.pulls),0);
         const ssrList=appData.standard.filter(r=>r.rarity==='绝密');
         const ssrN=ssrList.length;
@@ -554,6 +562,28 @@
         document.getElementById('stdAvgPulls').innerText=ssrN>0?(total/ssrN).toFixed(1):'0.0';
         document.getElementById('stdPityRate').innerText=ssrN>0?((pityN/ssrN)*100).toFixed(1)+'%':'0.0%';
         renderRecords('standardRecordList',appData.standard);
+
+        // 高频密探统计（按名字聚合计数，取出场次数最多的前5位）
+        const freqArea=document.getElementById('stdFrequentArea');
+        const freqGrid=document.getElementById('stdFrequentGrid');
+        const nameMap={};
+        appData.standard.forEach(r=>{
+          if(!nameMap[r.name])nameMap[r.name]={count:0,avatar:r.avatar||''};
+          nameMap[r.name].count++;
+          if(r.avatar&&!nameMap[r.name].avatar)nameMap[r.name].avatar=r.avatar;
+        });
+        const sorted=Object.entries(nameMap).sort((a,b)=>b[1].count-a[1].count).slice(0,5);
+        if(sorted.length>0){
+          freqArea.style.display='block';
+          freqGrid.innerHTML=sorted.map(([name,info])=>{
+            const av=info.avatar?'<img class="mini-char-img" src="'+info.avatar+'">'
+              :'<span class="mini-char-fallback">'+name.slice(0,1)+'</span>';
+            return '<div class="mini-char-card-wrap">'+av
+              +'<div class="mini-pulls-label">'+info.count+'次</div></div>';
+          }).join('');
+        }else{
+          freqArea.style.display='none';
+        }
       }
 
       function renderLtd(){
@@ -574,6 +604,27 @@
           document.getElementById('limitedGalleryMode').style.display='block';
           document.getElementById('limitedSingleMode').style.display='none';
           renderPoolStream();
+                    // 歪得最多密探统计
+          const lostArea=document.getElementById('lmtLostArea');
+          const lostGrid=document.getElementById('lmtLostGrid');
+          const lostMap={};
+          appData.limited.filter(r=>r.rarity==='绝密'&&!r.isUp).forEach(r=>{
+            if(!lostMap[r.name])lostMap[r.name]={count:0,avatar:r.avatar||''};
+            lostMap[r.name].count++;
+            if(r.avatar&&!lostMap[r.name].avatar)lostMap[r.name].avatar=r.avatar;
+          });
+          const lostSorted=Object.entries(lostMap).sort((a,b)=>b[1].count-a[1].count).slice(0,5);
+          if(lostSorted.length>0){
+            lostArea.style.display='block';
+            lostGrid.innerHTML=lostSorted.map(([name,info])=>{
+              const av=info.avatar?'<img class="mini-char-img" src="'+info.avatar+'">'
+                :'<span class="mini-char-fallback">'+name.slice(0,1)+'</span>';
+              return '<div class="mini-char-card-wrap is-lost">'+av
+                +'<div class="mini-pulls-label">歪了'+info.count+'次</div></div>';
+            }).join('');
+          }else{
+            lostArea.style.display='none';
+          }
         }else{
           document.getElementById('limitedGalleryMode').style.display='none';
           document.getElementById('limitedSingleMode').style.display='block';
