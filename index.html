@@ -4,482 +4,150 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>代号鸢 · 密探招募录</title>
-
-  <!-- iOS 主屏幕专属 App 配置 -->
   <meta name="apple-mobile-web-app-title" content="密探招募录">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  
   <link rel="apple-touch-icon" id="appleTouchIcon" href="">
   <link rel="apple-touch-icon-precomposed" id="appleTouchIconPre" href="">
   <link rel="icon" id="pageFavicon" type="image/png" href="">
-
-  <!-- 引入官方轻量 Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-    :root {
-      /* 芭乐夏日主题调色盘 */
-      --color-guava-blush:  #FDD7D0; 
-      --color-peel-citron:  #EAE7B4; 
-      --color-flesh-sorbet: #F19E96; 
-      --color-guava-saga:   #B2BA69; 
-      --color-fruit-pulp:   #F8ECD7; 
-
-      --bg-body: #FDF9F3;
-      --card-bg: #FFFFFF;
-      --text-main: #46382E;
-      --text-sub: #8D7B6F;
-      --border-color: #EFE4D6;
-      
-      --accent-gold: var(--color-flesh-sorbet);
-      --accent-gold-bg: #FFF3F1;
-      --accent-red: #D9534F;
-      --accent-red-bg: #FDF2F2;
-
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
-      --shadow-soft: 0 4px 18px rgba(178, 186, 105, 0.12);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { 
-      background-color: var(--bg-body); 
-      color: var(--text-main); 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif; 
-      line-height: 1.5; 
-      padding-bottom: 120px; 
-    }
-
-    /* 顶部导航 Tabs 与云端账号胶囊 */
-    .top-header-bar {
-      position: sticky; top: 0; z-index: 30;
-      background: rgba(253, 249, 243, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 16px 8px 16px;
-    }
-    .auth-status-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .brand-logo-text {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--text-main);
-      letter-spacing: 0.5px;
-    }
-    .cloud-pill-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--card-bg);
-      border: 1px solid var(--color-guava-blush);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-main);
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(241, 158, 150, 0.15);
-    }
-    .cloud-pill-btn.online {
-      border-color: var(--color-guava-saga);
-      color: var(--color-guava-saga);
-    }
-
-    .nav-tabs { 
-      display: flex; 
-      gap: 10px; 
-    }
-    .nav-tab-btn { 
-      flex: 1; padding: 9px 0; text-align: center; border: 1px solid transparent; 
-      background: rgba(248, 236, 215, 0.5); 
-      color: var(--text-sub); font-size: 13.5px; font-weight: 600; 
-      border-radius: var(--radius-md); cursor: pointer; 
-      transition: all 0.2s ease;
-    }
-    .nav-tab-btn.active { 
-      background: var(--card-bg); 
-      color: var(--text-main); 
-      border-color: var(--color-guava-blush); 
-      box-shadow: 0 4px 12px rgba(241, 158, 150, 0.18); 
-    }
-
-    .container { padding: 16px; max-width: 600px; margin: 0 auto; }
-
-    /* 画廊顶部栏 */
-    .gallery-top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .gallery-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
-    .btn-create-pool-pill {
-      background: var(--color-peel-citron);
-      color: var(--text-main);
-      border: 1px solid rgba(178, 186, 105, 0.3);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* 卡池流展示卡片 */
-    .pool-card-stream { display: flex; flex-direction: column; gap: 14px; }
-    .pool-stream-item {
-      background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
-      overflow: hidden; display: flex; flex-direction: column;
-      transition: all 0.2s ease;
-    }
-
-    .stream-poster-container {
-      width: 100%; background: #FAF3E8; border-bottom: 1px solid var(--border-color);
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
-      max-height: 260px; position: relative; cursor: pointer; min-height: 140px;
-    }
-    .stream-poster-container img {
-      width: 100%; height: 100%; max-height: 260px; object-fit: contain; display: block;
-    }
-    .stream-poster-placeholder {
-      padding: 32px 0; text-align: center; font-size: 12px; color: var(--text-sub); line-height: 1.6;
-    }
-
-    .stream-item-info {
-      padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-      cursor: pointer;
-    }
-    .stream-info-left {
-      display: flex; flex-direction: column; gap: 4px; overflow: hidden; padding-right: 8px;
-    }
-    .stream-title-row {
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    }
-    .stream-pool-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
-    .stream-pool-meta { font-size: 12px; color: var(--text-sub); }
-    .stream-info-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .stream-pull-badge {
-      font-size: 13px; font-weight: 700; color: var(--color-flesh-sorbet);
-      background: var(--accent-gold-bg); padding: 4px 10px; border-radius: 12px;
-      border: 1px solid var(--color-guava-blush);
-    }
-    .stream-fold-arrow { font-size: 11px; color: var(--text-sub); transition: transform 0.2s ease; }
-    .pool-stream-item.expanded .stream-fold-arrow { transform: rotate(180deg); }
-
-    /* 气泡包裹类目标签样式 */
-    .bubble-category-tag {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-      line-height: 1.3;
-      letter-spacing: 0.2px;
-      border: 1px solid transparent;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .cat-限定       { background: #FFF0EE; color: var(--color-flesh-sorbet); border-color: var(--color-guava-blush); }
-    .cat-自选限定   { background: #F6F3DF; color: #7B8528; border-color: var(--color-peel-citron); }
-    .cat-复刻       { background: #F2F0ED; color: #73675E; border-color: #E2DBD3; }
-    .cat-照影       { background: #E8F7F3; color: #32967F; border-color: #C3ECE1; }
-    .cat-刘辩地宫   { background: #FFF4F2; color: #D65A5A; border-color: #FEDAD6; }
-    .cat-傅融地宫   { background: #F3F5FC; color: #4F6BA8; border-color: #D8E0F7; }
-    .cat-袁基地宫   { background: #F4F8F1; color: #538A4B; border-color: #D3E8CC; }
-    .cat-左慈地宫   { background: #FBF4FD; color: #8F55A8; border-color: #EED7F7; }
-    .cat-孙策地宫   { background: #FEF7EC; color: #C27429; border-color: #F8DFC0; }
-
-    /* 密探展开区及卡片调优 */
-    .stream-expanded-content {
-      display: none;
-      padding: 14px 16px 18px 16px;
-      background: #FDFBFA;
-      border-top: 1px dashed var(--border-color);
-    }
-    .pool-stream-item.expanded .stream-expanded-content {
-      display: block;
-    }
-
-    .expanded-pool-tools {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid rgba(239, 228, 214, 0.6);
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .expanded-stat-text { font-size: 11px; color: var(--text-sub); }
-    .expanded-stat-text b { color: var(--color-guava-saga); font-weight: 700; }
-    .btn-pool-edit-inline {
-      background: none; border: none; font-size: 11px;
-      color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
-    }
-    .btn-view-detail-page {
-      background: #FFF0EE; border: 1px solid var(--color-guava-blush);
-      color: var(--color-flesh-sorbet); font-size: 11px; font-weight: 700;
-      padding: 3px 8px; border-radius: 12px; cursor: pointer;
-    }
-
-    .chars-grid-5 {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 11px;
-    }
-
-    .mini-char-card-wrap {
-      position: relative; aspect-ratio: 3 / 4; border-radius: 8px;
-      overflow: hidden; background: var(--color-fruit-pulp);
-      border: 1px solid var(--border-color); display: flex;
-      align-items: center; justify-content: center; cursor: pointer;
-      box-shadow: 0 2px 6px rgba(70, 56, 46, 0.06);
-    }
-    .mini-char-card-wrap.rarity-SSR {
-      border: 1.8px solid var(--color-flesh-sorbet);
-      box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
-    }
-    .mini-char-card-wrap.is-lost { border: 1.8px solid var(--accent-red) !important; }
-    .mini-char-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .mini-char-fallback { font-size: 13px; font-weight: 700; color: var(--text-sub); }
-
-    .mini-pulls-label {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(0, 0, 0, 0.68); backdrop-filter: blur(3px);
-      color: #FFFFFF; font-size: 11.5px; font-weight: 800;
-      text-align: center; padding: 3px 0; line-height: 1.25;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-      letter-spacing: 0.2px;
-    }
-    .mini-char-card-wrap.rarity-SSR .mini-pulls-label { color: #FFF2A8; }
-    .mini-char-card-wrap.is-lost .mini-pulls-label { color: #FFB3B3; }
-
-    .mini-lost-badge {
-      position: absolute; top: 3px; right: 3px;
-      background: var(--accent-red); color: #FFFFFF;
-      font-size: 10px; font-weight: 900; width: 18px; height: 18px;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      border: 1.5px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.35); z-index: 3;
-    }
-
-    .empty-grid-notice {
-      grid-column: span 5; text-align: center; padding: 20px 0; font-size: 12px; color: var(--text-sub);
-    }
-
-    /* 单卡池独立详情大页样式 */
-    .single-pool-view-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
-    }
-    .btn-back-to-gallery {
-      background: var(--card-bg); border: 1px solid var(--border-color);
-      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
-      color: var(--text-main); cursor: pointer;
-    }
-    .single-view-title-wrap {
-      display: flex; align-items: center; gap: 6px; max-width: 65%; overflow: hidden;
-    }
-    .single-view-title { font-size: 15px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .detail-poster-wrapper {
-      width: 100%; background: #FAF3E8; border-radius: var(--radius-md);
-      overflow: hidden; border: 1.5px dashed var(--color-flesh-sorbet);
-      box-shadow: var(--shadow-soft); display: flex; align-items: center;
-      justify-content: center; cursor: pointer; position: relative;
-      max-height: 380px; margin-bottom: 8px; min-height: 160px;
-    }
-    .detail-poster-wrapper img {
-      width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block;
-    }
-    .detail-poster-tip {
-      padding: 40px 12px; font-size: 13px; color: var(--text-sub); text-align: center; line-height: 1.6;
-    }
-
-    .pool-meta-badge-box {
-      background: rgba(234, 231, 180, 0.35); padding: 10px 14px;
-      border-radius: var(--radius-md); margin-bottom: 14px;
-      border: 1px solid var(--color-peel-citron); font-size: 12px; position: relative;
-    }
-    .meta-row { display: flex; margin-bottom: 4px; }
-    .meta-row:last-child { margin-bottom: 0; }
-    .meta-k { color: var(--text-sub); width: 68px; flex-shrink: 0; }
-    .meta-v { color: var(--text-main); font-weight: 600; }
-    .btn-edit-current-pool {
-      position: absolute; right: 12px; top: 10px;
-      background: none; border: none; font-size: 12px;
-      color: var(--color-guava-saga); font-weight: 700; cursor: pointer;
-    }
-
-    /* 统计卡片与网格 */
-    .stat-card { 
-      background: var(--card-bg); border-radius: var(--radius-lg); 
-      padding: 16px; margin-bottom: 14px; 
-      box-shadow: var(--shadow-soft); border: 1px solid var(--border-color); 
-    }
-    .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .stat-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
-    .stat-action-del { font-size: 12px; color: var(--accent-red); background: none; border: none; cursor: pointer; }
-    
-    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat-item { 
-      background: #FDF9F3; 
-      padding: 9px 8px; border-radius: var(--radius-sm); text-align: center; 
-      border: 1px solid #FAF0E4;
-    }
-    .stat-val { font-size: 16px; font-weight: 700; color: var(--text-main); display: block; }
-    .stat-item.highlight .stat-val { color: var(--color-guava-saga); }
-    .stat-label { font-size: 11px; color: var(--text-sub); margin-top: 2px; display: block; }
-
-    /* 记录明细列表 */
-    .record-list { display: flex; flex-direction: column; gap: 10px; }
-    .record-item { 
-      display: flex; align-items: center; background: var(--card-bg); 
-      padding: 12px 14px; border-radius: var(--radius-md); 
-      box-shadow: 0 3px 12px rgba(70, 56, 46, 0.04); 
-      border: 1px solid var(--border-color); 
-      border-left: 5px solid #D8CFC4; position: relative; 
-    }
-    .record-item.rarity-SSR { border-left-color: var(--color-flesh-sorbet); }
-    .record-item.is-lost { border-left-color: var(--accent-red) !important; background: var(--accent-red-bg); }
-
-    .char-card-box { 
-      width: 44px; aspect-ratio: 3 / 4; border-radius: 6px; 
-      background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; 
-      font-size: 14px; font-weight: 700; color: var(--text-sub); margin-right: 12px; 
-      flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-color); 
-    }
-    .char-card-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .record-item.rarity-SSR .char-card-box { 
-      background: #FFF0EE; color: var(--color-flesh-sorbet); border-color: var(--color-guava-blush); 
-    }
-    .record-item.is-lost .char-card-box { background: #FEE8E8; color: var(--accent-red); border-color: rgba(217, 83, 79, 0.6); }
-
-    .record-info { flex: 1; overflow: hidden; }
-    .info-top { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
-    .char-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .record-item.is-lost .char-name { color: var(--accent-red); }
-    .tag-badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
-    .tag-up { background: var(--color-flesh-sorbet); color: #FFF; }
-    .tag-lost { background: var(--accent-red); color: #FFF; }
-    .info-sub { font-size: 12px; color: var(--text-sub); }
-
-    .record-actions { display: flex; align-items: center; gap: 8px; }
-    .pull-count { font-size: 16px; font-weight: 700; color: var(--text-sub); text-align: right; }
-    .record-item.rarity-SSR .pull-count { color: var(--color-flesh-sorbet); }
-    .record-item.is-lost .pull-count { color: var(--accent-red); }
-    .btn-edit-record, .btn-del-record { background: transparent; border: none; font-size: 16px; padding: 4px 6px; cursor: pointer; color: var(--text-sub); }
-    .btn-del-record { color: #C5BCB3; }
-
-    /* 底部操作 */
-    .bottom-bar { 
-      margin-top: 24px; padding-top: 14px; 
-      border-top: 1px dashed var(--border-color); 
-      display: flex; gap: 8px; flex-wrap: wrap; 
-    }
-    .btn-action-tool { 
-      flex: 1 1 28%; min-width: 80px; 
-      background: var(--card-bg); border: 1px solid var(--border-color); 
-      padding: 9px 4px; border-radius: var(--radius-sm); 
-      font-size: 12px; font-weight: 600; color: var(--text-sub); 
-      cursor: pointer; text-align: center;
-    }
-    .btn-action-tool.highlight-btn {
-      background: var(--color-flesh-sorbet);
-      color: #FFFFFF;
-      border-color: var(--color-flesh-sorbet);
-      box-shadow: 0 2px 8px rgba(241, 158, 150, 0.35);
-    }
-
-    /* 悬浮加号 */
-    .fab { 
-      position: fixed; right: 20px; bottom: 28px; width: 56px; height: 56px; 
-      border-radius: 50%; background: var(--color-flesh-sorbet); color: #FFFFFF; 
-      display: flex; align-items: center; justify-content: center; font-size: 32px; 
-      border: none; box-shadow: 0 8px 24px rgba(241, 158, 150, 0.45); 
-      cursor: pointer; z-index: 99; 
-    }
-
-    /* 弹窗面板 */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(70, 56, 46, 0.45); z-index: 1000; display: none; align-items: flex-end; }
-    .modal-overlay.active { display: flex; }
-    .modal-panel { background: var(--card-bg); width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 20px 20px 36px 20px; max-height: 85vh; overflow-y: auto; }
-    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center; color: var(--text-main); }
-    .form-group { margin-bottom: 14px; }
-    .form-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; }
-    .form-input, .form-select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #FAF6F0; font-size: 15px; color: var(--text-main); outline: none; }
-    
-    .forgot-pwd-box { margin-top: 8px; text-align: right; }
-    .btn-forgot-pwd {
-      background: none; border: none; font-size: 12.5px; color: #C27429;
-      font-weight: 700; cursor: pointer; text-decoration: underline; padding: 4px;
-    }
-
-    .chips-selector-scroll {
-      display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px 2px; scrollbar-width: none;
-    }
-    .chips-selector-scroll::-webkit-scrollbar { display: none; }
-    .chip-bubble-opt {
-      flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 13px;
-      font-weight: 600; cursor: pointer; border: 1px solid var(--border-color);
-      background: #FAF6F0; color: var(--text-sub); transition: all 0.2s ease;
-    }
-    .chip-bubble-opt.selected {
-      background: var(--color-flesh-sorbet); color: #FFFFFF; border-color: var(--color-flesh-sorbet);
-      box-shadow: 0 3px 10px rgba(241, 158, 150, 0.35);
-    }
-
-    .date-range-picker-row { display: flex; align-items: center; gap: 8px; }
-    .date-input-mini {
-      flex: 1; padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);
-      background: #FAF6F0; font-size: 13px; color: var(--text-main); outline: none; font-family: inherit;
-    }
-    .date-split-text { font-size: 12px; color: var(--text-sub); flex-shrink: 0; }
-
-    .segmented-control { display: flex; gap: 8px; }
-    .segment-opt { 
-      flex: 1; padding: 9px 0; text-align: center; border: 1px solid var(--border-color); 
-      border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; background: #FAF6F0; color: var(--text-sub); 
-    }
-    .segment-opt.selected { 
-      background: var(--color-flesh-sorbet); color: #FFF; border-color: var(--color-flesh-sorbet); font-weight: 600; 
-    }
-    
-    .btn-submit { 
-      width: 100%; padding: 13px; background: var(--color-flesh-sorbet); color: #FFF; 
-      border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 600; 
-      margin-top: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(241, 158, 150, 0.3);
-    }
-
-    .avatar-uploader-row { display: flex; align-items: center; gap: 14px; background: #FAF6F0; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--color-guava-blush); }
-    .preview-box-3-4 { width: 51px; aspect-ratio: 3 / 4; border-radius: 6px; background: var(--color-fruit-pulp); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 11px; }
-    .preview-box-3-4 img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .uploader-actions { display: flex; flex-direction: column; gap: 5px; }
-    .btn-upload-fake { background: var(--color-guava-blush); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; cursor: pointer; text-align: center; }
-    .btn-clear-photo { background: none; border: none; color: var(--accent-red); font-size: 11px; cursor: pointer; text-align: left; display: none; }
-
-    /* 图鉴长图导出预览容器 */
-    .export-preview-container {
-      width: 100%; max-height: 60vh; overflow-y: auto;
-      border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      background: #FAF6F0; text-align: center; padding: 8px; margin-bottom: 12px;
-    }
-    .export-preview-container img {
-      width: 100%; height: auto; display: block; border-radius: var(--radius-sm);
-      box-shadow: 0 4px 14px rgba(70,56,46,0.1);
-    }
-    .export-tip-text { font-size: 12px; color: var(--text-sub); text-align: center; margin-bottom: 8px; }
+    :root{--color-guava-blush:#FDD7D0;--color-peel-citron:#EAE7B4;--color-flesh-sorbet:#F19E96;--color-guava-saga:#B2BA69;--color-fruit-pulp:#F8ECD7;--bg-body:#FDF9F3;--card-bg:#FFF;--text-main:#46382E;--text-sub:#8D7B6F;--border-color:#EFE4D6;--accent-gold-bg:#FFF3F1;--accent-red:#D9534F;--accent-red-bg:#FDF2F2;--radius-sm:8px;--radius-md:14px;--radius-lg:20px;--shadow-soft:0 4px 18px rgba(178,186,105,.12)}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg-body);color:var(--text-main);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC",sans-serif;line-height:1.5;padding-bottom:120px}
+    .top-header-bar{position:sticky;top:0;z-index:30;background:rgba(253,249,243,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-color);padding:10px 16px 8px}
+    .auth-status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .brand-logo-text{font-size:13px;font-weight:800;color:var(--text-main);letter-spacing:.5px}
+    .cloud-pill-btn{display:inline-flex;align-items:center;gap:5px;background:var(--card-bg);border:1px solid var(--color-guava-blush);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;color:var(--text-main);cursor:pointer;box-shadow:0 2px 6px rgba(241,158,150,.15)}
+    .cloud-pill-btn.online{border-color:var(--color-guava-saga);color:var(--color-guava-saga)}
+    .nav-tabs{display:flex;gap:10px}
+    .nav-tab-btn{flex:1;padding:9px 0;text-align:center;border:1px solid transparent;background:rgba(248,236,215,.5);color:var(--text-sub);font-size:13.5px;font-weight:600;border-radius:var(--radius-md);cursor:pointer;transition:all .2s}
+    .nav-tab-btn.active{background:var(--card-bg);color:var(--text-main);border-color:var(--color-guava-blush);box-shadow:0 4px 12px rgba(241,158,150,.18)}
+    .container{padding:16px;max-width:600px;margin:0 auto}
+    .gallery-top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .gallery-title{font-size:16px;font-weight:700}
+    .btn-create-pool-pill{background:var(--color-peel-citron);color:var(--text-main);border:1px solid rgba(178,186,105,.3);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer}
+    .pool-card-stream{display:flex;flex-direction:column;gap:14px}
+    .pool-stream-item{background:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft);overflow:hidden;display:flex;flex-direction:column}
+    .stream-poster-container{width:100%;background:#FAF3E8;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;overflow:hidden;max-height:260px;cursor:pointer;min-height:80px}
+    .stream-poster-container img{width:100%;max-height:260px;object-fit:contain;display:block}
+    .stream-poster-placeholder{padding:32px 0;text-align:center;font-size:12px;color:var(--text-sub);line-height:1.6}
+    .stream-item-info{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+    .stream-info-left{display:flex;flex-direction:column;gap:4px;overflow:hidden;padding-right:8px}
+    .stream-title-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .stream-pool-name{font-size:16px;font-weight:700}
+    .stream-pool-meta{font-size:12px;color:var(--text-sub)}
+    .stream-info-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .stream-pull-badge{font-size:13px;font-weight:700;color:var(--color-flesh-sorbet);background:var(--accent-gold-bg);padding:4px 10px;border-radius:12px;border:1px solid var(--color-guava-blush)}
+    .stream-fold-arrow{font-size:11px;color:var(--text-sub);transition:transform .2s}
+    .pool-stream-item.expanded .stream-fold-arrow{transform:rotate(180deg)}
+    .bubble-category-tag{display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;line-height:1.3;border:1px solid transparent;white-space:nowrap;flex-shrink:0}
+    .cat-限定{background:#FFF0EE;color:var(--color-flesh-sorbet);border-color:var(--color-guava-blush)}
+    .cat-自选限定{background:#F6F3DF;color:#7B8528;border-color:var(--color-peel-citron)}
+    .cat-复刻{background:#F2F0ED;color:#73675E;border-color:#E2DBD3}
+    .cat-照影{background:#E8F7F3;color:#32967F;border-color:#C3ECE1}
+    .cat-刘辩地宫{background:#FFF4F2;color:#D65A5A;border-color:#FEDAD6}
+    .cat-傅融地宫{background:#F3F5FC;color:#4F6BA8;border-color:#D8E0F7}
+    .cat-袁基地宫{background:#F4F8F1;color:#538A4B;border-color:#D3E8CC}
+    .cat-左慈地宫{background:#FBF4FD;color:#8F55A8;border-color:#EED7F7}
+    .cat-孙策地宫{background:#FEF7EC;color:#C27429;border-color:#F8DFC0}
+    .stream-expanded-content{display:none;padding:14px 16px 18px;background:#FDFBFA;border-top:1px dashed var(--border-color)}
+    .pool-stream-item.expanded .stream-expanded-content{display:block}
+    .expanded-pool-tools{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(239,228,214,.6);flex-wrap:wrap;gap:6px}
+    .expanded-stat-text{font-size:11px;color:var(--text-sub)}
+    .expanded-stat-text b{color:var(--color-guava-saga);font-weight:700}
+    .btn-pool-edit-inline{background:0 0;border:none;font-size:11px;color:var(--color-guava-saga);font-weight:700;cursor:pointer}
+    .btn-view-detail-page{background:#FFF0EE;border:1px solid var(--color-guava-blush);color:var(--color-flesh-sorbet);font-size:11px;font-weight:700;padding:3px 8px;border-radius:12px;cursor:pointer}
+    .chars-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
+    .mini-char-card-wrap{position:relative;aspect-ratio:3/4;border-radius:8px;overflow:hidden;background:var(--color-fruit-pulp);border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(70,56,46,.06)}
+    .mini-char-card-wrap.rarity-SSR{border:1.8px solid var(--color-flesh-sorbet);box-shadow:0 3px 10px rgba(241,158,150,.35)}
+    .mini-char-card-wrap.is-lost{border:1.8px solid var(--accent-red)!important}
+    .mini-char-img{width:100%;height:100%;object-fit:cover;display:block}
+    .mini-char-fallback{font-size:13px;font-weight:700;color:var(--text-sub)}
+    .mini-pulls-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.68);backdrop-filter:blur(3px);color:#FFF;font-size:11.5px;font-weight:800;text-align:center;padding:3px 0;line-height:1.25;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+    .mini-char-card-wrap.rarity-SSR .mini-pulls-label{color:#FFF2A8}
+    .mini-char-card-wrap.is-lost .mini-pulls-label{color:#FFB3B3}
+    .mini-lost-badge{position:absolute;top:3px;right:3px;background:var(--accent-red);color:#FFF;font-size:10px;font-weight:900;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #FFF;box-shadow:0 2px 5px rgba(0,0,0,.35);z-index:3}
+    .empty-grid-notice{grid-column:span 5;text-align:center;padding:20px 0;font-size:12px;color:var(--text-sub)}
+    .single-pool-view-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .btn-back-to-gallery{background:var(--card-bg);border:1px solid var(--border-color);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;color:var(--text-main);cursor:pointer}
+    .single-view-title-wrap{display:flex;align-items:center;gap:6px;max-width:65%;overflow:hidden}
+    .single-view-title{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .detail-poster-wrapper{width:100%;background:#FAF3E8;border-radius:var(--radius-md);overflow:hidden;border:1.5px dashed var(--color-flesh-sorbet);box-shadow:var(--shadow-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;max-height:380px;margin-bottom:8px;min-height:80px}
+    .detail-poster-wrapper img{width:100%;max-height:380px;object-fit:contain;display:block}
+    .detail-poster-tip{padding:40px 12px;font-size:13px;color:var(--text-sub);text-align:center;line-height:1.6}
+    .pool-meta-badge-box{background:rgba(234,231,180,.35);padding:10px 14px;border-radius:var(--radius-md);margin-bottom:14px;border:1px solid var(--color-peel-citron);font-size:12px;position:relative}
+    .meta-row{display:flex;margin-bottom:4px}.meta-row:last-child{margin-bottom:0}
+    .meta-k{color:var(--text-sub);width:68px;flex-shrink:0}
+    .meta-v{color:var(--text-main);font-weight:600}
+    .btn-edit-current-pool{position:absolute;right:12px;top:10px;background:0 0;border:none;font-size:12px;color:var(--color-guava-saga);font-weight:700;cursor:pointer}
+    .stat-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;box-shadow:var(--shadow-soft);border:1px solid var(--border-color)}
+    .stat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .stat-title{font-size:14px;font-weight:700}
+    .stat-action-del{font-size:12px;color:var(--accent-red);background:0 0;border:none;cursor:pointer}
+    .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .stat-item{background:#FDF9F3;padding:9px 8px;border-radius:var(--radius-sm);text-align:center;border:1px solid #FAF0E4}
+    .stat-val{font-size:16px;font-weight:700;display:block}
+    .stat-item.highlight .stat-val{color:var(--color-guava-saga)}
+    .stat-label{font-size:11px;color:var(--text-sub);margin-top:2px;display:block}
+    .record-list{display:flex;flex-direction:column;gap:10px}
+    .record-item{display:flex;align-items:center;background:var(--card-bg);padding:12px 14px;border-radius:var(--radius-md);box-shadow:0 3px 12px rgba(70,56,46,.04);border:1px solid var(--border-color);border-left:5px solid #D8CFC4}
+    .record-item.rarity-SSR{border-left-color:var(--color-flesh-sorbet)}
+    .record-item.is-lost{border-left-color:var(--accent-red)!important;background:var(--accent-red-bg)}
+    .char-card-box{width:44px;aspect-ratio:3/4;border-radius:6px;background:var(--color-fruit-pulp);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text-sub);margin-right:12px;flex-shrink:0;overflow:hidden;border:1px solid var(--border-color)}
+    .char-card-box img{width:100%;height:100%;object-fit:cover;display:block}
+    .record-item.rarity-SSR .char-card-box{background:#FFF0EE;color:var(--color-flesh-sorbet);border-color:var(--color-guava-blush)}
+    .record-item.is-lost .char-card-box{background:#FEE8E8;color:var(--accent-red);border-color:rgba(217,83,79,.6)}
+    .record-info{flex:1;overflow:hidden}
+    .info-top{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+    .char-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .record-item.is-lost .char-name{color:var(--accent-red)}
+    .tag-badge{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600}
+    .tag-up{background:var(--color-flesh-sorbet);color:#FFF}
+    .tag-lost{background:var(--accent-red);color:#FFF}
+    .info-sub{font-size:12px;color:var(--text-sub)}
+    .record-actions{display:flex;align-items:center;gap:8px}
+    .pull-count{font-size:16px;font-weight:700;color:var(--text-sub);text-align:right}
+    .record-item.rarity-SSR .pull-count{color:var(--color-flesh-sorbet)}
+    .record-item.is-lost .pull-count{color:var(--accent-red)}
+    .btn-edit-record,.btn-del-record{background:0 0;border:none;font-size:16px;padding:4px 6px;cursor:pointer;color:var(--text-sub)}
+    .btn-del-record{color:#C5BCB3}
+    .bottom-bar{margin-top:24px;padding-top:14px;border-top:1px dashed var(--border-color);display:flex;gap:8px;flex-wrap:wrap}
+    .btn-action-tool{flex:1 1 28%;min-width:80px;background:var(--card-bg);border:1px solid var(--border-color);padding:9px 4px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;color:var(--text-sub);cursor:pointer;text-align:center}
+    .btn-action-tool.highlight-btn{background:var(--color-flesh-sorbet);color:#FFF;border-color:var(--color-flesh-sorbet);box-shadow:0 2px 8px rgba(241,158,150,.35)}
+    .fab{position:fixed;right:20px;bottom:28px;width:56px;height:56px;border-radius:50%;background:var(--color-flesh-sorbet);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:32px;border:none;box-shadow:0 8px 24px rgba(241,158,150,.45);cursor:pointer;z-index:99}
+    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(70,56,46,.45);z-index:1000;display:none;align-items:flex-end}
+    .modal-overlay.active{display:flex}
+    .modal-panel{background:var(--card-bg);width:100%;border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:20px 20px 36px;max-height:85vh;overflow-y:auto}
+    .modal-title{font-size:16px;font-weight:700;margin-bottom:16px;text-align:center}
+    .form-group{margin-bottom:14px}
+    .form-label{font-size:13px;color:var(--text-sub);margin-bottom:6px;display:block}
+    .form-input,.form-select{width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:#FAF6F0;font-size:15px;color:var(--text-main);outline:0}
+    .forgot-pwd-box{margin-top:8px;text-align:right}
+    .btn-forgot-pwd{background:0 0;border:none;font-size:12.5px;color:#C27429;font-weight:700;cursor:pointer;text-decoration:underline;padding:4px}
+    .chips-selector-scroll{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+    .chips-selector-scroll::-webkit-scrollbar{display:none}
+    .chip-bubble-opt{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border-color);background:#FAF6F0;color:var(--text-sub);transition:all .2s}
+    .chip-bubble-opt.selected{background:var(--color-flesh-sorbet);color:#FFF;border-color:var(--color-flesh-sorbet);box-shadow:0 3px 10px rgba(241,158,150,.35)}
+    .date-range-picker-row{display:flex;align-items:center;gap:8px}
+    .date-input-mini{flex:1;padding:10px 8px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:#FAF6F0;font-size:13px;color:var(--text-main);outline:0;font-family:inherit}
+    .date-split-text{font-size:12px;color:var(--text-sub);flex-shrink:0}
+    .segmented-control{display:flex;gap:8px}
+    .segment-opt{flex:1;padding:9px 0;text-align:center;border:1px solid var(--border-color);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:#FAF6F0;color:var(--text-sub)}
+    .segment-opt.selected{background:var(--color-flesh-sorbet);color:#FFF;border-color:var(--color-flesh-sorbet);font-weight:600}
+    .btn-submit{width:100%;padding:13px;background:var(--color-flesh-sorbet);color:#FFF;border:none;border-radius:var(--radius-md);font-size:15px;font-weight:600;margin-top:10px;cursor:pointer;box-shadow:0 4px 14px rgba(241,158,150,.3)}
+    .avatar-uploader-row{display:flex;align-items:center;gap:14px;background:#FAF6F0;padding:10px 14px;border-radius:var(--radius-sm);border:1px dashed var(--color-guava-blush)}
+    .preview-box-3-4{width:51px;aspect-ratio:3/4;border-radius:6px;background:var(--color-fruit-pulp);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border:1px solid var(--border-color);color:var(--text-sub);font-size:11px}
+    .preview-box-3-4 img{width:100%;height:100%;object-fit:cover}
+    .uploader-actions{display:flex;flex-direction:column;gap:5px}
+    .btn-upload-fake{background:var(--color-guava-blush);color:var(--text-main);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block;cursor:pointer;text-align:center}
+    .btn-clear-photo{background:0 0;border:none;color:var(--accent-red);font-size:11px;cursor:pointer;text-align:left;display:none}
+    .export-preview-container{width:100%;max-height:60vh;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-md);background:#FAF6F0;text-align:center;padding:8px;margin-bottom:12px}
+    .export-preview-container img{width:100%;height:auto;display:block;border-radius:var(--radius-sm);box-shadow:0 4px 14px rgba(70,56,46,.1)}
+    .export-tip-text{font-size:12px;color:var(--text-sub);text-align:center;margin-bottom:8px}
   </style>
 </head>
 <body>
-
-  <!-- 顶部导航栏 (含 Supabase 云端账号状态胶囊) -->
   <header class="top-header-bar">
     <div class="auth-status-row">
       <span class="brand-logo-text">密探招募录</span>
@@ -494,8 +162,6 @@
   </header>
 
   <main class="container">
-
-    <!-- ==================== 1. 普池视图 ==================== -->
     <section id="standardMainView">
       <div class="stat-card">
         <div class="stat-header"><div class="stat-title">普池招募表现</div></div>
@@ -509,10 +175,7 @@
       <div class="record-list" id="standardRecordList"></div>
     </section>
 
-    <!-- ==================== 2. 限定特命界面 ==================== -->
-    <section id="limitedMainView" style="display: none;">
-      
-      <!-- 2.1 卡池画卷总览主界面 (支持展开五列密探矩阵) -->
+    <section id="limitedMainView" style="display:none">
       <div id="limitedGalleryMode">
         <div class="stat-card">
           <div class="stat-header"><div class="stat-title">限定总体宏观表现 (全部池)</div></div>
@@ -525,49 +188,36 @@
             <div class="stat-item highlight"><span class="stat-val" id="lmtPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
           </div>
         </div>
-
         <div class="gallery-top-bar">
           <span class="gallery-title">限定卡池画卷 (轻触展开密探)</span>
           <button class="btn-create-pool-pill" onclick="window.openCreatePoolModal()">+ 开辟新池</button>
         </div>
-
-        <!-- 主界面卡池流展示容器 -->
         <div class="pool-card-stream" id="poolCardStreamContainer"></div>
       </div>
 
-      <!-- 2.2 单卡池专属详情大页 (包含该池独家表现、海报自适应、抽中密探及移除卡池) -->
-      <div id="limitedSingleMode" style="display: none;">
-        
+      <div id="limitedSingleMode" style="display:none">
         <div class="single-pool-view-header">
           <button class="btn-back-to-gallery" onclick="window.exitToPoolGallery()">← 返回画卷</button>
           <div class="single-view-title-wrap">
             <span class="single-view-title" id="singlePoolHeaderTitle">卡池详情</span>
             <span class="bubble-category-tag" id="singlePoolHeaderBubble">限定</span>
           </div>
-          <div style="width:40px;"></div>
+          <div style="width:40px"></div>
         </div>
-
-        <!-- 大尺寸自适应海报封面展示区 -->
         <div class="detail-poster-wrapper" id="detailPosterWrapper" onclick="window.triggerUploadBanner(currentSelectedPool)">
-          <div class="detail-poster-tip" id="detailPosterPlaceholder">
-            📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span>
-          </div>
-          <img id="detailPosterImg" style="display: none;" src="" alt="卡池海报">
+          <div class="detail-poster-tip" id="detailPosterPlaceholder">📷 点击导入海报</div>
+          <img id="detailPosterImg" style="display:none" src="" alt="卡池海报">
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:12px; margin-bottom:12px;">
-          <button class="btn-banner-action" onclick="window.triggerUploadBanner(currentSelectedPool)">更换海报</button>
-          <button class="btn-banner-action danger" id="btnRemoveDetailBanner" style="display: none;" onclick="window.removePoolBannerByName(currentSelectedPool)">恢复默认海报</button>
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-bottom:12px">
+          <button onclick="window.triggerUploadBanner(currentSelectedPool)" style="font-size:12px;background:none;border:none;color:var(--color-guava-saga);cursor:pointer;font-weight:700">更换海报</button>
+          <button id="btnRemoveDetailBanner" style="display:none;font-size:12px;background:none;border:none;color:var(--accent-red);cursor:pointer" onclick="window.removePoolBannerByName(currentSelectedPool)">恢复默认</button>
         </div>
-
-        <!-- 卡池元信息徽章框 -->
         <div class="pool-meta-badge-box">
           <div class="meta-row"><span class="meta-k">开放周期：</span><span class="meta-v" id="detailMetaDate">-</span></div>
           <div class="meta-row"><span class="meta-k">当期密探：</span><span class="meta-v" id="detailMetaChars">-</span></div>
           <div class="meta-row"><span class="meta-k">卡池类别：</span><span class="meta-v" id="detailMetaCategory">-</span></div>
           <button class="btn-edit-current-pool" onclick="window.openEditPoolModalByName(currentSelectedPool)">✎ 编辑卡池</button>
         </div>
-
-        <!-- 单池独立统计数据指标 (带“注销此池”入口) -->
         <div class="stat-card">
           <div class="stat-header">
             <div class="stat-title" id="singlePoolStatTitle">该池招募表现</div>
@@ -582,1844 +232,469 @@
             <div class="stat-item highlight"><span class="stat-val" id="curPityRate">0.0%</span><span class="stat-label">历史硬保底率 (≥40抽)</span></div>
           </div>
         </div>
-
-        <!-- 该池名下的专属大图记录明细列表 -->
         <div class="record-list" id="limitedSingleRecordList"></div>
       </div>
-
     </section>
 
-    <!-- 隐藏的海报上传 Input -->
-    <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="window.handleBannerUpload(event)">
+    <input type="file" id="bannerFileInput" accept="image/*" style="display:none" onchange="window.handleBannerUpload(event)">
 
-    <!-- 底部操作栏 -->
     <footer class="bottom-bar">
       <button class="btn-action-tool highlight-btn" onclick="window.generateAtlasImage()">🖼️ 导出图鉴画报</button>
       <button class="btn-action-tool" onclick="window.syncToCloudNow()">上传云端</button>
       <button class="btn-action-tool" onclick="window.exportDataJSON()">导出备份</button>
       <button class="btn-action-tool" onclick="window.triggerImportJSON()">导入备份</button>
-      <input type="file" id="jsonFileInput" style="display: none;" accept=".json" onchange="window.importDataJSON(event)" />
+      <input type="file" id="jsonFileInput" style="display:none" accept=".json" onchange="window.importDataJSON(event)">
     </footer>
   </main>
 
-  <!-- 浮动登记入口按钮 -->
   <button class="fab" onclick="window.openAddModal()">+</button>
 
-  <!-- 模态框 0：Supabase 云端账号登录 / 注册 / 找回密码 -->
+  <!-- 模态框 0：云端账号 -->
   <div class="modal-overlay" id="authModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title" id="authModalTitle">云端数据账户</div>
-      
       <div id="authFormArea">
-        <div class="form-group">
-          <label class="form-label">账号邮箱</label>
-          <input type="email" class="form-input" id="authEmailInput" placeholder="输入接收邮件的常用邮箱">
-        </div>
-        <div class="form-group">
-          <label class="form-label">登录密码 (不少于6位)</label>
-          <input type="password" class="form-input" id="authPasswordInput" placeholder="输入登录密码">
-          <div class="forgot-pwd-box">
-            <button class="btn-forgot-pwd" type="button" onclick="window.switchAuthView('forgot')">🔑 忘记密码？点击找回</button>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-top:10px;">
-          <button class="btn-submit" style="flex:1;" onclick="window.handleLogin()">登录同步</button>
-          <button class="btn-submit" style="flex:1; background:var(--color-peel-citron); color:var(--text-main); border:1px solid rgba(178,186,105,0.4);" onclick="window.handleSignUp()">注册新号</button>
-        </div>
+        <div class="form-group"><label class="form-label">账号邮箱</label><input type="email" class="form-input" id="authEmailInput" placeholder="输入邮箱"></div>
+        <div class="form-group"><label class="form-label">登录密码 (不少于6位)</label><input type="password" class="form-input" id="authPasswordInput" placeholder="输入密码"><div class="forgot-pwd-box"><button class="btn-forgot-pwd" type="button" onclick="window.switchAuthView('forgot')">🔑 忘记密码？</button></div></div>
+        <div style="display:flex;gap:10px;margin-top:10px"><button class="btn-submit" style="flex:1" onclick="window.handleLogin()">登录同步</button><button class="btn-submit" style="flex:1;background:var(--color-peel-citron);color:var(--text-main)" onclick="window.handleSignUp()">注册新号</button></div>
       </div>
-
-      <div id="authForgotArea" style="display: none;">
-        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px; line-height: 1.6;">
-          请输入你注册时使用的邮箱，我们将向你发送一封包含密码重置安全链接的邮件：
-        </p>
-        <div class="form-group">
-          <label class="form-label">注册邮箱</label>
-          <input type="email" class="form-input" id="authForgotEmailInput" placeholder="your_email@example.com">
-        </div>
-        <button class="btn-submit" onclick="window.handleSendResetEmail()">发送重置邮件</button>
-        <div style="text-align: center; margin-top: 14px;">
-          <button class="btn-forgot-pwd" type="button" style="color:var(--text-sub);" onclick="window.switchAuthView('login')">← 返回登录</button>
-        </div>
-      </div>
-
-      <div id="authResetArea" style="display: none;">
-        <p style="font-size: 13px; color: var(--color-guava-saga); font-weight: 700; margin-bottom: 12px;">
-          ✓ 安全凭证验证成功，请输入你的全新密码：
-        </p>
-        <div class="form-group">
-          <label class="form-label">设置新密码 (不少于6位)</label>
-          <input type="password" class="form-input" id="authNewPasswordInput" placeholder="输入新密码">
-        </div>
-        <button class="btn-submit" onclick="window.handleUpdatePassword()">确认更新并登录</button>
-      </div>
-
-      <div id="authLoggedInArea" style="display: none; text-align: center; padding: 10px 0;">
-        <p style="font-size: 14px; color: var(--text-main); margin-bottom: 6px;">已登录账号：<b id="loggedInUserEmail">-</b></p>
-        <p style="font-size: 11px; color: var(--color-guava-saga); margin-bottom: 16px;">✓ 抽卡数据已开启全自动实时云端备份</p>
-        <button class="btn-submit" style="background:#FAF6F0; color:var(--accent-red); border:1px solid var(--border-color);" onclick="window.handleLogout()">退出当前账号</button>
-      </div>
+      <div id="authForgotArea" style="display:none"><p style="font-size:13px;color:var(--text-sub);margin-bottom:12px">输入注册邮箱，发送重置链接：</p><div class="form-group"><label class="form-label">注册邮箱</label><input type="email" class="form-input" id="authForgotEmailInput" placeholder="your@email.com"></div><button class="btn-submit" onclick="window.handleSendResetEmail()">发送重置邮件</button><div style="text-align:center;margin-top:14px"><button class="btn-forgot-pwd" style="color:var(--text-sub)" onclick="window.switchAuthView('login')">← 返回登录</button></div></div>
+      <div id="authResetArea" style="display:none"><p style="font-size:13px;color:var(--color-guava-saga);font-weight:700;margin-bottom:12px">✓ 请输入全新密码：</p><div class="form-group"><label class="form-label">新密码 (不少于6位)</label><input type="password" class="form-input" id="authNewPasswordInput" placeholder="输入新密码"></div><button class="btn-submit" onclick="window.handleUpdatePassword()">确认更新</button></div>
+      <div id="authLoggedInArea" style="display:none;text-align:center;padding:10px 0"><p style="font-size:14px;margin-bottom:6px">已登录：<b id="loggedInUserEmail">-</b></p><p style="font-size:11px;color:var(--color-guava-saga);margin-bottom:16px">✓ 云端自动同步中</p><button class="btn-submit" style="background:#FAF6F0;color:var(--accent-red);border:1px solid var(--border-color)" onclick="window.handleLogout()">退出账号</button></div>
     </div>
   </div>
 
-  <!-- 模态框 1：新建 / 编辑卡池 -->
+  <!-- 模态框 1：卡池 -->
   <div class="modal-overlay" id="createPoolModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title" id="poolModalTitle">开辟新限定卡池</div>
       <input type="hidden" id="editingPoolOriginalName" value="">
-      
-      <div class="form-group">
-        <label class="form-label">卡池名录 (四字名)</label>
-        <input type="text" class="form-input" id="newPoolNameInput" placeholder="例如：提针引线 / 合纵连横">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">所属类别（左右滑动选择）</label>
-        <div class="chips-selector-scroll" id="poolCategoryChipsBar"></div>
-      </div>
-      
-      <div class="form-group">
-        <label class="form-label">开放周期（点击调出 Mini 日历）</label>
-        <div class="date-range-picker-row">
-          <input type="date" class="date-input-mini" id="poolStartDateInput" min="2023-01-01">
-          <span class="date-split-text">至</span>
-          <input type="date" class="date-input-mini" id="poolEndDateInput" min="2023-01-01">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">当期UP密探（选填）</label>
-        <input type="text" class="form-input" id="newPoolCharsInput" placeholder="例如：张仲景、华佗">
-      </div>
+      <div class="form-group"><label class="form-label">卡池名录</label><input type="text" class="form-input" id="newPoolNameInput" placeholder="例如：提针引线"></div>
+      <div class="form-group"><label class="form-label">所属类别</label><div class="chips-selector-scroll" id="poolCategoryChipsBar"></div></div>
+      <div class="form-group"><label class="form-label">开放周期</label><div class="date-range-picker-row"><input type="date" class="date-input-mini" id="poolStartDateInput" min="2023-01-01"><span class="date-split-text">至</span><input type="date" class="date-input-mini" id="poolEndDateInput" min="2023-01-01"></div></div>
+      <div class="form-group"><label class="form-label">当期UP密探（选填）</label><input type="text" class="form-input" id="newPoolCharsInput" placeholder="例如：张仲景、华佗"></div>
       <button class="btn-submit" id="btnSubmitPoolForm" onclick="window.submitPoolForm()">确认创设</button>
     </div>
   </div>
 
-  <!-- 模态框 2：登记密探 / 修改密探记录 -->
+  <!-- 模态框 2：密探记录 -->
   <div class="modal-overlay" id="recordModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title" id="recordModalTitle">登记密探招募</div>
       <input type="hidden" id="editRecordId" value="">
-
-      <div class="form-group" id="groupPoolSelect" style="display: none;">
-        <label class="form-label">所属活动池</label>
-        <select class="form-select" id="inputRecordPool"></select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">密探立绘 (3:4 照片)</label>
-        <div class="avatar-uploader-row">
-          <div class="preview-box-3-4" id="avatarPreviewBox">3:4 无像</div>
-          <div class="uploader-actions">
-            <label class="btn-upload-fake" for="avatarInputFile">选择立绘照片</label>
-            <input type="file" id="avatarInputFile" accept="image/*" style="display:none;" onchange="window.handleAvatarSelect(event)">
-            <button class="btn-clear-photo" id="btnClearAvatar" onclick="window.clearAvatarPreview()">移除立绘</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">密探名录</label>
-        <input type="text" class="form-input" id="inputCharName" placeholder="例如：孙权 / 孙尚香">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">招募机密级别</label>
-        <div class="segmented-control">
-          <div class="segment-opt selected" id="optSSR" onclick="window.selectRarity('绝密')">绝密 (SSR)</div>
-          <div class="segment-opt" id="optSR" onclick="window.selectRarity('密探')">密探 (SR/R)</div>
-        </div>
-      </div>
-
-      <div class="form-group" id="groupUpSetting" style="display: none;">
-        <label class="form-label">限定机制归属</label>
-        <div class="segmented-control">
-          <div class="segment-opt selected" id="optIsUp" onclick="window.selectUpState(true)">当期UP</div>
-          <div class="segment-opt" id="optIsLost" onclick="window.selectUpState(false)">歪了</div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">抽中时所耗步数（第几抽出的）</label>
-        <input type="number" class="form-input" id="inputPulls" placeholder="如 10、40、70" inputmode="numeric">
-      </div>
-
+      <div class="form-group" id="groupPoolSelect" style="display:none"><label class="form-label">所属活动池</label><select class="form-select" id="inputRecordPool"></select></div>
+      <div class="form-group"><label class="form-label">密探立绘 (3:4)</label><div class="avatar-uploader-row"><div class="preview-box-3-4" id="avatarPreviewBox">3:4</div><div class="uploader-actions"><label class="btn-upload-fake" for="avatarInputFile">选择立绘</label><input type="file" id="avatarInputFile" accept="image/*" style="display:none" onchange="window.handleAvatarSelect(event)"><button class="btn-clear-photo" id="btnClearAvatar" onclick="window.clearAvatarPreview()">移除</button></div></div></div>
+      <div class="form-group"><label class="form-label">密探名录</label><input type="text" class="form-input" id="inputCharName" placeholder="例如：孙权"></div>
+      <div class="form-group"><label class="form-label">招募机密级别</label><div class="segmented-control"><div class="segment-opt selected" id="optSSR" onclick="window.selectRarity('绝密')">绝密 (SSR)</div><div class="segment-opt" id="optSR" onclick="window.selectRarity('密探')">密探 (SR/R)</div></div></div>
+      <div class="form-group" id="groupUpSetting" style="display:none"><label class="form-label">限定机制归属</label><div class="segmented-control"><div class="segment-opt selected" id="optIsUp" onclick="window.selectUpState(true)">当期UP</div><div class="segment-opt" id="optIsLost" onclick="window.selectUpState(false)">歪了</div></div></div>
+      <div class="form-group"><label class="form-label">抽中时所耗步数</label><input type="number" class="form-input" id="inputPulls" placeholder="如 10、40、70" inputmode="numeric"></div>
       <button class="btn-submit" id="btnRecordSubmit" onclick="window.submitRecord()">录入密卷</button>
     </div>
   </div>
 
-  <!-- 模态框 3：专属图鉴长图预览与保存 -->
+  <!-- 模态框 3：图鉴 -->
   <div class="modal-overlay" id="atlasModal" onclick="window.closeModalOnBg(event)">
     <div class="modal-panel" onclick="event.stopPropagation()">
       <div class="modal-title">密探图鉴长图已就绪</div>
-      <p class="export-tip-text">📱 手机端可<b>长按下方图片</b>直接存储至相册，或点击按钮下载：</p>
-      <div class="export-preview-container">
-        <img id="atlasExportImg" src="" alt="密探图鉴画报">
-      </div>
-      <a id="btnDownloadAtlas" href="#" download="代号鸢_密探招募全图鉴.png" class="btn-submit" style="display:block; text-align:center; text-decoration:none;">保存高清原图</a>
+      <p class="export-tip-text">📱 长按图片存储至相册：</p>
+      <div class="export-preview-container"><img id="atlasExportImg" src="" alt="图鉴"></div>
+      <a id="btnDownloadAtlas" href="#" download="代号鸢_密探招募全图鉴.png" class="btn-submit" style="display:block;text-align:center;text-decoration:none">保存高清原图</a>
     </div>
   </div>
-
   <script>
     (function() {
-      // 1. Supabase 凭据配置
       const SUPABASE_URL = "https://qcllfqakucmkkijmoxrg.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbGxmcWFrdWNta2tpam1veHJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MzY0ODYsImV4cCI6MjA5ODExMjQ4Nn0.uI3nvPWb36OhG2Qj0uMaULzm1DHOuZkrD7P87ib_C-8";
-      
-      const supabaseClient = (window.supabase && window.supabase.createClient) 
-        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
-        : null;
-
+      const supabaseClient = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
       let currentUser = null;
 
-      const CATEGORY_LIST = [
-        "限定", "复刻", "自选限定", "照影",
-        "刘辩地宫", "傅融地宫", "袁基地宫", "左慈地宫", "孙策地宫"
-      ];
-
+      const CATEGORY_LIST = ["限定","复刻","自选限定","照影","刘辩地宫","傅融地宫","袁基地宫","左慈地宫","孙策地宫"];
       let formSelectedCategory = "限定";
-      let uploadTargetPoolName = ""; 
-      let expandedPoolNames = new Set(); 
-      let currentSelectedPool = "ALL"; 
+      let uploadTargetPoolName = "";
+      let expandedPoolNames = new Set();
+      let currentSelectedPool = "ALL";
 
-      function generateAppIcon() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 180;
-        canvas.height = 180;
-        const ctx = canvas.getContext('2d');
+      // ==================== 卡池海报数字编号映射（纯数字路径，规避中文编码） ====================
+      const BANNER_BASE = 'https://frya-3.github.io/yuan-gacha/banners/';
+      const POOL_BANNER_ID = {
+        "弓剑江东":1,"鬼城之主":2,"异才奇士":3,"万物化光":4,"山有扶苏":5,
+        "四方顺时":6,"王佐之才":7,"坐照运筹":8,"诗画同律":9,"争光日月":10,
+        "度势攻心":11,"出奇无穷":12,"天曲日未":13,"扬矢摧锋":14,"绝艳惊鸿":15,
+        "击金鸣鼓":16,"乘数而一":17,"闻斯行诸":18,"天门启阖":19,"谨司天英":20,
+        "云雨滂润":21,"二柄刑德":22,"照以三光":23,"腾陵张胆":24,"逐奔不远":25,
+        "动如雷霆":26,"一体盈虚":27,"搏鸷缚虬":28,"黍梦焚舟":29,"风兴云蒸":30,
+        "火中取梦":31,"深水逐鹿":32,"白日昭只":33,"燧象衔尾":34,"暮燕翻雷":35,
+        "金相玉质":36,"渊鼓铿钟":37,"劫烬灰飞":38,"以奉嘉觞":39,"求贤访士":40,
+        "大和丕应":41,"英徽弥亮":42,"动静非我":43,"持心离欲":44,"抱琴载酒":45,
+        "洪匀玄机":46,"隋珠弹雀":47,"坐令千霄":48,"东阁待贤":49,"影迹陈陈":50,
+        "含明隐迹":51,"松桥辅德":52,"奉天华盖":53,"却月凌风":54,"诚之云孚":55,
+        "周庙之璋":56
+      };
 
-        ctx.fillStyle = '#FDD3B4';
-        ctx.fillRect(0, 0, 180, 180);
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-
-        ctx.strokeStyle = '#2B1E19';
-        ctx.lineWidth = 9;
-        ctx.beginPath();
-        ctx.moveTo(58, 142); ctx.lineTo(48, 158); ctx.lineTo(38, 157);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(118, 140); ctx.lineTo(122, 160); ctx.lineTo(112, 162);
-        ctx.stroke();
-
-        ctx.fillStyle = '#C8A97A';
-        ctx.strokeStyle = '#2B1E19';
-        ctx.lineWidth = 5.5;
-        ctx.beginPath();
-        ctx.moveTo(92, 60);
-        ctx.bezierCurveTo(86, 25, 100, 8, 114, 10);
-        ctx.bezierCurveTo(126, 12, 122, 28, 122, 38);
-        ctx.bezierCurveTo(134, 34, 145, 42, 142, 54);
-        ctx.bezierCurveTo(140, 62, 126, 68, 120, 72);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#FCF8E9';
-        ctx.strokeStyle = '#2B1E19';
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.ellipse(98, 108, 55, 50, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#C8A97A';
-        ctx.beginPath();
-        ctx.ellipse(56, 102, 26, 38, -0.25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(60, 84);
-        ctx.bezierCurveTo(52, 94, 68, 102, 55, 118);
-        ctx.stroke();
-
-        ctx.strokeStyle = '#2B1E19';
-        ctx.lineWidth = 14;
-        ctx.beginPath();
-        ctx.moveTo(85, 94); ctx.lineTo(122, 134);
-        ctx.moveTo(122, 94); ctx.lineTo(85, 134);
-        ctx.stroke();
-
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(144, 112); ctx.lineTo(151, 114);
-        ctx.moveTo(142, 122); ctx.lineTo(149, 126);
-        ctx.stroke();
-
-        const iconUrl = canvas.toDataURL('image/png');
-        document.getElementById('appleTouchIcon').href = iconUrl;
-        document.getElementById('appleTouchIconPre').href = iconUrl;
-        document.getElementById('pageFavicon').href = iconUrl;
+      function getDefaultBannerUrl(name) {
+        const id = POOL_BANNER_ID[name];
+        return id ? (BANNER_BASE + id + '.PNG') : null;
       }
 
+      function bindPoolBanner(imgEl, phEl, poolName) {
+        if (!imgEl) return;
+        // 优先用户自定义
+        if (appData.poolBanners && appData.poolBanners[poolName]) {
+          imgEl.src = appData.poolBanners[poolName];
+          imgEl.style.display = 'block';
+          if (phEl) phEl.style.display = 'none';
+          return;
+        }
+        // 使用默认编号海报
+        const url = getDefaultBannerUrl(poolName);
+        if (!url) {
+          imgEl.style.display = 'none';
+          if (phEl) phEl.style.display = 'block';
+          return;
+        }
+        imgEl.onload = function() {
+          imgEl.style.display = 'block';
+          if (phEl) phEl.style.display = 'none';
+        };
+        imgEl.onerror = function() {
+          imgEl.style.display = 'none';
+          if (phEl) phEl.style.display = 'block';
+        };
+        imgEl.src = url;
+      }
+
+      // ==================== App 图标生成 ====================
+      function generateAppIcon() {
+        const c = document.createElement('canvas'); c.width = 180; c.height = 180;
+        const x = c.getContext('2d');
+        x.fillStyle='#FDD3B4'; x.fillRect(0,0,180,180);
+        x.lineJoin='round'; x.lineCap='round';
+        x.strokeStyle='#2B1E19'; x.lineWidth=9;
+        x.beginPath(); x.moveTo(58,142); x.lineTo(48,158); x.lineTo(38,157); x.stroke();
+        x.beginPath(); x.moveTo(118,140); x.lineTo(122,160); x.lineTo(112,162); x.stroke();
+        x.fillStyle='#C8A97A'; x.strokeStyle='#2B1E19'; x.lineWidth=5.5;
+        x.beginPath(); x.moveTo(92,60); x.bezierCurveTo(86,25,100,8,114,10); x.bezierCurveTo(126,12,122,28,122,38); x.bezierCurveTo(134,34,145,42,142,54); x.bezierCurveTo(140,62,126,68,120,72); x.closePath(); x.fill(); x.stroke();
+        x.fillStyle='#FCF8E9'; x.strokeStyle='#2B1E19'; x.lineWidth=6;
+        x.beginPath(); x.ellipse(98,108,55,50,0,0,Math.PI*2); x.fill(); x.stroke();
+        x.fillStyle='#C8A97A'; x.beginPath(); x.ellipse(56,102,26,38,-0.25,0,Math.PI*2); x.fill(); x.stroke();
+        x.beginPath(); x.moveTo(60,84); x.bezierCurveTo(52,94,68,102,55,118); x.stroke();
+        x.strokeStyle='#2B1E19'; x.lineWidth=14;
+        x.beginPath(); x.moveTo(85,94); x.lineTo(122,134); x.moveTo(122,94); x.lineTo(85,134); x.stroke();
+        x.lineWidth=4; x.beginPath(); x.moveTo(144,112); x.lineTo(151,114); x.moveTo(142,122); x.lineTo(149,126); x.stroke();
+        const u = c.toDataURL('image/png');
+        document.getElementById('appleTouchIcon').href = u;
+        document.getElementById('appleTouchIconPre').href = u;
+        document.getElementById('pageFavicon').href = u;
+      }
       generateAppIcon();
 
+      // ==================== 数据库与存储 ====================
       const DB_NAME = 'YuanGachaDatabase_Master';
       const DB_VERSION = 1;
       const STORE_NAME = 'app_state';
-      const BACKUP_STORAGE_KEY = 'YuanGacha_Dual_Backup_Master';
+      const BACKUP_KEY = 'YuanGacha_Dual_Backup_Master';
       let dbInstance = null;
 
-      // 55 个全量权威卡池（已校正为「诚之云孚」与「周庙之璋」）
       const MASTER_PRESET_POOLS = [
-        { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "孙策地宫" },
-        { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
-        { name: "异才奇士", dateRange: "2023.05.25 - 2023.06.20", upChars: "王粲、郭嘉", category: "复刻" },
-        { name: "万物化光", dateRange: "2023.06.08 - 2023.07.19", upChars: "张辽、张仲景、小乔", category: "左慈地宫" },
-        { name: "山有扶苏", dateRange: "2023.06.21 - 2023.08.02", upChars: "周瑜、葛洪、许曼", category: "限定" },
-        { name: "四方顺时", dateRange: "2023.07.20 - 2023.08.16", upChars: "华佗、郭解", category: "复刻" },
-        { name: "王佐之才", dateRange: "2023.08.03 - 2023.09.13", upChars: "庞统、荀彧、陆绩", category: "袁基地宫" },
-        { name: "坐照运筹", dateRange: "2023.08.31 - 2023.09.27", upChars: "贾诩、陆逊", category: "复刻" },
-        { name: "诗画同律", dateRange: "2023.09.07 - 2023.10.08", upChars: "蔡琰、张飞", category: "限定" },
-        { name: "争光日月", dateRange: "2023.09.28 - 2023.11.08", upChars: "夏侯惇、张角、王异", category: "限定" },
-        { name: "度势攻心", dateRange: "2023.11.02 - 2023.11.29", upChars: "杨修、吕蒙", category: "复刻" },
-        { name: "出奇无穷", dateRange: "2023.11.09 - 2023.12.06", upChars: "程昱、马超", category: "限定" },
-        { name: "天曲日未", dateRange: "2023.11.28 - 2024.01.08", upChars: "太史慈、张闿、公孙瓒", category: "刘辩地宫" },
-        { name: "扬矢摧锋", dateRange: "2023.12.14 - 2023.12.27", upChars: "孙尚香、张辽", category: "复刻" },
-        { name: "绝艳惊鸿", dateRange: "2023.12.21 - 2024.01.24", upChars: "徐庶、张郃", category: "限定" },
-        { name: "击金鸣鼓", dateRange: "2024.01.18 - 2024.02.28", upChars: "甘宁、甄宓", category: "孙策地宫" },
-        { name: "乘数而一", dateRange: "2024.02.06 - 2024.02.19", upChars: "孙权、张仲景", category: "复刻" },
-        { name: "闻斯行诸", dateRange: "2024.02.22 - 2024.03.20", upChars: "孔融、张鲁", category: "限定" },
-        { name: "天门启阖", dateRange: "2024.03.14 - 2024.04.24", upChars: "黄月英、张邈", category: "限定" },
-        { name: "谨司天英", dateRange: "2024.05.09 - 2024.06.19", upChars: "董奉、曹植", category: "左慈地宫" },
-        { name: "云雨滂润", dateRange: "2024.05.25 - 2024.06.28", upChars: "诸葛瑾、诸葛诞", category: "限定" },
-        { name: "二柄刑德", dateRange: "2024.07.04 - 2024.08.14", upChars: "满宠、荀攸", category: "袁基地宫" },
-        { name: "照以三光", dateRange: "2024.08.15 - 2024.08.28", upChars: "张闿、张飞", category: "复刻" },
-        { name: "腾陵张胆", dateRange: "2024.08.29 - 2024.10.09", upChars: "凌统、安期", category: "刘辩地宫" },
-        { name: "逐奔不远", dateRange: "2024.09.25 - 2024.10.16", upChars: "刘繇、戏学", category: "限定" },
-        { name: "动如雷霆", dateRange: "2024.10.31 - 2024.11.13", upChars: "张辽、马超", category: "复刻" },
-        { name: "一体盈虚", dateRange: "2024.11.07 - 2024.12.04", upChars: "马腾、令狐茂", category: "限定" },
-        { name: "搏鸷缚虬", dateRange: "2024.11.15 - 2024.12.29", upChars: "朱然、黄盖", category: "孙策地宫" },
-        { name: "黍梦焚舟", dateRange: "2024.12.12 - 2024.12.25", upChars: "黍王、史子眇·赴烛", category: "照影" },
-        { name: "风兴云蒸", dateRange: "2025.01.09 - 2025.02.19", upChars: "蒯越、祢衡", category: "左慈地宫" },
-        { name: "火中取梦", dateRange: "2025.01.23 - 2025.02.05", upChars: "张郃、甄宓", category: "复刻" },
-        { name: "深水逐鹿", dateRange: "2025.02.20 - 2025.03.19", upChars: "刘豹、张绣", category: "限定" },
-        { name: "白日昭只", dateRange: "2025.03.13 - 2025.04.23", upChars: "董白、张昭", category: "傅融地宫" },
-        { name: "燧象衔尾", dateRange: "2025.04.30 - 2025.06.11", upChars: "程普、士燮", category: "孙策地宫" },
-        { name: "暮燕翻雷", dateRange: "2025.05.29 - 2025.06.25", upChars: "虞翻、张燕", category: "限定" },
-        { name: "金相玉质", dateRange: "2025.06.12 - 2025.06.25", upChars: "孔融、黄月英", category: "复刻" },
-        { name: "渊鼓铿钟", dateRange: "2025.06.26 - 2025.08.06", upChars: "夏侯渊、钟繇", category: "袁基地宫" },
-        { name: "劫烬灰飞", dateRange: "2025.08.21 - 2025.10.01", upChars: "刘璋、庞羲", category: "刘辩地宫" },
-        { name: "以奉嘉觞", dateRange: "2025.09.11 - 2025.10.08", upChars: "周忠、吕布", category: "限定" },
-        { name: "求贤访士", dateRange: "2025.09.30 - 2025.10.29", upChars: "自选池", category: "自选限定" },
-        { name: "大和丕应", dateRange: "2025.10.16 - 2025.11.26", upChars: "曹丕、简雍", category: "左慈地宫" },
-        { name: "英徽弥亮", dateRange: "2025.11.06 - 2025.12.03", upChars: "诸葛亮、司马徽", category: "限定" },
-        { name: "动静非我", dateRange: "2025.12.11 - 2026.01.21", upChars: "蒯良、郭女王", category: "傅融地宫" },
-        { name: "持心离欲", dateRange: "2025.12.23 - 2026.01.05", upChars: "法正、陈群", category: "限定" },
-        { name: "抱琴载酒", dateRange: "2026.01.15 - 2026.01.28", upChars: "周瑜、孙尚香", category: "复刻" },
-        { name: "洪匀玄机", dateRange: "2026.01.15 - 2026.01.28", upChars: "葛洪、张仲景", category: "复刻" },
-        { name: "隋珠弹雀", dateRange: "2026.02.05 - 2026.03.18", upChars: "酆公珠、酆公玖", category: "刘辩地宫" },
-        { name: "坐令千霄", dateRange: "2026.02.26 - 2026.03.25", upChars: "卢植、庞德", category: "限定" },
-        { name: "东阁待贤", dateRange: "2026.03.30 - 2026.04.28", upChars: "自选池", category: "自选限定" },
-        { name: "影迹陈陈", dateRange: "2026.04.02 - 2026.05.13", upChars: "陈纪、陈应", category: "袁基地宫" },
-        { name: "含明隐迹", dateRange: "2026.05.21 - 2026.06.17", upChars: "孙静、孟获", category: "限定" },
-        { name: "松桥辅德", dateRange: "2026.05.28 - 2026.07.08", upChars: "张松、孙辅", category: "孙策地宫" },
-        { name: "奉天华盖", dateRange: "2026.07.09 - 2026.07.22", upChars: "董奉、黄盖", category: "复刻" },
-        { name: "诚之云孚", dateRange: "2026.07.23 - 2026.09.02", upChars: "司马孚、赵云", category: "傅融地宫" },
-        { name: "却月凌风", dateRange: "2026.07.23 - 2026.08.05", upChars: "黄月英、凌统", category: "复刻" },
-        { name: "周庙之璋", dateRange: "2026.09.10 - 2026.10.07", upChars: "周泰、陈琳", category: "限定" }
+        {name:"弓剑江东",dateRange:"2023.04.06 - 2023.05.22",upChars:"孙尚香、孙权",category:"孙策地宫"},
+        {name:"鬼城之主",dateRange:"2023.04.29 - 2023.05.17",upChars:"张修、干吉",category:"限定"},
+        {name:"异才奇士",dateRange:"2023.05.25 - 2023.06.20",upChars:"王粲、郭嘉",category:"复刻"},
+        {name:"万物化光",dateRange:"2023.06.08 - 2023.07.19",upChars:"张辽、张仲景、小乔",category:"左慈地宫"},
+        {name:"山有扶苏",dateRange:"2023.06.21 - 2023.08.02",upChars:"周瑜、葛洪、许曼",category:"限定"},
+        {name:"四方顺时",dateRange:"2023.07.20 - 2023.08.16",upChars:"华佗、郭解",category:"复刻"},
+        {name:"王佐之才",dateRange:"2023.08.03 - 2023.09.13",upChars:"庞统、荀彧、陆绩",category:"袁基地宫"},
+        {name:"坐照运筹",dateRange:"2023.08.31 - 2023.09.27",upChars:"贾诩、陆逊",category:"复刻"},
+        {name:"诗画同律",dateRange:"2023.09.07 - 2023.10.08",upChars:"蔡琰、张飞",category:"限定"},
+        {name:"争光日月",dateRange:"2023.09.28 - 2023.11.08",upChars:"夏侯惇、张角、王异",category:"限定"},
+        {name:"度势攻心",dateRange:"2023.11.02 - 2023.11.29",upChars:"杨修、吕蒙",category:"复刻"},
+        {name:"出奇无穷",dateRange:"2023.11.09 - 2023.12.06",upChars:"程昱、马超",category:"限定"},
+        {name:"天曲日未",dateRange:"2023.11.28 - 2024.01.08",upChars:"太史慈、张闿、公孙瓒",category:"刘辩地宫"},
+        {name:"扬矢摧锋",dateRange:"2023.12.14 - 2023.12.27",upChars:"孙尚香、张辽",category:"复刻"},
+        {name:"绝艳惊鸿",dateRange:"2023.12.21 - 2024.01.24",upChars:"徐庶、张郃",category:"限定"},
+        {name:"击金鸣鼓",dateRange:"2024.01.18 - 2024.02.28",upChars:"甘宁、甄宓",category:"孙策地宫"},
+        {name:"乘数而一",dateRange:"2024.02.06 - 2024.02.19",upChars:"孙权、张仲景",category:"复刻"},
+        {name:"闻斯行诸",dateRange:"2024.02.22 - 2024.03.20",upChars:"孔融、张鲁",category:"限定"},
+        {name:"天门启阖",dateRange:"2024.03.14 - 2024.04.24",upChars:"黄月英、张邈",category:"限定"},
+        {name:"谨司天英",dateRange:"2024.05.09 - 2024.06.19",upChars:"董奉、曹植",category:"左慈地宫"},
+        {name:"云雨滂润",dateRange:"2024.05.25 - 2024.06.28",upChars:"诸葛瑾、诸葛诞",category:"限定"},
+        {name:"二柄刑德",dateRange:"2024.07.04 - 2024.08.14",upChars:"满宠、荀攸",category:"袁基地宫"},
+        {name:"照以三光",dateRange:"2024.08.15 - 2024.08.28",upChars:"张闿、张飞",category:"复刻"},
+        {name:"腾陵张胆",dateRange:"2024.08.29 - 2024.10.09",upChars:"凌统、安期",category:"刘辩地宫"},
+        {name:"逐奔不远",dateRange:"2024.09.25 - 2024.10.16",upChars:"刘繇、戏学",category:"限定"},
+        {name:"动如雷霆",dateRange:"2024.10.31 - 2024.11.13",upChars:"张辽、马超",category:"复刻"},
+        {name:"一体盈虚",dateRange:"2024.11.07 - 2024.12.04",upChars:"马腾、令狐茂",category:"限定"},
+        {name:"搏鸷缚虬",dateRange:"2024.11.15 - 2024.12.29",upChars:"朱然、黄盖",category:"孙策地宫"},
+        {name:"黍梦焚舟",dateRange:"2024.12.12 - 2024.12.25",upChars:"黍王、史子眇·赴烛",category:"照影"},
+        {name:"风兴云蒸",dateRange:"2025.01.09 - 2025.02.19",upChars:"蒯越、祢衡",category:"左慈地宫"},
+        {name:"火中取梦",dateRange:"2025.01.23 - 2025.02.05",upChars:"张郃、甄宓",category:"复刻"},
+        {name:"深水逐鹿",dateRange:"2025.02.20 - 2025.03.19",upChars:"刘豹、张绣",category:"限定"},
+        {name:"白日昭只",dateRange:"2025.03.13 - 2025.04.23",upChars:"董白、张昭",category:"傅融地宫"},
+        {name:"燧象衔尾",dateRange:"2025.04.30 - 2025.06.11",upChars:"程普、士燮",category:"孙策地宫"},
+        {name:"暮燕翻雷",dateRange:"2025.05.29 - 2025.06.25",upChars:"虞翻、张燕",category:"限定"},
+        {name:"金相玉质",dateRange:"2025.06.12 - 2025.06.25",upChars:"孔融、黄月英",category:"复刻"},
+        {name:"渊鼓铿钟",dateRange:"2025.06.26 - 2025.08.06",upChars:"夏侯渊、钟繇",category:"袁基地宫"},
+        {name:"劫烬灰飞",dateRange:"2025.08.21 - 2025.10.01",upChars:"刘璋、庞羲",category:"刘辩地宫"},
+        {name:"以奉嘉觞",dateRange:"2025.09.11 - 2025.10.08",upChars:"周忠、吕布",category:"限定"},
+        {name:"求贤访士",dateRange:"2025.09.30 - 2025.10.29",upChars:"自选池",category:"自选限定"},
+        {name:"大和丕应",dateRange:"2025.10.16 - 2025.11.26",upChars:"曹丕、简雍",category:"左慈地宫"},
+        {name:"英徽弥亮",dateRange:"2025.11.06 - 2025.12.03",upChars:"诸葛亮、司马徽",category:"限定"},
+        {name:"动静非我",dateRange:"2025.12.11 - 2026.01.21",upChars:"蒯良、郭女王",category:"傅融地宫"},
+        {name:"持心离欲",dateRange:"2025.12.23 - 2026.01.05",upChars:"法正、陈群",category:"限定"},
+        {name:"抱琴载酒",dateRange:"2026.01.15 - 2026.01.28",upChars:"周瑜、孙尚香",category:"复刻"},
+        {name:"洪匀玄机",dateRange:"2026.01.15 - 2026.01.28",upChars:"葛洪、张仲景",category:"复刻"},
+        {name:"隋珠弹雀",dateRange:"2026.02.05 - 2026.03.18",upChars:"酆公珠、酆公玖",category:"刘辩地宫"},
+        {name:"坐令千霄",dateRange:"2026.02.26 - 2026.03.25",upChars:"卢植、庞德",category:"限定"},
+        {name:"东阁待贤",dateRange:"2026.03.30 - 2026.04.28",upChars:"自选池",category:"自选限定"},
+        {name:"影迹陈陈",dateRange:"2026.04.02 - 2026.05.13",upChars:"陈纪、陈应",category:"袁基地宫"},
+        {name:"含明隐迹",dateRange:"2026.05.21 - 2026.06.17",upChars:"孙静、孟获",category:"限定"},
+        {name:"松桥辅德",dateRange:"2026.05.28 - 2026.07.08",upChars:"张松、孙辅",category:"孙策地宫"},
+        {name:"奉天华盖",dateRange:"2026.07.09 - 2026.07.22",upChars:"董奉、黄盖",category:"复刻"},
+        {name:"诚之云孚",dateRange:"2026.07.23 - 2026.09.02",upChars:"司马孚、赵云",category:"傅融地宫"},
+        {name:"却月凌风",dateRange:"2026.07.23 - 2026.08.05",upChars:"黄月英、凌统",category:"复刻"},
+        {name:"周庙之璋",dateRange:"2026.09.10 - 2026.10.07",upChars:"周泰、陈琳",category:"限定"}
       ];
 
-      const BLACKLIST_POOLS = ["游说贤士", "琴载酒/洪匀玄"];
-      const NAME_ALIASES = {
-        "异才奇士复刻": "异才奇士",
-        "四方顺时复刻": "四方顺时",
-        "坐照运筹复刻": "坐照运筹",
-        "度势攻心复刻": "度势攻心",
-        "乘数而一复刻": "乘数而一",
-        "动如雷霆复刻": "动如雷霆",
-        "游说贤士": "求贤访士",
-        "琴载酒/洪匀玄": "抱琴载酒",
-        "周宙之璋": "周庙之璋",
-        "诚之云乎": "诚之云孚"
-      };
+      const BLACKLIST_POOLS = ["游说贤士","琴载酒/洪匀玄"];
+      const NAME_ALIASES = {"异才奇士复刻":"异才奇士","四方顺时复刻":"四方顺时","坐照运筹复刻":"坐照运筹","度势攻心复刻":"度势攻心","乘数而一复刻":"乘数而一","动如雷霆复刻":"动如雷霆","游说贤士":"求贤访士","琴载酒/洪匀玄":"抱琴载酒","周宙之璋":"周庙之璋","诚之云乎":"诚之云孚"};
 
-      let appData = { standard: [], pools: [], poolBanners: {}, limited: [] };
+      let appData = {standard:[],pools:[],poolBanners:{},limited:[]};
       let activeTab = 'standard';
       let formRarity = '绝密';
       let formIsUp = true;
       let currentAvatarBase64 = '';
 
-      // ==================== 智能海报加载与多通道容错管线 ====================
-      // 获取当前站点的绝对根目录路径（自动适配二级仓库目录）
-      // 卡池名 → 数字编号映射表（纯数字文件名，彻底规避中文路径问题）
-      const POOL_BANNER_ID_MAP = {
-        "弓剑江东": 1, "鬼城之主": 2, "异才奇士": 3, "万物化光": 4,
-        "山有扶苏": 5, "四方顺时": 6, "王佐之才": 7, "坐照运筹": 8,
-        "诗画同律": 9, "争光日月": 10, "度势攻心": 11, "出奇无穷": 12,
-        "天曲日未": 13, "扬矢摧锋": 14, "绝艳惊鸿": 15, "击金鸣鼓": 16,
-        "乘数而一": 17, "闻斯行诸": 18, "天门启阖": 19, "谨司天英": 20,
-        "云雨滂润": 21, "二柄刑德": 22, "照以三光": 23, "腾陵张胆": 24,
-        "逐奔不远": 25, "动如雷霆": 26, "一体盈虚": 27, "搏鸷缚虬": 28,
-        "黍梦焚舟": 29, "风兴云蒸": 30, "火中取梦": 31, "深水逐鹿": 32,
-        "白日昭只": 33, "燧象衔尾": 34, "暮燕翻雷": 35, "金相玉质": 36,
-        "渊鼓铿钟": 37, "劫烬灰飞": 38, "以奉嘉觞": 39, "求贤访士": 40,
-        "大和丕应": 41, "英徽弥亮": 42, "动静非我": 43, "持心离欲": 44,
-        "抱琴载酒": 45, "洪匀玄机": 46, "隋珠弹雀": 47, "坐令千霄": 48,
-        "东阁待贤": 49, "影迹陈陈": 50, "含明隐迹": 51, "松桥辅德": 52,
-        "奉天华盖": 53, "却月凌风": 54, "诚之云孚": 55, "周庙之璋": 56
-      };
+      function openDatabase(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME)};r.onsuccess=e=>{dbInstance=e.target.result;resolve(dbInstance)};r.onerror=e=>reject(e)})}
 
-      function getDefaultBannerUrl(poolName) {
-        const id = POOL_BANNER_ID_MAP[poolName];
-        if (!id) return null;
-        return 'https://frya-3.github.io/yuan-gacha/banners/' + id + '.PNG';
-      }
+      function parseDateToISO(s){if(!s)return'';const c=s.trim().replace(/\./g,'-').replace(/\//g,'-');const p=c.split('-');if(p.length>=3)return`${p[0].padStart(4,'20')}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;if(p.length===2)return`2024-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;return''}
 
-      // 绑定海报到图片元素
-      function bindPoolBannerWithFallback(imgEl, placeholderEl, poolName) {
-        if (!imgEl) return;
+      function getPoolStartTimestamp(d){if(!d||d==='未定')return 0;const f=d.split('-')[0].trim().replace('起','').trim();const iso=parseDateToISO(f);if(!iso)return 0;const t=new Date(iso).getTime();return isNaN(t)?0:t}
 
-        // 1. 用户自定义上传
-        if (appData.poolBanners && appData.poolBanners[poolName]) {
-          imgEl.src = appData.poolBanners[poolName];
-          imgEl.style.display = 'block';
-          if (placeholderEl) placeholderEl.style.display = 'none';
-          return;
-        }
+      function sortPools(){if(!appData.pools)return;appData.pools.sort((a,b)=>getPoolStartTimestamp(b.dateRange)-getPoolStartTimestamp(a.dateRange))}
 
-        // 2. 轮询候选 URL
-        const candidates = buildBannerCandidateUrls(poolName);
-        let idx = 0;
+      async function trySalvage(){const dbs=['YuanGachaDatabase_v15','YuanGachaDatabase_v14','YuanGachaDatabase_v13','YuanGachaDatabase_v12','YuanGachaDatabase_v11','YuanGachaDatabase_v10','YuanGachaDatabase_v9','YuanGachaDatabase_v8','YuanGachaDatabase_v7','YuanGachaDatabase_v6','YuanGachaDatabase_v5','YuanGachaDatabase_v4','YuanGachaDatabase_v3','YuanGachaDatabase_v2','YuanGachaDatabase'];for(const n of dbs){try{const d=await new Promise(res=>{const r=indexedDB.open(n);r.onsuccess=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(STORE_NAME)){db.close();return res(null)}const tx=db.transaction(STORE_NAME,'readonly');const s=tx.objectStore(STORE_NAME);const g=s.get('root_data');g.onsuccess=()=>{db.close();res(g.result)};g.onerror=()=>{db.close();res(null)}};r.onerror=()=>res(null)});if(d&&((d.limited&&d.limited.length>0)||(d.standard&&d.standard.length>0)||(d.poolBanners&&Object.keys(d.poolBanners).length>0)))return d}catch(e){}}const keys=[BACKUP_KEY,'Yuan_Gacha_App_Data_v6','Yuan_Gacha_App_Data_v5','Yuan_Gacha_App_Data_v4','Yuan_Gacha_App_Data_v3','Yuan_Gacha_App_Data_v2'];for(const k of keys){try{const c=localStorage.getItem(k);if(c){const p=JSON.parse(c);if(p&&((p.limited&&p.limited.length>0)||(p.standard&&p.standard.length>0)))return p}}catch(e){}}return null}
 
-        function tryNext() {
-          if (idx >= candidates.length) {
-            imgEl.style.display = 'none';
-            if (placeholderEl) placeholderEl.style.display = 'block';
-            return;
-          }
-          imgEl.src = candidates[idx++];
-        }
+      function reconcile(){if(!appData.pools)appData.pools=[];if(appData.limited)appData.limited.forEach(r=>{if(r.poolName&&NAME_ALIASES[r.poolName])r.poolName=NAME_ALIASES[r.poolName]});if(appData.poolBanners)Object.keys(NAME_ALIASES).forEach(k=>{if(appData.poolBanners[k]){appData.poolBanners[NAME_ALIASES[k]]=appData.poolBanners[k];delete appData.poolBanners[k]}});BLACKLIST_POOLS.forEach(b=>{delete appData.poolBanners[b];appData.pools=appData.pools.filter(p=>p.name!==b)});appData.pools.forEach(p=>{if(NAME_ALIASES[p.name])p.name=NAME_ALIASES[p.name];else if(p.name.endsWith('复刻')&&p.name.length>4)p.name=p.name.replace('复刻','')});const u=[];appData.pools.forEach(p=>{if(!BLACKLIST_POOLS.includes(p.name)&&!u.some(x=>x.name===p.name))u.push(p)});appData.pools=u;MASTER_PRESET_POOLS.forEach(pre=>{const ex=appData.pools.find(p=>p.name===pre.name);if(!ex)appData.pools.push(pre);else{ex.category=pre.category;ex.dateRange=pre.dateRange;ex.upChars=pre.upChars}});sortPools()}
 
-        imgEl.onload = function() {
-          imgEl.style.display = 'block';
-          if (placeholderEl) placeholderEl.style.display = 'none';
-        };
+      async function loadData(){return new Promise(async resolve=>{const tx=dbInstance.transaction(STORE_NAME,'readonly');const s=tx.objectStore(STORE_NAME);const r=s.get('root_data');r.onsuccess=async function(){let d=r.result;if(!d||(!d.limited||d.limited.length===0)){const sv=await trySalvage();if(sv)d=sv}if(d){appData={standard:d.standard||[],pools:d.pools||[],poolBanners:d.poolBanners||{},limited:d.limited||[]};reconcile();await saveData(false);resolve()}else{appData.pools=[...MASTER_PRESET_POOLS];sortPools();await saveData(false);resolve()}};r.onerror=()=>resolve()})}
 
-        imgEl.onerror = function() {
-          tryNext();
-        };
+      function saveData(sync=true){return new Promise(resolve=>{if(!dbInstance)return resolve();sortPools();const tx=dbInstance.transaction(STORE_NAME,'readwrite');const s=tx.objectStore(STORE_NAME);s.put(appData,'root_data');try{localStorage.setItem(BACKUP_KEY,JSON.stringify(appData))}catch(e){}tx.oncomplete=()=>{render();if(sync&&currentUser)pushCloud();resolve()};tx.onerror=()=>resolve()})}
 
-        tryNext();
-      }
+      // ==================== Supabase 云端 ====================
+      async function checkAuth(){if(!supabaseClient)return;try{supabaseClient.auth.onAuthStateChange(async(ev,sess)=>{if(ev==='PASSWORD_RECOVERY')window.openResetPasswordModal();else if(sess&&sess.user){currentUser=sess.user;updateAuthUI(true,currentUser.email)}else{currentUser=null;updateAuthUI(false)}});const{data:{session}}=await supabaseClient.auth.getSession();if(session&&session.user){currentUser=session.user;updateAuthUI(true,currentUser.email);await pullCloud()}else updateAuthUI(false)}catch(e){updateAuthUI(false)}}
 
-      function openDatabase() {
-        return new Promise((resolve, reject) => {
-          const request = indexedDB.open(DB_NAME, DB_VERSION);
-          request.onupgradeneeded = function(e) {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-              db.createObjectStore(STORE_NAME);
-            }
-          };
-          request.onsuccess = function(e) {
-            dbInstance = e.target.result;
-            resolve(dbInstance);
-          };
-          request.onerror = function(e) { reject(e); };
+      function updateAuthUI(ok,email){const b=document.getElementById('cloudStatusBtn'),t=document.getElementById('cloudStatusText'),d=document.getElementById('cloudStatusDot');if(ok){b.classList.add('online');d.innerText='●';t.innerText=email.split('@')[0]+' (云端同步中)';window.switchAuthView('loggedin');document.getElementById('loggedInUserEmail').innerText=email}else{b.classList.remove('online');d.innerText='☁️';t.innerText='云端登录 / 注册';window.switchAuthView('login')}}
+
+      window.switchAuthView=function(v){document.getElementById('authFormArea').style.display=v==='login'?'block':'none';document.getElementById('authForgotArea').style.display=v==='forgot'?'block':'none';document.getElementById('authResetArea').style.display=v==='reset'?'block':'none';document.getElementById('authLoggedInArea').style.display=v==='loggedin'?'block':'none';const t=document.getElementById('authModalTitle');if(v==='login')t.innerText='云端数据账户';if(v==='forgot')t.innerText='找回登录密码';if(v==='reset')t.innerText='设置全新密码';if(v==='loggedin')t.innerText='已连接云端'};
+
+      window.handleSendResetEmail=async function(){const e=document.getElementById('authForgotEmailInput').value.trim();if(!e)return alert('请输入邮箱');try{const{error}=await supabaseClient.auth.resetPasswordForEmail(e,{redirectTo:window.location.origin+window.location.pathname});if(error)throw error;alert('重置邮件已发送至 '+e);window.switchAuthView('login')}catch(err){alert('发送失败：'+err.message)}};
+      window.openResetPasswordModal=function(){window.openAuthModal();window.switchAuthView('reset')};
+      window.handleUpdatePassword=async function(){const p=document.getElementById('authNewPasswordInput').value.trim();if(!p||p.length<6)return alert('密码不能少于6位');try{const{data,error}=await supabaseClient.auth.updateUser({password:p});if(error)throw error;alert('密码修改成功！');if(data.user){currentUser=data.user;updateAuthUI(true,currentUser.email);await pullCloud()}window.closeModal('authModal')}catch(e){alert('更新失败：'+e.message)}};
+
+      async function pushCloud(){if(!supabaseClient||!currentUser)return;try{await supabaseClient.from('user_gacha_data').upsert({id:currentUser.id,data:appData,updated_at:new Date().toISOString()})}catch(e){}}
+
+      window.syncToCloudNow=async function(){if(!currentUser){alert('请先登录');window.openAuthModal();return}try{const{error}=await supabaseClient.from('user_gacha_data').upsert({id:currentUser.id,data:appData,updated_at:new Date().toISOString()});if(error)throw error;alert('云端同步成功！')}catch(e){alert('上传失败：'+e.message)}};
+
+      async function pullCloud(){if(!supabaseClient||!currentUser)return;try{const{data}=await supabaseClient.from('user_gacha_data').select('data').eq('id',currentUser.id).single();if(data&&data.data){const cd=data.data;if(cd.limited&&cd.limited.length>0){appData=cd;reconcile();await saveData(false);render()}else await pushCloud()}else await pushCloud()}catch(e){}}
+
+      window.openAuthModal=function(){document.getElementById('authModal').classList.add('active')};
+      window.handleLogin=async function(){const e=document.getElementById('authEmailInput').value.trim(),p=document.getElementById('authPasswordInput').value.trim();if(!e||!p)return alert('请填入邮箱与密码');try{const{data,error}=await supabaseClient.auth.signInWithPassword({email:e,password:p});if(error)throw error;currentUser=data.user;updateAuthUI(true,currentUser.email);await pullCloud();alert('登录成功！');window.closeModal('authModal')}catch(err){alert('登录失败：'+err.message)}};
+      window.handleSignUp=async function(){const e=document.getElementById('authEmailInput').value.trim(),p=document.getElementById('authPasswordInput').value.trim();if(!e||!p)return alert('请填入邮箱与密码');if(p.length<6)return alert('密码不少于6位');try{const{data,error}=await supabaseClient.auth.signUp({email:e,password:p});if(error)throw error;if(data.user){currentUser=data.user;updateAuthUI(true,currentUser.email);await pushCloud();alert('注册成功！');window.closeModal('authModal')}}catch(err){alert('注册失败：'+err.message)}};
+      window.handleLogout=async function(){if(!confirm('确认退出？'))return;if(supabaseClient)await supabaseClient.auth.signOut();currentUser=null;updateAuthUI(false);window.closeModal('authModal')};
+
+      // ==================== 图片处理工具 ====================
+      function compressImg(file,maxD,q,cb){const r=new FileReader;r.onload=function(ev){const img=new Image;img.onload=function(){const c=document.createElement('canvas'),x=c.getContext('2d');let w=img.width,h=img.height;if(w>h){if(w>maxD){h=Math.round(h*(maxD/w));w=maxD}}else{if(h>maxD){w=Math.round(w*(maxD/h));h=maxD}}c.width=w;c.height=h;x.drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',q))};img.src=ev.target.result};r.readAsDataURL(file)}
+
+      function cropAvatar(file,cb){const r=new FileReader;r.onload=function(ev){const img=new Image;img.onload=function(){const c=document.createElement('canvas'),x=c.getContext('2d'),tw=120,th=160;c.width=tw;c.height=th;let sw=img.width,sh=img.height,sx=0,sy=0;const tr=3/4,sr=sw/sh;if(sr>tr){const nw=sh*tr;sx=(sw-nw)/2;sw=nw}else{const nh=sw/tr;sy=(sh-nh)/2;sh=nh}x.drawImage(img,sx,sy,sw,sh,0,0,tw,th);cb(c.toDataURL('image/jpeg',0.82))};img.src=ev.target.result};r.readAsDataURL(file)}
+
+      window.triggerUploadBanner=function(n){uploadTargetPoolName=n;document.getElementById('bannerFileInput').click()};
+      window.handleBannerUpload=function(e){const f=e.target.files[0];if(!f||!uploadTargetPoolName)return;compressImg(f,720,0.82,function(b){appData.poolBanners[uploadTargetPoolName]=b;saveData()});e.target.value=''};
+      window.removePoolBannerByName=function(n){if(confirm('确认恢复默认海报？')){delete appData.poolBanners[n];saveData()}};
+      window.handleAvatarSelect=function(e){const f=e.target.files[0];if(!f)return;cropAvatar(f,function(b){currentAvatarBase64=b;document.getElementById('avatarPreviewBox').innerHTML='<img src="'+b+'">';document.getElementById('btnClearAvatar').style.display='inline-block'});e.target.value=''};
+      window.clearAvatarPreview=function(){currentAvatarBase64='';document.getElementById('avatarPreviewBox').innerHTML='3:4';document.getElementById('btnClearAvatar').style.display='none'};
+
+      // ==================== 视图切换 ====================
+      window.switchMainPool=function(tab){activeTab=tab;document.getElementById('tabStandardBtn').classList.toggle('active',tab==='standard');document.getElementById('tabLimitedBtn').classList.toggle('active',tab==='limited');document.getElementById('standardMainView').style.display=tab==='standard'?'block':'none';document.getElementById('limitedMainView').style.display=tab==='limited'?'block':'none';render()};
+      window.togglePoolExpand=function(n){expandedPoolNames.has(n)?expandedPoolNames.delete(n):expandedPoolNames.add(n);render()};
+      window.enterPoolDetail=function(n){currentSelectedPool=n;render()};
+      window.exitToPoolGallery=function(){currentSelectedPool="ALL";render()};
+
+      function getCatHtml(c){return'<span class="bubble-category-tag cat-'+(c||'限定')+'">'+(c||'限定')+'</span>'}
+
+      // ==================== 主界面卡池流渲染 ====================
+      function renderPoolStream(){
+        const el=document.getElementById('poolCardStreamContainer');el.innerHTML='';
+        appData.pools.forEach(pool=>{
+          const isExp=expandedPoolNames.has(pool.name);
+          const item=document.createElement('div');
+          item.className='pool-stream-item'+(isExp?' expanded':'');
+          const recs=appData.limited.filter(r=>r.poolName===pool.name);
+          recs.sort((a,b)=>b.timestamp-a.timestamp);
+          const pulls=recs.reduce((a,r)=>a+Number(r.pulls),0);
+          let gridHtml='';
+          if(recs.length===0)gridHtml='<div class="empty-grid-notice">暂无密探记录</div>';
+          else gridHtml=recs.map(rec=>{const isSsr=rec.rarity==='绝密',isLost=isSsr&&!rec.isUp;const av=rec.avatar?'<img class="mini-char-img" src="'+rec.avatar+'">':'<span class="mini-char-fallback">'+rec.name.slice(0,1)+'</span>';return'<div class="mini-char-card-wrap'+(isSsr?' rarity-SSR':'')+(isLost?' is-lost':'')+'" onclick="event.stopPropagation();window.openEditModal(\''+rec.id+'\')">'+(isLost?'<div class="mini-lost-badge">歪</div>':'')+av+'<div class="mini-pulls-label">'+rec.pulls+'抽</div></div>'}).join('');
+
+          const uid='p'+Math.random().toString(36).substr(2,6);
+          item.innerHTML='<div class="stream-poster-container" onclick="event.stopPropagation();window.triggerUploadBanner(\''+pool.name+'\')"><img id="img-'+uid+'" style="display:none" alt=""><div class="stream-poster-placeholder" id="ph-'+uid+'">📷 点击导入海报</div></div><div class="stream-item-info" onclick="window.togglePoolExpand(\''+pool.name+'\')"><div class="stream-info-left"><div class="stream-title-row"><span class="stream-pool-name">'+pool.name+'</span>'+getCatHtml(pool.category)+'</div><span class="stream-pool-meta">周期: '+(pool.dateRange||'未定')+'</span><span class="stream-pool-meta">UP: '+(pool.upChars||'未设')+'</span></div><div class="stream-info-right"><span class="stream-pull-badge">'+pulls+' 抽</span><span class="stream-fold-arrow">▼</span></div></div><div class="stream-expanded-content"><div class="expanded-pool-tools"><div class="expanded-stat-text">共 <b>'+recs.length+'</b> 位密探</div><div style="display:flex;gap:8px;align-items:center"><button class="btn-view-detail-page" onclick="event.stopPropagation();window.enterPoolDetail(\''+pool.name+'\')">📄 单池详情 ➔</button><button class="btn-pool-edit-inline" onclick="event.stopPropagation();window.openEditPoolModalByName(\''+pool.name+'\')">✎ 编辑</button>'+(appData.poolBanners&&appData.poolBanners[pool.name]?'<button class="btn-pool-edit-inline" style="color:var(--accent-red)" onclick="event.stopPropagation();window.removePoolBannerByName(\''+pool.name+'\')">恢复默认</button>':'')+'</div></div><div class="chars-grid-5">'+gridHtml+'</div></div>';
+          el.appendChild(item);
+          bindPoolBanner(item.querySelector('#img-'+uid),item.querySelector('#ph-'+uid),pool.name);
         });
       }
 
-      function parseDateToISO(str) {
-        if (!str) return '';
-        const cleaned = str.trim().replace(/\./g, '-').replace(/\//g, '-').replace(/年/g, '-').replace(/月/g, '-').replace(/日/g, '');
-        const parts = cleaned.split('-');
-        if (parts.length >= 3) {
-          const y = parts[0].padStart(4, '20');
-          const m = parts[1].padStart(2, '0');
-          const d = parts[2].padStart(2, '0');
-          return `${y}-${m}-${d}`;
-        } else if (parts.length === 2) {
-          const m = parts[0].padStart(2, '0');
-          const d = parts[1].padStart(2, '0');
-          return `2024-${m}-${d}`;
+      // ==================== 渲染引擎 ====================
+      function render(){activeTab==='standard'?renderStd():renderLtd()}
+
+      function renderStd(){
+        const total=appData.standard.reduce((a,r)=>a+Number(r.pulls),0);
+        const ssrList=appData.standard.filter(r=>r.rarity==='绝密');
+        const ssrN=ssrList.length;
+        const pityN=ssrList.filter(r=>Number(r.pulls)>=40).length;
+        document.getElementById('stdTotalPulls').innerText=total;
+        document.getElementById('stdSsrPulls').innerText=ssrN;
+        document.getElementById('stdAvgPulls').innerText=ssrN>0?(total/ssrN).toFixed(1):'0.0';
+        document.getElementById('stdPityRate').innerText=ssrN>0?((pityN/ssrN)*100).toFixed(1)+'%':'0.0%';
+        renderRecords('standardRecordList',appData.standard);
+      }
+
+      function renderLtd(){
+        const all=appData.limited;
+        const total=all.reduce((a,r)=>a+Number(r.pulls),0);
+        const ssr=all.filter(r=>r.rarity==='绝密');
+        const ssrN=ssr.length;
+        const upN=ssr.filter(r=>r.isUp).length;
+        const pityN=ssr.filter(r=>Number(r.pulls)>=40).length;
+        document.getElementById('lmtTotalPulls').innerText=total;
+        document.getElementById('lmtSsrPulls').innerText=ssrN;
+        document.getElementById('lmtAvgPulls').innerText=ssrN>0?(total/ssrN).toFixed(1):'0.0';
+        document.getElementById('lmtUpPulls').innerText=upN;
+        document.getElementById('lmtWinRate').innerText=ssrN>0?((upN/ssrN)*100).toFixed(1)+'%':'0.0%';
+        document.getElementById('lmtPityRate').innerText=ssrN>0?((pityN/ssrN)*100).toFixed(1)+'%':'0.0%';
+
+        if(currentSelectedPool==="ALL"){
+          document.getElementById('limitedGalleryMode').style.display='block';
+          document.getElementById('limitedSingleMode').style.display='none';
+          renderPoolStream();
+        }else{
+          document.getElementById('limitedGalleryMode').style.display='none';
+          document.getElementById('limitedSingleMode').style.display='block';
+          const po=appData.pools.find(p=>p.name===currentSelectedPool);
+          document.getElementById('singlePoolHeaderTitle').innerText=currentSelectedPool;
+          document.getElementById('singlePoolStatTitle').innerText='单池表现: '+currentSelectedPool;
+          const cat=po?(po.category||'限定'):'限定';
+          const hb=document.getElementById('singlePoolHeaderBubble');hb.innerText=cat;hb.className='bubble-category-tag cat-'+cat;
+          if(po){document.getElementById('detailMetaDate').innerText=po.dateRange||'未定';document.getElementById('detailMetaChars').innerText=po.upChars||'未设';document.getElementById('detailMetaCategory').innerText=cat}
+          const img=document.getElementById('detailPosterImg'),tip=document.getElementById('detailPosterPlaceholder'),del=document.getElementById('btnRemoveDetailBanner');
+          del.style.display=(appData.poolBanners&&appData.poolBanners[currentSelectedPool])?'inline-block':'none';
+          bindPoolBanner(img,tip,currentSelectedPool);
+          const list=appData.limited.filter(r=>r.poolName===currentSelectedPool);
+          const pt=list.reduce((a,r)=>a+Number(r.pulls),0);
+          const ps=list.filter(r=>r.rarity==='绝密');const psn=ps.length;
+          const pun=ps.filter(r=>r.isUp).length;const ppn=ps.filter(r=>Number(r.pulls)>=40).length;
+          document.getElementById('curTotalPulls').innerText=pt;
+          document.getElementById('curSsrPulls').innerText=psn;
+          document.getElementById('curAvgPulls').innerText=psn>0?(pt/psn).toFixed(1):'0.0';
+          document.getElementById('curUpPulls').innerText=pun;
+          document.getElementById('curWinRate').innerText=psn>0?((pun/psn)*100).toFixed(1)+'%':'0.0%';
+          document.getElementById('curPityRate').innerText=psn>0?((ppn/psn)*100).toFixed(1)+'%':'0.0%';
+          renderRecords('limitedSingleRecordList',list);
         }
-        return '';
       }
 
-      function getPoolStartTimestamp(dateRange) {
-        if (!dateRange || dateRange === '未定' || dateRange === '历史活动') return 0;
-        const firstPart = dateRange.split('-')[0].trim().replace('起', '').trim();
-        const iso = parseDateToISO(firstPart);
-        if (!iso) return 0;
-        const time = new Date(iso).getTime();
-        return isNaN(time) ? 0 : time;
-      }
-
-      function sortPoolsChronologically() {
-        if (!appData.pools) return;
-        appData.pools.sort((a, b) => {
-          const timeA = getPoolStartTimestamp(a.dateRange);
-          const timeB = getPoolStartTimestamp(b.dateRange);
-          return timeB - timeA;
+      function renderRecords(cid,raw){
+        const el=document.getElementById(cid);el.innerHTML='';
+        let list=[...raw];list.sort((a,b)=>b.timestamp-a.timestamp);
+        if(list.length===0){el.innerHTML='<div style="text-align:center;padding:30px 0;font-size:12px;color:var(--text-sub)">暂无记录</div>';return}
+        list.forEach(item=>{
+          const n=document.createElement('div');
+          const isSsr=item.rarity==='绝密';
+          const isLost=activeTab==='limited'&&isSsr&&!item.isUp;
+          const isUp=activeTab==='limited'&&isSsr&&item.isUp;
+          n.className='record-item'+(isSsr?' rarity-SSR':'')+(isLost?' is-lost':'');
+          const av=item.avatar?'<img src="'+item.avatar+'">':(item.name.slice(0,1)||'秘');
+          n.innerHTML='<div class="char-card-box">'+av+'</div><div class="record-info"><div class="info-top"><span class="char-name">'+item.name+'</span>'+(isUp?'<span class="tag-badge tag-up">UP</span>':'')+(isLost?'<span class="tag-badge tag-lost">歪</span>':'')+'</div><div class="info-sub">'+item.rarity+'</div></div><div class="record-actions"><div class="pull-count">'+item.pulls+' 抽</div><button class="btn-edit-record" onclick="window.openEditModal(\''+item.id+'\')">✎</button><button class="btn-del-record" onclick="window.deleteRecord(\''+item.id+'\')">&times;</button></div>';
+          el.appendChild(n);
         });
       }
 
-      async function trySalvageFromLegacyDbs() {
-        const legacyDbNames = [
-          'YuanGachaDatabase_v15', 'YuanGachaDatabase_v14', 'YuanGachaDatabase_v13',
-          'YuanGachaDatabase_v12', 'YuanGachaDatabase_v11', 'YuanGachaDatabase_v10',
-          'YuanGachaDatabase_v9', 'YuanGachaDatabase_v8', 'YuanGachaDatabase_v7',
-          'YuanGachaDatabase_v6', 'YuanGachaDatabase_v5', 'YuanGachaDatabase_v4',
-          'YuanGachaDatabase_v3', 'YuanGachaDatabase_v2', 'YuanGachaDatabase'
-        ];
+      // ==================== 表单操作 ====================
+      function initCatChips(act){formSelectedCategory=act||'限定';const el=document.getElementById('poolCategoryChipsBar');el.innerHTML='';CATEGORY_LIST.forEach(c=>{const ch=document.createElement('div');ch.className='chip-bubble-opt'+(formSelectedCategory===c?' selected':'');ch.innerText=c;ch.onclick=function(){formSelectedCategory=c;document.querySelectorAll('.chip-bubble-opt').forEach(e=>e.classList.remove('selected'));ch.classList.add('selected')};el.appendChild(ch)})}
 
-        for (const oldDbName of legacyDbNames) {
-          try {
-            const data = await new Promise((res) => {
-              const req = indexedDB.open(oldDbName);
-              req.onsuccess = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                  db.close();
-                  return res(null);
-                }
-                const tx = db.transaction(STORE_NAME, 'readonly');
-                const store = tx.objectStore(STORE_NAME);
-                const getReq = store.get('root_data');
-                getReq.onsuccess = () => { db.close(); res(getReq.result); };
-                getReq.onerror = () => { db.close(); res(null); };
-              };
-              req.onerror = () => res(null);
-            });
+      window.openAddModal=function(){document.getElementById('recordModalTitle').innerText='登记密探招募';document.getElementById('editRecordId').value='';document.getElementById('btnRecordSubmit').innerText='录入密卷';document.getElementById('inputCharName').value='';document.getElementById('inputPulls').value='';window.clearAvatarPreview();window.selectRarity('绝密');window.selectUpState(true);const pg=document.getElementById('groupPoolSelect'),ps=document.getElementById('inputRecordPool');ps.innerHTML='';if(activeTab==='limited'){if(appData.pools.length===0){alert('请先开辟卡池');window.openCreatePoolModal();return}pg.style.display='block';appData.pools.forEach(p=>{const o=document.createElement('option');o.value=p.name;o.innerText=p.name;if(currentSelectedPool!=='ALL'&&currentSelectedPool===p.name)o.selected=true;ps.appendChild(o)})}else pg.style.display='none';document.getElementById('recordModal').classList.add('active')};
 
-            if (data && ((data.limited && data.limited.length > 0) || (data.standard && data.standard.length > 0) || (data.poolBanners && Object.keys(data.poolBanners).length > 0))) {
-              return data;
-            }
-          } catch(e) {}
-        }
+      window.openEditModal=function(id){let rec=appData.standard.find(r=>r.id===id),isStd=true;if(!rec){rec=appData.limited.find(r=>r.id===id);isStd=false}if(!rec)return;document.getElementById('recordModalTitle').innerText='修改招募密卷';document.getElementById('editRecordId').value=id;document.getElementById('btnRecordSubmit').innerText='保存更动';document.getElementById('inputCharName').value=rec.name;document.getElementById('inputPulls').value=rec.pulls;currentAvatarBase64=rec.avatar||'';const pb=document.getElementById('avatarPreviewBox');if(currentAvatarBase64){pb.innerHTML='<img src="'+currentAvatarBase64+'">';document.getElementById('btnClearAvatar').style.display='inline-block'}else window.clearAvatarPreview();window.selectRarity(rec.rarity);if(!isStd&&rec.rarity==='绝密')window.selectUpState(rec.isUp);const pg=document.getElementById('groupPoolSelect'),ps=document.getElementById('inputRecordPool');ps.innerHTML='';if(!isStd){pg.style.display='block';appData.pools.forEach(p=>{const o=document.createElement('option');o.value=p.name;o.innerText=p.name;if(rec.poolName===p.name)o.selected=true;ps.appendChild(o)})}else pg.style.display='none';document.getElementById('recordModal').classList.add('active')};
 
-        const legacyStorageKeys = [
-          BACKUP_STORAGE_KEY, 'Yuan_Gacha_App_Data_v6', 'Yuan_Gacha_App_Data_v5',
-          'Yuan_Gacha_App_Data_v4', 'Yuan_Gacha_App_Data_v3', 'Yuan_Gacha_App_Data_v2'
-        ];
-        for (const k of legacyStorageKeys) {
-          try {
-            const cache = localStorage.getItem(k);
-            if (cache) {
-              const parsed = JSON.parse(cache);
-              if (parsed && ((parsed.limited && parsed.limited.length > 0) || (parsed.standard && parsed.standard.length > 0))) {
-                return parsed;
-              }
-            }
-          } catch(e) {}
-        }
-        return null;
+      window.submitRecord=function(){const eid=document.getElementById('editRecordId').value,name=document.getElementById('inputCharName').value.trim(),pulls=parseInt(document.getElementById('inputPulls').value,10);if(!name)return alert('请填入名字');if(isNaN(pulls)||pulls<=0)return alert('请填入有效抽数');if(eid){let t=appData.standard.find(r=>r.id===eid);if(t){t.name=name;t.pulls=pulls;t.rarity=formRarity;t.avatar=currentAvatarBase64}else{t=appData.limited.find(r=>r.id===eid);if(t){t.name=name;t.pulls=pulls;t.rarity=formRarity;t.avatar=currentAvatarBase64;t.poolName=document.getElementById('inputRecordPool').value;t.isUp=formRarity==='绝密'?formIsUp:false;expandedPoolNames.add(t.poolName)}}}else{const item={id:Date.now().toString(36)+Math.random().toString(36).substr(2,4),name:name,avatar:currentAvatarBase64||'',rarity:formRarity,pulls:pulls,timestamp:Date.now()};if(activeTab==='standard')appData.standard.push(item);else{item.poolName=document.getElementById('inputRecordPool').value;item.isUp=formRarity==='绝密'?formIsUp:false;appData.limited.push(item);expandedPoolNames.add(item.poolName)}}saveData();window.closeModal('recordModal')};
+
+      window.deleteRecord=function(id){if(!confirm('确认删除？'))return;if(activeTab==='standard')appData.standard=appData.standard.filter(r=>r.id!==id);else appData.limited=appData.limited.filter(r=>r.id!==id);saveData()};
+
+      window.openCreatePoolModal=function(){document.getElementById('poolModalTitle').innerText='开辟新限定卡池';document.getElementById('btnSubmitPoolForm').innerText='确认创设';document.getElementById('editingPoolOriginalName').value='';document.getElementById('newPoolNameInput').value='';document.getElementById('poolStartDateInput').value='';document.getElementById('poolEndDateInput').value='';document.getElementById('newPoolCharsInput').value='';initCatChips('限定');document.getElementById('createPoolModal').classList.add('active')};
+
+      window.openEditPoolModalByName=function(n){const p=appData.pools.find(x=>x.name===n);if(!p)return;document.getElementById('poolModalTitle').innerText='编辑限定卡池';document.getElementById('btnSubmitPoolForm').innerText='保存更动';document.getElementById('editingPoolOriginalName').value=p.name;document.getElementById('newPoolNameInput').value=p.name;document.getElementById('newPoolCharsInput').value=p.upChars||'';if(p.dateRange&&p.dateRange.includes('-')){const s=p.dateRange.split('-');document.getElementById('poolStartDateInput').value=parseDateToISO(s[0]);document.getElementById('poolEndDateInput').value=parseDateToISO(s[1])}else{document.getElementById('poolStartDateInput').value='';document.getElementById('poolEndDateInput').value=''}initCatChips(p.category||'限定');document.getElementById('createPoolModal').classList.add('active')};
+
+      window.submitPoolForm=function(){const orig=document.getElementById('editingPoolOriginalName').value,name=document.getElementById('newPoolNameInput').value.trim(),sv=document.getElementById('poolStartDateInput').value,ev=document.getElementById('poolEndDateInput').value,up=document.getElementById('newPoolCharsInput').value.trim()||'未设',cat=formSelectedCategory||'限定';if(!name)return alert('卡池名不可为空');let dr='未定';if(sv&&ev)dr=sv.replace(/-/g,'.')+' - '+ev.replace(/-/g,'.');else if(sv)dr=sv.replace(/-/g,'.')+' 起';if(orig){if(name!==orig&&appData.pools.some(p=>p.name===name))return alert('已存在同名卡池');const tp=appData.pools.find(p=>p.name===orig);if(tp){tp.name=name;tp.dateRange=dr;tp.upChars=up;tp.category=cat}if(name!==orig){appData.limited.forEach(r=>{if(r.poolName===orig)r.poolName=name});if(appData.poolBanners[orig]){appData.poolBanners[name]=appData.poolBanners[orig];delete appData.poolBanners[orig]}if(expandedPoolNames.has(orig)){expandedPoolNames.delete(orig);expandedPoolNames.add(name)}if(currentSelectedPool===orig)currentSelectedPool=name}}else{if(appData.pools.some(p=>p.name===name))return alert('已存在同名池');appData.pools.push({name,dateRange:dr,upChars:up,category:cat});expandedPoolNames.add(name)}saveData();window.closeModal('createPoolModal')};
+
+      window.deleteCurrentPool=function(){if(currentSelectedPool==='ALL')return;if(!confirm('确认注销卡池「'+currentSelectedPool+'」？'))return;delete appData.poolBanners[currentSelectedPool];appData.pools=appData.pools.filter(p=>p.name!==currentSelectedPool);appData.limited=appData.limited.filter(r=>r.poolName!==currentSelectedPool);expandedPoolNames.delete(currentSelectedPool);currentSelectedPool='ALL';saveData()};
+
+      window.selectRarity=function(r){formRarity=r;document.getElementById('optSSR').classList.toggle('selected',r==='绝密');document.getElementById('optSR').classList.toggle('selected',r==='密探');document.getElementById('groupUpSetting').style.display=(activeTab==='limited'&&r==='绝密')?'block':'none'};
+      window.selectUpState=function(u){formIsUp=u;document.getElementById('optIsUp').classList.toggle('selected',u);document.getElementById('optIsLost').classList.toggle('selected',!u)};
+      window.closeModal=function(id){document.getElementById(id).classList.remove('active')};
+      window.closeModalOnBg=function(e){if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('active')};
+
+      window.exportDataJSON=function(){const b=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='代号鸢招募全档案_'+new Date().toISOString().slice(0,10)+'.json';a.click()};
+      window.triggerImportJSON=function(){document.getElementById('jsonFileInput').click()};
+      window.importDataJSON=function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader;r.onload=function(ev){try{const d=JSON.parse(ev.target.result);appData={standard:d.standard||[],pools:d.pools||[],poolBanners:d.poolBanners||{},limited:d.limited||[]};if(d.limitedPools&&Array.isArray(d.limitedPools))d.limitedPools.forEach(n=>{const nm=NAME_ALIASES[n]||(n.endsWith('复刻')?n.replace('复刻',''):n);if(!appData.pools.some(p=>p.name===nm))appData.pools.push({name:nm,dateRange:'2023.01.01 起',upChars:'未指定',category:'限定'})});reconcile();saveData().then(()=>alert('导入成功！'))}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''};
+
+      // ==================== 图鉴长图生成 ====================
+      function loadImgAsync(src){return new Promise(res=>{if(!src)return res(null);const img=new Image;img.crossOrigin='anonymous';img.onload=()=>res(img);img.onerror=()=>res(null);img.src=src})}
+
+      async function resolveBannerImg(name){
+        if(appData.poolBanners&&appData.poolBanners[name])return await loadImgAsync(appData.poolBanners[name]);
+        const url=getDefaultBannerUrl(name);
+        return url?await loadImgAsync(url):null;
       }
 
-      function reconcilePools() {
-        if (!appData.pools) appData.pools = [];
+      function drawRR(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();if(fill)ctx.fill();if(stroke)ctx.stroke()}
 
-        if (appData.limited && appData.limited.length > 0) {
-          appData.limited.forEach(rec => {
-            if (rec.poolName && NAME_ALIASES[rec.poolName]) {
-              rec.poolName = NAME_ALIASES[rec.poolName];
-            }
-          });
-        }
-        if (appData.poolBanners) {
-          Object.keys(NAME_ALIASES).forEach(oldKey => {
-            if (appData.poolBanners[oldKey]) {
-              appData.poolBanners[NAME_ALIASES[oldKey]] = appData.poolBanners[oldKey];
-              delete appData.poolBanners[oldKey];
-            }
-          });
-        }
+      window.generateAtlasImage=async function(){
+        const pools=appData.pools.filter(p=>appData.limited.some(r=>r.poolName===p.name));
+        if(pools.length===0)return alert('暂无记录');
+        const btn=document.querySelector('.highlight-btn');const ot=btn.innerText;btn.innerText='⏳ 绘制中...';
+        try{
+          const W=900,pad=40,iW=W-pad*2;let eH=340;
+          for(const p of pools){eH+=30;eH+=320;eH+=80;const recs=appData.limited.filter(r=>r.poolName===p.name);const rows=Math.ceil(recs.length/5);if(rows>0){const cw=(iW-32-48)/5;eH+=rows*(cw*4/3+12)+20}}eH+=120;
+          const cv=document.createElement('canvas');cv.width=W;cv.height=eH;const ctx=cv.getContext('2d');
+          ctx.fillStyle='#FDF9F3';ctx.fillRect(0,0,W,eH);let Y=pad;
+          ctx.fillStyle='#46382E';ctx.font='bold 36px -apple-system,sans-serif';ctx.fillText('代号鸢 · 密探招募录全图鉴',pad,Y+36);
+          ctx.fillStyle='#8D7B6F';ctx.font='16px -apple-system,sans-serif';ctx.fillText((currentUser?currentUser.email:'广陵楼主')+' · '+new Date().toLocaleDateString(),pad,Y+70);Y+=95;
+          const aT=appData.limited.reduce((a,r)=>a+Number(r.pulls),0),aS=appData.limited.filter(r=>r.rarity==='绝密'),aN=aS.length,aU=aS.filter(r=>r.isUp).length,aP=aS.filter(r=>Number(r.pulls)>=40).length;
+          ctx.fillStyle='#FFF';ctx.strokeStyle='#EFE4D6';ctx.lineWidth=2;drawRR(ctx,pad,Y,iW,110,16,true,true);
+          const cols=[{k:'总抽数',v:aT},{k:'绝密数',v:aN},{k:'均抽',v:aN>0?(aT/aN).toFixed(1):'0'},{k:'UP不歪率',v:aN>0?((aU/aN)*100).toFixed(1)+'%':'0%',color:'#B2BA69'},{k:'硬保底率',v:aN>0?((aP/aN)*100).toFixed(1)+'%':'0%',color:'#F19E96'}];
+          const cW=iW/5;cols.forEach((c,i)=>{const cx=pad+cW*i+cW/2;ctx.fillStyle=c.color||'#46382E';ctx.font='bold 26px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText(String(c.v),cx,Y+46);ctx.fillStyle='#8D7B6F';ctx.font='13px -apple-system,sans-serif';ctx.fillText(c.k,cx,Y+80)});ctx.textAlign='left';Y+=135;
 
-        BLACKLIST_POOLS.forEach(badPool => {
-          delete appData.poolBanners[badPool];
-          appData.pools = appData.pools.filter(p => p.name !== badPool);
-        });
-
-        appData.pools.forEach(p => {
-          if (NAME_ALIASES[p.name]) {
-            p.name = NAME_ALIASES[p.name];
-          } else if (p.name.endsWith('复刻') && p.name.length > 4) {
-            p.name = p.name.replace('复刻', '');
+          for(const pool of pools){
+            const recs=appData.limited.filter(r=>r.poolName===pool.name);recs.sort((a,b)=>b.timestamp-a.timestamp);
+            const pP=recs.reduce((a,r)=>a+Number(r.pulls),0);
+            const bImg=await resolveBannerImg(pool.name);const bH=bImg?300:0;
+            const cG=12,cw=(iW-32-cG*4)/5,ch=cw*4/3;const rows=Math.ceil(recs.length/5);const gH=rows>0?rows*(ch+cG)+10:0;
+            const pH=bH+80+gH;
+            ctx.fillStyle='#FFF';ctx.strokeStyle='#EFE4D6';ctx.lineWidth=1.5;drawRR(ctx,pad,Y,iW,pH,16,true,true);
+            let cY=Y;
+            if(bImg){ctx.save();ctx.beginPath();ctx.moveTo(pad+16,cY);ctx.lineTo(pad+iW-16,cY);ctx.quadraticCurveTo(pad+iW,cY,pad+iW,cY+16);ctx.lineTo(pad+iW,cY+bH);ctx.lineTo(pad,cY+bH);ctx.lineTo(pad,cY+16);ctx.quadraticCurveTo(pad,cY,pad+16,cY);ctx.closePath();ctx.clip();ctx.fillStyle='#FAF3E8';ctx.fillRect(pad,cY,iW,bH);const ratio=Math.min(iW/bImg.width,bH/bImg.height);const dw=bImg.width*ratio,dh=bImg.height*ratio;ctx.drawImage(bImg,pad+(iW-dw)/2,cY+(bH-dh)/2,dw,dh);ctx.restore();cY+=bH}
+            ctx.fillStyle='#46382E';ctx.font='bold 22px -apple-system,sans-serif';ctx.fillText(pool.name,pad+16,cY+34);
+            ctx.fillStyle='#8D7B6F';ctx.font='13px -apple-system,sans-serif';ctx.fillText('周期: '+(pool.dateRange||'未定')+'   UP: '+(pool.upChars||'未设'),pad+16,cY+60);
+            ctx.font='bold 15px -apple-system,sans-serif';const bs=pP+' 抽';const bw=ctx.measureText(bs).width+20;ctx.fillStyle='#FFF3F1';ctx.strokeStyle='#FDD7D0';drawRR(ctx,pad+iW-bw-16,cY+22,bw,28,14,true,true);ctx.fillStyle='#F19E96';ctx.fillText(bs,pad+iW-bw-6,cY+41);
+            cY+=80;
+            for(let i=0;i<recs.length;i++){const rec=recs[i];const col=i%5,row=Math.floor(i/5);const cx=pad+16+col*(cw+cG),cy=cY+row*(ch+cG);const isSsr=rec.rarity==='绝密',isLost=isSsr&&!rec.isUp;ctx.save();drawRR(ctx,cx,cy,cw,ch,8,false,false);ctx.clip();ctx.fillStyle=isSsr?'#FFF0EE':'#F8ECD7';ctx.fillRect(cx,cy,cw,ch);if(rec.avatar){const ai=await loadImgAsync(rec.avatar);if(ai)ctx.drawImage(ai,cx,cy,cw,ch)}else{ctx.fillStyle='#8D7B6F';ctx.font='bold 20px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText(rec.name.slice(0,1),cx+cw/2,cy+ch/2+6);ctx.textAlign='left'}ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(cx,cy+ch-24,cw,24);ctx.fillStyle=isLost?'#FFB3B3':isSsr?'#FFF2A8':'#FFF';ctx.font='bold 12px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText(rec.pulls+'抽',cx+cw/2,cy+ch-7);ctx.restore();ctx.strokeStyle=isLost?'#D9534F':isSsr?'#F19E96':'#EFE4D6';ctx.lineWidth=isSsr?2.5:1.2;drawRR(ctx,cx,cy,cw,ch,8,false,true);if(isLost){const br=10,bx=cx+cw-br-2,by=cy+br+2;ctx.fillStyle='#D9534F';ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#FFF';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#FFF';ctx.font='bold 11px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('歪',bx,by+4);ctx.textAlign='left'}}
+            Y+=pH+30;
           }
-        });
-
-        const uniquePools = [];
-        appData.pools.forEach(p => {
-          if (!BLACKLIST_POOLS.includes(p.name) && !uniquePools.some(u => u.name === p.name)) {
-            uniquePools.push(p);
-          }
-        });
-        appData.pools = uniquePools;
-
-        MASTER_PRESET_POOLS.forEach(pre => {
-          const existing = appData.pools.find(p => p.name === pre.name);
-          if (!existing) {
-            appData.pools.push(pre);
-          } else {
-            existing.category = pre.category;
-            existing.dateRange = pre.dateRange;
-            existing.upChars = pre.upChars;
-          }
-        });
-
-        sortPoolsChronologically();
-      }
-
-      async function loadData() {
-        return new Promise(async (resolve) => {
-          const tx = dbInstance.transaction(STORE_NAME, 'readonly');
-          const store = tx.objectStore(STORE_NAME);
-          const req = store.get('root_data');
-
-          req.onsuccess = async function() {
-            let data = req.result;
-            if (!data || (!data.limited || data.limited.length === 0)) {
-              const salvaged = await trySalvageFromLegacyDbs();
-              if (salvaged) data = salvaged;
-            }
-
-            if (data) {
-              appData = {
-                standard: data.standard || [],
-                pools: data.pools || [],
-                poolBanners: data.poolBanners || {},
-                limited: data.limited || []
-              };
-              reconcilePools();
-              await saveData(false);
-              resolve();
-            } else {
-              appData.pools = [...MASTER_PRESET_POOLS];
-              sortPoolsChronologically();
-              await saveData(false);
-              resolve();
-            }
-          };
-          req.onerror = function() { resolve(); };
-        });
-      }
-
-      function saveData(shouldSyncCloud = true) {
-        return new Promise((resolve) => {
-          if (!dbInstance) return resolve();
-          sortPoolsChronologically();
-
-          const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          store.put(appData, 'root_data');
-
-          try {
-            localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify(appData));
-          } catch(e) {}
-
-          tx.oncomplete = function() {
-            render();
-            if (shouldSyncCloud && currentUser) {
-              pushDataToCloudSilent();
-            }
-            resolve();
-          };
-          tx.onerror = function() { resolve(); };
-        });
-      }
-
-      // 2. Supabase 账号与找回密码
-      async function checkAuthSession() {
-        if (!supabaseClient) return;
-        try {
-          supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'PASSWORD_RECOVERY') {
-              window.openResetPasswordModal();
-            } else if (session && session.user) {
-              currentUser = session.user;
-              updateAuthUI(true, currentUser.email);
-            } else {
-              currentUser = null;
-              updateAuthUI(false);
-            }
-          });
-
-          const { data: { session } } = await supabaseClient.auth.getSession();
-          if (session && session.user) {
-            currentUser = session.user;
-            updateAuthUI(true, currentUser.email);
-            await pullDataFromCloud();
-          } else {
-            updateAuthUI(false);
-          }
-        } catch(e) {
-          updateAuthUI(false);
-        }
-      }
-
-      function updateAuthUI(isLoggedIn, email) {
-        const btn = document.getElementById('cloudStatusBtn');
-        const text = document.getElementById('cloudStatusText');
-        const dot = document.getElementById('cloudStatusDot');
-
-        if (isLoggedIn) {
-          btn.classList.add('online');
-          dot.innerText = '●';
-          text.innerText = email.split('@')[0] + ' (云端同步中)';
-          window.switchAuthView('loggedin');
-          document.getElementById('loggedInUserEmail').innerText = email;
-        } else {
-          btn.classList.remove('online');
-          dot.innerText = '☁️';
-          text.innerText = '云端登录 / 注册';
-          window.switchAuthView('login');
-        }
-      }
-
-      window.switchAuthView = function(view) {
-        document.getElementById('authFormArea').style.display = (view === 'login') ? 'block' : 'none';
-        document.getElementById('authForgotArea').style.display = (view === 'forgot') ? 'block' : 'none';
-        document.getElementById('authResetArea').style.display = (view === 'reset') ? 'block' : 'none';
-        document.getElementById('authLoggedInArea').style.display = (view === 'loggedin') ? 'block' : 'none';
-
-        const titleEl = document.getElementById('authModalTitle');
-        if (view === 'login') titleEl.innerText = '云端数据账户';
-        if (view === 'forgot') titleEl.innerText = '找回登录密码';
-        if (view === 'reset') titleEl.innerText = '设置全新密码';
-        if (view === 'loggedin') titleEl.innerText = '已连接云端';
+          ctx.fillStyle='#B2BA69';ctx.font='bold 15px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('🌸 代号鸢 · 密探招募录',W/2,Y+20);
+          const fc=document.createElement('canvas');fc.width=W;fc.height=Y+50;fc.getContext('2d').drawImage(cv,0,0);
+          const du=fc.toDataURL('image/png',0.95);document.getElementById('atlasExportImg').src=du;document.getElementById('btnDownloadAtlas').href=du;document.getElementById('atlasModal').classList.add('active');
+        }catch(err){alert('生成异常：'+err.message)}finally{btn.innerText=ot}
       };
 
-      window.handleSendResetEmail = async function() {
-        const email = document.getElementById('authForgotEmailInput').value.trim();
-        if (!email) return alert('请输入接收重置链接的邮箱');
-
-        try {
-          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + window.location.pathname
-          });
-          if (error) throw error;
-          alert(`密码重置邮件已发送至 ${email}！\n请前往邮箱查收邮件并点击链接，即可直接设置新密码。`);
-          window.switchAuthView('login');
-        } catch(err) {
-          alert('发送失败：' + (err.message || '请确认邮箱是否正确'));
-        }
-      };
-
-      window.openResetPasswordModal = function() {
-        window.openAuthModal();
-        window.switchAuthView('reset');
-      };
-
-      window.handleUpdatePassword = async function() {
-        const newPassword = document.getElementById('authNewPasswordInput').value.trim();
-        if (!newPassword || newPassword.length < 6) return alert('新密码不能少于6位');
-
-        try {
-          const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
-          if (error) throw error;
-          alert('密码修改成功！已自动使用新密码保持登录。');
-          if (data.user) {
-            currentUser = data.user;
-            updateAuthUI(true, currentUser.email);
-            await pullDataFromCloud();
-          }
-          window.closeModal('authModal');
-        } catch(err) {
-          alert('密码更新失败：' + (err.message || '凭证已失效，请重新发起找回'));
-        }
-      };
-
-      async function pushDataToCloudSilent() {
-        if (!supabaseClient || !currentUser) return;
-        try {
-          await supabaseClient
-            .from('user_gacha_data')
-            .upsert({
-              id: currentUser.id,
-              data: appData,
-              updated_at: new Date().toISOString()
-            });
-        } catch(e) {}
-      }
-
-      window.syncToCloudNow = async function() {
-        if (!currentUser) {
-          alert('请先点击顶部「云端登录 / 注册」进入你的专属账户');
-          window.openAuthModal();
-          return;
-        }
-        try {
-          const { error } = await supabaseClient
-            .from('user_gacha_data')
-            .upsert({
-              id: currentUser.id,
-              data: appData,
-              updated_at: new Date().toISOString()
-            });
-          if (error) throw error;
-          alert('当前所有抽卡记录、立绘与卡池配置已 100% 稳妥保存至 Supabase 云端！');
-        } catch(e) {
-          alert('上传失败，请检查网络：' + e.message);
-        }
-      };
-
-      async function pullDataFromCloud() {
-        if (!supabaseClient || !currentUser) return;
-        try {
-          const { data, error } = await supabaseClient
-            .from('user_gacha_data')
-            .select('data')
-            .eq('id', currentUser.id)
-            .single();
-
-          if (data && data.data) {
-            const cloudData = data.data;
-            if (cloudData.limited && cloudData.limited.length > 0) {
-              appData = cloudData;
-              reconcilePools();
-              await saveData(false);
-              render();
-            } else {
-              await pushDataToCloudSilent();
-            }
-          } else {
-            await pushDataToCloudSilent();
-          }
-        } catch(e) {}
-      }
-
-      window.openAuthModal = function() {
-        document.getElementById('authModal').classList.add('active');
-      };
-
-      window.handleLogin = async function() {
-        const email = document.getElementById('authEmailInput').value.trim();
-        const password = document.getElementById('authPasswordInput').value.trim();
-        if (!email || !password) return alert('请填入账号邮箱与密码');
-
-        try {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          currentUser = data.user;
-          updateAuthUI(true, currentUser.email);
-          await pullDataFromCloud();
-          alert('登录成功！已连线云端数据库，数据已完全同步。');
-          window.closeModal('authModal');
-        } catch(err) {
-          alert('登录失败：' + (err.message || '请确认账号密码是否正确'));
-        }
-      };
-
-      window.handleSignUp = async function() {
-        const email = document.getElementById('authEmailInput').value.trim();
-        const password = document.getElementById('authPasswordInput').value.trim();
-        if (!email || !password) return alert('请填入账号邮箱与密码');
-        if (password.length < 6) return alert('密码长度不能少于6位');
-
-        try {
-          const { data, error } = await supabaseClient.auth.signUp({ email, password });
-          if (error) throw error;
-          if (data.user) {
-            currentUser = data.user;
-            updateAuthUI(true, currentUser.email);
-            await pushDataToCloudSilent();
-            alert('注册并登录成功！当前本地数据已直接备份上云端。');
-            window.closeModal('authModal');
-          }
-        } catch(err) {
-          alert('注册失败：' + (err.message || '网络连接异常'));
-        }
-      };
-
-      window.handleLogout = async function() {
-        if (!confirm('确认退出当前云端账号？（退出后本地数据依然保留）')) return;
-        if (supabaseClient) await supabaseClient.auth.signOut();
-        currentUser = null;
-        updateAuthUI(false);
-        window.closeModal('authModal');
-      };
-
-      function compressAdaptiveImage(file, maxDimension, quality, callback) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            let w = img.width;
-            let h = img.height;
-
-            if (w > h) {
-              if (w > maxDimension) {
-                h = Math.round(h * (maxDimension / w));
-                w = maxDimension;
-              }
-            } else {
-              if (h > maxDimension) {
-                w = Math.round(w * (maxDimension / h));
-                h = maxDimension;
-              }
-            }
-
-            canvas.width = w;
-            canvas.height = h;
-            ctx.drawImage(img, 0, 0, w, h);
-            callback(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-
-      function cropAvatar34(file, callback) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const targetW = 120;
-            const targetH = 160;
-            canvas.width = targetW;
-            canvas.height = targetH;
-
-            let srcW = img.width;
-            let srcH = img.height;
-            let sx = 0, sy = 0;
-            const targetRatio = 3 / 4;
-            const srcRatio = srcW / srcH;
-
-            if (srcRatio > targetRatio) {
-              const newSrcW = srcH * targetRatio;
-              sx = (srcW - newSrcW) / 2;
-              srcW = newSrcW;
-            } else {
-              const newSrcH = srcW / targetRatio;
-              sy = (srcH - newSrcH) / 2;
-              srcH = newSrcH;
-            }
-
-            ctx.drawImage(img, sx, sy, srcW, srcH, 0, 0, targetW, targetH);
-            callback(canvas.toDataURL('image/jpeg', 0.82));
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-
-      function triggerUploadBanner(poolName) {
-        uploadTargetPoolName = poolName;
-        document.getElementById('bannerFileInput').click();
-      }
-      window.triggerUploadBanner = triggerUploadBanner;
-
-      window.handleBannerUpload = function(e) {
-        const file = e.target.files[0];
-        if (!file || !uploadTargetPoolName) return;
-        compressAdaptiveImage(file, 720, 0.82, function(base64) {
-          appData.poolBanners[uploadTargetPoolName] = base64;
-          saveData();
-        });
-        e.target.value = '';
-      };
-
-      window.removePoolBannerByName = function(poolName) {
-        if (confirm(`确认恢复卡池「${poolName}」为默认海报？`)) {
-          delete appData.poolBanners[poolName];
-          saveData();
-        }
-      };
-
-      window.handleAvatarSelect = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        cropAvatar34(file, function(base64) {
-          currentAvatarBase64 = base64;
-          const previewBox = document.getElementById('avatarPreviewBox');
-          previewBox.innerHTML = `<img src="${currentAvatarBase64}">`;
-          document.getElementById('btnClearAvatar').style.display = 'inline-block';
-        });
-        e.target.value = '';
-      };
-
-      window.clearAvatarPreview = function() {
-        currentAvatarBase64 = '';
-        document.getElementById('avatarPreviewBox').innerHTML = '3:4 无像';
-        document.getElementById('btnClearAvatar').style.display = 'none';
-      };
-
-      window.switchMainPool = function(tab) {
-        activeTab = tab;
-        document.getElementById('tabStandardBtn').classList.toggle('active', tab === 'standard');
-        document.getElementById('tabLimitedBtn').classList.toggle('active', tab === 'limited');
-        document.getElementById('standardMainView').style.display = (tab === 'standard') ? 'block' : 'none';
-        document.getElementById('limitedMainView').style.display = (tab === 'limited') ? 'block' : 'none';
-        render();
-      };
-
-      window.togglePoolExpand = function(poolName) {
-        if (expandedPoolNames.has(poolName)) {
-          expandedPoolNames.delete(poolName);
-        } else {
-          expandedPoolNames.add(poolName);
-        }
-        render();
-      };
-
-      window.enterPoolDetail = function(poolName) {
-        currentSelectedPool = poolName;
-        render();
-      };
-
-      window.exitToPoolGallery = function() {
-        currentSelectedPool = "ALL";
-        render();
-      };
-
-      function getCategoryBubbleHtml(cat) {
-        const c = cat || "限定";
-        return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
-      }
-
-      /* 渲染主界面卡池画卷与五个一排密探流（搭载绝对路径与智能探针） */
-      function renderPoolCardStream() {
-        const streamContainer = document.getElementById('poolCardStreamContainer');
-        streamContainer.innerHTML = '';
-
-        appData.pools.forEach(pool => {
-          const isExpanded = expandedPoolNames.has(pool.name);
-          const item = document.createElement('div');
-          item.className = `pool-stream-item ${isExpanded ? 'expanded' : ''}`;
-
-          const poolRecords = appData.limited.filter(r => r.poolName === pool.name);
-          poolRecords.sort((a, b) => b.timestamp - a.timestamp);
-          const poolPulls = poolRecords.reduce((acc, r) => acc + Number(r.pulls), 0);
-
-          let charsGridHtml = '';
-          if (poolRecords.length === 0) {
-            charsGridHtml = '<div class="empty-grid-notice">该卡池暂无密探出仕记录</div>';
-          } else {
-            charsGridHtml = poolRecords.map(rec => {
-              const isSsr = rec.rarity === '绝密';
-              const isLost = isSsr && !rec.isUp;
-              const avatarHtml = rec.avatar 
-                ? `<img class="mini-char-img" src="${rec.avatar}" alt="${rec.name}">` 
-                : `<span class="mini-char-fallback">${rec.name.slice(0, 1)}</span>`;
-
-              return `
-                <div class="mini-char-card-wrap ${isSsr ? 'rarity-SSR' : ''} ${isLost ? 'is-lost' : ''}" 
-                     title="${rec.name} (${rec.pulls}抽)"
-                     onclick="event.stopPropagation(); window.openEditModal('${rec.id}')">
-                  ${isLost ? '<div class="mini-lost-badge">歪</div>' : ''}
-                  ${avatarHtml}
-                  <div class="mini-pulls-label">${rec.pulls}抽</div>
-                </div>
-              `;
-            }).join('');
-          }
-
-          item.innerHTML = `
-            <div class="stream-poster-container" onclick="event.stopPropagation(); window.triggerUploadBanner('${pool.name}')">
-              <img id="poster-stream-${encodeURIComponent(pool.name)}" style="display:none;" alt="${pool.name}">
-              <div class="stream-poster-placeholder" id="ph-stream-${encodeURIComponent(pool.name)}">📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>
-            </div>
-
-            <div class="stream-item-info" onclick="window.togglePoolExpand('${pool.name}')">
-              <div class="stream-info-left">
-                <div class="stream-title-row">
-                  <span class="stream-pool-name">${pool.name}</span>
-                  ${getCategoryBubbleHtml(pool.category)}
-                </div>
-                <span class="stream-pool-meta">周期: ${pool.dateRange || '未定'}</span>
-                <span class="stream-pool-meta">UP: ${pool.upChars || '未设'}</span>
-              </div>
-              <div class="stream-info-right">
-                <span class="stream-pull-badge">${poolPulls} 抽</span>
-                <span class="stream-fold-arrow">▼</span>
-              </div>
-            </div>
-
-            <div class="stream-expanded-content">
-              <div class="expanded-pool-tools">
-                <div class="expanded-stat-text">共 <b>${poolRecords.length}</b> 位密探 · 点击卡片修改/换图</div>
-                <div style="display:flex; gap:8px; align-items:center;">
-                  <button class="btn-view-detail-page" onclick="event.stopPropagation(); window.enterPoolDetail('${pool.name}')">📄 单池详情 ➔</button>
-                  <button class="btn-pool-edit-inline" onclick="event.stopPropagation(); window.openEditPoolModalByName('${pool.name}')">✎ 编辑</button>
-                  ${(appData.poolBanners && appData.poolBanners[pool.name]) ? `<button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">恢复默认</button>` : ''}
-                </div>
-              </div>
-              <div class="chars-grid-5">
-                ${charsGridHtml}
-              </div>
-            </div>
-          `;
-          streamContainer.appendChild(item);
-
-          // 绑定自适应路径探针
-          const imgEl = item.querySelector(`#poster-stream-${CSS.escape(encodeURIComponent(pool.name))}`);
-          const phEl = item.querySelector(`#ph-stream-${CSS.escape(encodeURIComponent(pool.name))}`);
-          bindPoolBannerWithFallback(imgEl, phEl, pool.name);
-        });
-      }
-
-      function render() {
-        if (activeTab === 'standard') {
-          renderStandardView();
-        } else {
-          renderLimitedView();
-        }
-      }
-
-      function renderStandardView() {
-        const total = appData.standard.reduce((acc, r) => acc + Number(r.pulls), 0);
-        const ssrList = appData.standard.filter(r => r.rarity === '绝密');
-        const ssrCount = ssrList.length;
-        const pityCount = ssrList.filter(r => Number(r.pulls) >= 40).length;
-        const pityRate = ssrCount > 0 ? ((pityCount / ssrCount) * 100).toFixed(1) + '%' : '0.0%';
-
-        document.getElementById('stdTotalPulls').innerText = total;
-        document.getElementById('stdSsrPulls').innerText = ssrCount;
-        document.getElementById('stdAvgPulls').innerText = ssrCount > 0 ? (total / ssrCount).toFixed(1) : '0.0';
-        document.getElementById('stdPityRate').innerText = pityRate;
-
-        renderRecordList('standardRecordList', appData.standard);
-      }
-
-      function renderLimitedView() {
-        const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
-        const allSsr = appData.limited.filter(r => r.rarity === '绝密');
-        const allSsrCount = allSsr.length;
-        const allUpCount = allSsr.filter(r => r.isUp).length;
-        const allPityCount = allSsr.filter(r => Number(r.pulls) >= 40).length;
-
-        document.getElementById('lmtTotalPulls').innerText = allTotal;
-        document.getElementById('lmtSsrPulls').innerText = allSsrCount;
-        document.getElementById('lmtAvgPulls').innerText = allSsrCount > 0 ? (allTotal / allSsrCount).toFixed(1) : '0.0';
-        document.getElementById('lmtUpPulls').innerText = allUpCount;
-        document.getElementById('lmtWinRate').innerText = allSsrCount > 0 ? ((allUpCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-        document.getElementById('lmtPityRate').innerText = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-
-        if (currentSelectedPool === "ALL") {
-          document.getElementById('limitedGalleryMode').style.display = 'block';
-          document.getElementById('limitedSingleMode').style.display = 'none';
-          renderPoolCardStream();
-        } else {
-          document.getElementById('limitedGalleryMode').style.display = 'none';
-          document.getElementById('limitedSingleMode').style.display = 'block';
-
-          const poolObj = appData.pools.find(p => p.name === currentSelectedPool);
-          document.getElementById('singlePoolHeaderTitle').innerText = currentSelectedPool;
-          document.getElementById('singlePoolStatTitle').innerText = '单池表现: ' + currentSelectedPool;
-
-          const cat = poolObj ? (poolObj.category || "限定") : "限定";
-          const headerBubble = document.getElementById('singlePoolHeaderBubble');
-          headerBubble.innerText = cat;
-          headerBubble.className = `bubble-category-tag cat-${cat}`;
-
-          if (poolObj) {
-            document.getElementById('detailMetaDate').innerText = poolObj.dateRange || '未定';
-            document.getElementById('detailMetaChars').innerText = poolObj.upChars || '未设';
-            document.getElementById('detailMetaCategory').innerText = cat;
-          }
-
-          const img = document.getElementById('detailPosterImg');
-          const tip = document.getElementById('detailPosterPlaceholder');
-          const delBtn = document.getElementById('btnRemoveDetailBanner');
-
-          delBtn.style.display = (appData.poolBanners && appData.poolBanners[currentSelectedPool]) ? 'inline-block' : 'none';
-          bindPoolBannerWithFallback(img, tip, currentSelectedPool);
-
-          const list = appData.limited.filter(r => r.poolName === currentSelectedPool);
-          const poolTotal = list.reduce((acc, r) => acc + Number(r.pulls), 0);
-          const poolSsr = list.filter(r => r.rarity === '绝密');
-          const poolSsrCount = poolSsr.length;
-          const poolUpCount = poolSsr.filter(r => r.isUp).length;
-          const poolPityCount = poolSsr.filter(r => Number(r.pulls) >= 40).length;
-
-          document.getElementById('curTotalPulls').innerText = poolTotal;
-          document.getElementById('curSsrPulls').innerText = poolSsrCount;
-          document.getElementById('curAvgPulls').innerText = poolSsrCount > 0 ? (poolTotal / poolSsrCount).toFixed(1) : '0.0';
-          document.getElementById('curUpPulls').innerText = poolUpCount;
-          document.getElementById('curWinRate').innerText = poolSsrCount > 0 ? ((poolUpCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-          document.getElementById('curPityRate').innerText = poolSsrCount > 0 ? ((poolPityCount / poolSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-
-          renderRecordList('limitedSingleRecordList', list);
-        }
-      }
-
-      function renderRecordList(containerId, rawList) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        let list = [...rawList];
-        list.sort((a, b) => b.timestamp - a.timestamp);
-
-        if (list.length === 0) {
-          container.innerHTML = '<div style="text-align:center; padding:30px 0; font-size:12px; color:var(--text-sub);">该池暂无密探出仕记录</div>';
-          return;
-        }
-
-        list.forEach(function(item) {
-          const node = document.createElement('div');
-          const isSsr = item.rarity === '绝密';
-          const isLost = activeTab === 'limited' && isSsr && !item.isUp;
-          const isUp = activeTab === 'limited' && isSsr && item.isUp;
-
-          node.className = 'record-item ' + (isSsr ? 'rarity-SSR ' : ' ') + (isLost ? 'is-lost' : '');
-          const avatarHtml = item.avatar ? `<img src="${item.avatar}">` : (item.name.slice(0, 1) || '秘');
-
-          node.innerHTML = `
-            <div class="char-card-box">${avatarHtml}</div>
-            <div class="record-info">
-              <div class="info-top">
-                <span class="char-name">${item.name}</span>
-                ${isUp ? '<span class="tag-badge tag-up">UP</span>' : ''}
-                ${isLost ? '<span class="tag-badge tag-lost">歪</span>' : ''}
-              </div>
-              <div class="info-sub">${item.rarity}</div>
-            </div>
-            <div class="record-actions">
-              <div class="pull-count">${item.pulls} 抽</div>
-              <button class="btn-edit-record" title="修改" onclick="window.openEditModal('${item.id}')">✎</button>
-              <button class="btn-del-record" title="删除" onclick="window.deleteRecord('${item.id}')">&times;</button>
-            </div>
-          `;
-          container.appendChild(node);
-        });
-      }
-
-      function initCategoryChips(activeCat) {
-        formSelectedCategory = activeCat || "限定";
-        const container = document.getElementById('poolCategoryChipsBar');
-        container.innerHTML = '';
-
-        CATEGORY_LIST.forEach(cat => {
-          const chip = document.createElement('div');
-          chip.className = `chip-bubble-opt ${formSelectedCategory === cat ? 'selected' : ''}`;
-          chip.innerText = cat;
-          chip.onclick = function() {
-            formSelectedCategory = cat;
-            document.querySelectorAll('.chip-bubble-opt').forEach(el => el.classList.remove('selected'));
-            chip.classList.add('selected');
-          };
-          container.appendChild(chip);
-        });
-      }
-
-      window.openAddModal = function() {
-        document.getElementById('recordModalTitle').innerText = '登记密探招募';
-        document.getElementById('editRecordId').value = '';
-        document.getElementById('btnRecordSubmit').innerText = '录入密卷';
-        document.getElementById('inputCharName').value = '';
-        document.getElementById('inputPulls').value = '';
-        window.clearAvatarPreview();
-        window.selectRarity('绝密');
-        window.selectUpState(true);
-
-        const poolGroup = document.getElementById('groupPoolSelect');
-        const poolSelect = document.getElementById('inputRecordPool');
-        poolSelect.innerHTML = '';
-
-        if (activeTab === 'limited') {
-          if (appData.pools.length === 0) {
-            alert('请先开辟至少一个限定卡池。');
-            window.openCreatePoolModal();
-            return;
-          }
-          poolGroup.style.display = 'block';
-          appData.pools.forEach(function(p) {
-            const opt = document.createElement('option');
-            opt.value = p.name;
-            opt.innerText = p.name;
-            if (currentSelectedPool !== 'ALL' && currentSelectedPool === p.name) opt.selected = true;
-            poolSelect.appendChild(opt);
-          });
-        } else {
-          poolGroup.style.display = 'none';
-        }
-
-        document.getElementById('recordModal').classList.add('active');
-      };
-
-      window.openEditModal = function(id) {
-        let record = appData.standard.find(r => r.id === id);
-        let isFromStandard = true;
-        if (!record) {
-          record = appData.limited.find(r => r.id === id);
-          isFromStandard = false;
-        }
-        if (!record) return;
-
-        document.getElementById('recordModalTitle').innerText = '修改招募密卷';
-        document.getElementById('editRecordId').value = id;
-        document.getElementById('btnRecordSubmit').innerText = '保存更动';
-        document.getElementById('inputCharName').value = record.name;
-        document.getElementById('inputPulls').value = record.pulls;
-
-        currentAvatarBase64 = record.avatar || '';
-        const previewBox = document.getElementById('avatarPreviewBox');
-        if (currentAvatarBase64) {
-          previewBox.innerHTML = `<img src="${currentAvatarBase64}">`;
-          document.getElementById('btnClearAvatar').style.display = 'inline-block';
-        } else {
-          window.clearAvatarPreview();
-        }
-
-        window.selectRarity(record.rarity);
-        if (!isFromStandard && record.rarity === '绝密') {
-          window.selectUpState(record.isUp);
-        }
-
-        const poolGroup = document.getElementById('groupPoolSelect');
-        const poolSelect = document.getElementById('inputRecordPool');
-        poolSelect.innerHTML = '';
-
-        if (!isFromStandard) {
-          poolGroup.style.display = 'block';
-          appData.pools.forEach(function(p) {
-            const opt = document.createElement('option');
-            opt.value = p.name;
-            opt.innerText = p.name;
-            if (record.poolName === p.name) opt.selected = true;
-            poolSelect.appendChild(opt);
-          });
-        } else {
-          poolGroup.style.display = 'none';
-        }
-
-        document.getElementById('recordModal').classList.add('active');
-      };
-
-      window.submitRecord = function() {
-        const editId = document.getElementById('editRecordId').value;
-        const name = document.getElementById('inputCharName').value.trim();
-        const pulls = parseInt(document.getElementById('inputPulls').value, 10);
-        if (!name) return alert('请填入密探名字');
-        if (isNaN(pulls) || pulls <= 0) return alert('请填入有效抽数');
-
-        if (editId) {
-          let target = appData.standard.find(r => r.id === editId);
-          if (target) {
-            target.name = name;
-            target.pulls = pulls;
-            target.rarity = formRarity;
-            target.avatar = currentAvatarBase64;
-          } else {
-            target = appData.limited.find(r => r.id === editId);
-            if (target) {
-              target.name = name;
-              target.pulls = pulls;
-              target.rarity = formRarity;
-              target.avatar = currentAvatarBase64;
-              target.poolName = document.getElementById('inputRecordPool').value;
-              target.isUp = formRarity === '绝密' ? formIsUp : false;
-              expandedPoolNames.add(target.poolName);
-            }
-          }
-        } else {
-          const item = {
-            id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
-            name: name,
-            avatar: currentAvatarBase64 || '', 
-            rarity: formRarity,
-            pulls: pulls,
-            timestamp: Date.now()
-          };
-
-          if (activeTab === 'standard') {
-            appData.standard.push(item);
-          } else {
-            item.poolName = document.getElementById('inputRecordPool').value;
-            item.isUp = formRarity === '绝密' ? formIsUp : false;
-            appData.limited.push(item);
-            expandedPoolNames.add(item.poolName);
-          }
-        }
-
-        saveData();
-        window.closeModal('recordModal');
-      };
-
-      window.deleteRecord = function(id) {
-        if (!confirm('确认删除此条招募记录？')) return;
-        if (activeTab === 'standard') {
-          appData.standard = appData.standard.filter(r => r.id !== id);
-        } else {
-          appData.limited = appData.limited.filter(r => r.id !== id);
-        }
-        saveData();
-      };
-
-      window.openCreatePoolModal = function() {
-        document.getElementById('poolModalTitle').innerText = '开辟新限定卡池';
-        document.getElementById('btnSubmitPoolForm').innerText = '确认创设';
-        document.getElementById('editingPoolOriginalName').value = '';
-
-        document.getElementById('newPoolNameInput').value = '';
-        document.getElementById('poolStartDateInput').value = '';
-        document.getElementById('poolEndDateInput').value = '';
-        document.getElementById('newPoolCharsInput').value = '';
-
-        initCategoryChips("限定");
-        document.getElementById('createPoolModal').classList.add('active');
-      };
-
-      window.openEditPoolModalByName = function(poolName) {
-        const pool = appData.pools.find(p => p.name === poolName);
-        if (!pool) return;
-
-        document.getElementById('poolModalTitle').innerText = '编辑限定卡池';
-        document.getElementById('btnSubmitPoolForm').innerText = '保存更动';
-        document.getElementById('editingPoolOriginalName').value = pool.name;
-
-        document.getElementById('newPoolNameInput').value = pool.name;
-        document.getElementById('newPoolCharsInput').value = pool.upChars || '';
-
-        if (pool.dateRange && pool.dateRange.includes('-')) {
-          const splitArr = pool.dateRange.split('-');
-          document.getElementById('poolStartDateInput').value = parseDateToISO(splitArr[0]);
-          document.getElementById('poolEndDateInput').value = parseDateToISO(splitArr[1]);
-        } else {
-          document.getElementById('poolStartDateInput').value = '';
-          document.getElementById('poolEndDateInput').value = '';
-        }
-
-        initCategoryChips(pool.category || "限定");
-        document.getElementById('createPoolModal').classList.add('active');
-      };
-
-      window.submitPoolForm = function() {
-        const originalName = document.getElementById('editingPoolOriginalName').value;
-        const name = document.getElementById('newPoolNameInput').value.trim();
-        const startVal = document.getElementById('poolStartDateInput').value;
-        const endVal = document.getElementById('poolEndDateInput').value;
-        const upChars = document.getElementById('newPoolCharsInput').value.trim() || '未设';
-        const category = formSelectedCategory || "限定";
-
-        if (!name) return alert('卡池名录不可为空');
-
-        let dateRangeStr = '未定';
-        if (startVal && endVal) {
-          dateRangeStr = `${startVal.replace(/-/g, '.')} - ${endVal.replace(/-/g, '.')}`;
-        } else if (startVal) {
-          dateRangeStr = `${startVal.replace(/-/g, '.')} 起`;
-        }
-
-        if (originalName) {
-          if (name !== originalName && appData.pools.some(p => p.name === name)) {
-            return alert('已存在同名的其他卡池');
-          }
-          const targetPool = appData.pools.find(p => p.name === originalName);
-          if (targetPool) {
-            targetPool.name = name;
-            targetPool.dateRange = dateRangeStr;
-            targetPool.upChars = upChars;
-            targetPool.category = category;
-          }
-          if (name !== originalName) {
-            appData.limited.forEach(rec => {
-              if (rec.poolName === originalName) rec.poolName = name;
-            });
-            if (appData.poolBanners[originalName]) {
-              appData.poolBanners[name] = appData.poolBanners[originalName];
-              delete appData.poolBanners[originalName];
-            }
-            if (expandedPoolNames.has(originalName)) {
-              expandedPoolNames.delete(originalName);
-              expandedPoolNames.add(name);
-            }
-            if (currentSelectedPool === originalName) {
-              currentSelectedPool = name;
-            }
-          }
-        } else {
-          if (appData.pools.some(p => p.name === name)) return alert('已存在同名限定池');
-          appData.pools.push({ name, dateRange: dateRangeStr, upChars, category });
-          expandedPoolNames.add(name);
-        }
-
-        saveData();
-        window.closeModal('createPoolModal');
-      };
-
-      window.deleteCurrentPool = function() {
-        if (currentSelectedPool === 'ALL') return;
-        if (!confirm(`确认注销并移除卡池「${currentSelectedPool}」？\n注意：该卡池自定义封面及名下的所有抽卡记录将被一并清理！`)) return;
-
-        delete appData.poolBanners[currentSelectedPool];
-        appData.pools = appData.pools.filter(p => p.name !== currentSelectedPool);
-        appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
-        expandedPoolNames.delete(currentSelectedPool);
-
-        currentSelectedPool = 'ALL'; 
-        saveData();
-      };
-
-      window.selectRarity = function(r) {
-        formRarity = r;
-        document.getElementById('optSSR').classList.toggle('selected', r === '绝密');
-        document.getElementById('optSR').classList.toggle('selected', r === '密探');
-        document.getElementById('groupUpSetting').style.display = (activeTab === 'limited' && r === '绝密') ? 'block' : 'none';
-      };
-
-      window.selectUpState = function(isUp) {
-        formIsUp = isUp;
-        document.getElementById('optIsUp').classList.toggle('selected', isUp);
-        document.getElementById('optIsLost').classList.toggle('selected', !isUp);
-      };
-
-      window.closeModal = function(id) {
-        document.getElementById(id).classList.remove('active');
-      };
-
-      window.closeModalOnBg = function(e) {
-        if (e.target.classList.contains('modal-overlay')) {
-          e.target.classList.remove('active');
-        }
-      };
-
-      window.exportDataJSON = function() {
-        const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = '代号鸢招募全档案_' + new Date().toISOString().slice(0, 10) + '.json';
-        a.click();
-      };
-
-      window.triggerImportJSON = function() {
-        document.getElementById('jsonFileInput').click();
-      };
-
-      window.importDataJSON = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          try {
-            const data = JSON.parse(evt.target.result);
-            appData = {
-              standard: data.standard || [],
-              pools: data.pools || [],
-              poolBanners: data.poolBanners || {},
-              limited: data.limited || []
-            };
-
-            if (data.limitedPools && Array.isArray(data.limitedPools)) {
-              data.limitedPools.forEach(oldName => {
-                const normName = NAME_ALIASES[oldName] || (oldName.endsWith('复刻') ? oldName.replace('复刻', '') : oldName);
-                if (!appData.pools.some(p => p.name === normName)) {
-                  appData.pools.push({ name: normName, dateRange: '2023.01.01 起', upChars: '未指定', category: "限定" });
-                }
-              });
-            }
-
-            reconcilePools();
-            saveData().then(() => alert('全档案数据导入成功！'));
-          } catch(err) {
-            alert('JSON 文件格式损坏，无法恢复');
-          }
-        };
-        reader.readAsText(file);
-        e.target.value = '';
-      };
-
-      // ==================== 3. 高清密探图鉴长图 Canvas 生成引擎 ====================
-      function loadImageAsync(src) {
-        return new Promise((resolve) => {
-          if (!src) return resolve(null);
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.onload = () => resolve(img);
-          img.onerror = () => resolve(null);
-          img.src = src;
-        });
-      }
-
-      async function resolvePoolBannerImageAsync(poolName) {
-        if (appData.poolBanners && appData.poolBanners[poolName]) {
-          return await loadImageAsync(appData.poolBanners[poolName]);
-        }
-        const candidates = buildBannerCandidateUrls(poolName);
-        for (const url of candidates) {
-          const img = await loadImageAsync(url);
-          if (img) return img;
-        }
-        return null;
-      }
-
-      function drawRoundRect(ctx, x, y, width, height, radius, fill, stroke) {
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-        if (fill) ctx.fill();
-        if (stroke) ctx.stroke();
-      }
-
-      window.generateAtlasImage = async function() {
-        const poolsToRender = appData.pools.filter(p => {
-          const recs = appData.limited.filter(r => r.poolName === p.name);
-          return recs.length > 0;
-        });
-
-        if (poolsToRender.length === 0) {
-          return alert('当前限定池暂无任何密探招募记录，快去登记几条再生成图鉴吧～');
-        }
-
-        const btn = document.querySelector('.highlight-btn');
-        const originalText = btn.innerText;
-        btn.innerText = '⏳ 正在绘制高清图鉴...';
-
-        try {
-          const canvasW = 900;
-          const padding = 40;
-          const innerW = canvasW - padding * 2;
-
-          let estimatedH = 340;
-          for (const pool of poolsToRender) {
-            estimatedH += 30;
-            estimatedH += 320;
-            estimatedH += 80;
-            const recs = appData.limited.filter(r => r.poolName === pool.name);
-            const rowCount = Math.ceil(recs.length / 5);
-            if (rowCount > 0) {
-              const cardW = (innerW - 32 - 12 * 4) / 5;
-              const cardH = cardW * (4 / 3);
-              estimatedH += rowCount * (cardH + 12) + 20;
-            }
-          }
-          estimatedH += 120;
-
-          const canvas = document.createElement('canvas');
-          canvas.width = canvasW;
-          canvas.height = estimatedH;
-          const ctx = canvas.getContext('2d');
-
-          ctx.fillStyle = '#FDF9F3';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          let curY = padding;
-
-          ctx.fillStyle = '#46382E';
-          ctx.font = 'bold 36px -apple-system, sans-serif';
-          ctx.fillText('代号鸢 · 密探招募录全图鉴', padding, curY + 36);
-
-          ctx.fillStyle = '#8D7B6F';
-          ctx.font = '16px -apple-system, sans-serif';
-          const userStr = currentUser ? `广陵楼主档案 (${currentUser.email})` : '广陵楼主秘卷档案';
-          ctx.fillText(`${userStr} · 生成日期: ${new Date().toLocaleDateString()}`, padding, curY + 70);
-          curY += 95;
-
-          const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
-          const allSsr = appData.limited.filter(r => r.rarity === '绝密');
-          const allSsrCount = allSsr.length;
-          const allUpCount = allSsr.filter(r => r.isUp).length;
-          const allPityCount = allSsr.filter(r => Number(r.pulls) >= 40).length;
-          const avgPulls = allSsrCount > 0 ? (allTotal / allSsrCount).toFixed(1) : '0.0';
-          const winRate = allSsrCount > 0 ? ((allUpCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-          const pityRate = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
-
-          ctx.fillStyle = '#FFFFFF';
-          ctx.strokeStyle = '#EFE4D6';
-          ctx.lineWidth = 2;
-          drawRoundRect(ctx, padding, curY, innerW, 110, 16, true, true);
-
-          const statCols = [
-            { k: '总招募步数', v: allTotal },
-            { k: '绝密总数', v: allSsrCount },
-            { k: '绝密平均抽数', v: avgPulls },
-            { k: 'UP不歪率', v: winRate, color: '#B2BA69' },
-            { k: '硬保底率(≥40)', v: pityRate, color: '#F19E96' }
-          ];
-
-          const colW = innerW / 5;
-          statCols.forEach((col, idx) => {
-            const cx = padding + colW * idx + colW / 2;
-            ctx.fillStyle = col.color || '#46382E';
-            ctx.font = 'bold 26px -apple-system, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(String(col.v), cx, curY + 46);
-
-            ctx.fillStyle = '#8D7B6F';
-            ctx.font = '13px -apple-system, sans-serif';
-            ctx.fillText(col.k, cx, curY + 80);
-          });
-          ctx.textAlign = 'left';
-          curY += 135;
-
-          for (const pool of poolsToRender) {
-            const recs = appData.limited.filter(r => r.poolName === pool.name);
-            recs.sort((a, b) => b.timestamp - a.timestamp);
-            const poolPulls = recs.reduce((acc, r) => acc + Number(r.pulls), 0);
-
-            const bannerImg = await resolvePoolBannerImageAsync(pool.name);
-            const bannerH = bannerImg ? 300 : 0;
-            const gridCols = 5;
-            const cardGap = 12;
-            const cardW = (innerW - 32 - cardGap * 4) / 5;
-            const cardH = cardW * (4 / 3);
-            const rowCount = Math.ceil(recs.length / gridCols);
-            const gridH = rowCount > 0 ? (rowCount * (cardH + cardGap) + 10) : 0;
-            const poolCardH = bannerH + 80 + gridH;
-
-            ctx.fillStyle = '#FFFFFF';
-            ctx.strokeStyle = '#EFE4D6';
-            ctx.lineWidth = 1.5;
-            drawRoundRect(ctx, padding, curY, innerW, poolCardH, 16, true, true);
-
-            let cardContentY = curY;
-
-            if (bannerImg) {
-              ctx.save();
-              ctx.beginPath();
-              ctx.moveTo(padding + 16, cardContentY);
-              ctx.lineTo(padding + innerW - 16, cardContentY);
-              ctx.quadraticCurveTo(padding + innerW, cardContentY, padding + innerW, cardContentY + 16);
-              ctx.lineTo(padding + innerW, cardContentY + bannerH);
-              ctx.lineTo(padding, cardContentY + bannerH);
-              ctx.lineTo(padding, cardContentY + 16);
-              ctx.quadraticCurveTo(padding, cardContentY, padding + 16, cardContentY);
-              ctx.closePath();
-              ctx.clip();
-
-              ctx.fillStyle = '#FAF3E8';
-              ctx.fillRect(padding, cardContentY, innerW, bannerH);
-
-              const ratio = Math.min(innerW / bannerImg.width, bannerH / bannerImg.height);
-              const dw = bannerImg.width * ratio;
-              const dh = bannerImg.height * ratio;
-              const dx = padding + (innerW - dw) / 2;
-              const dy = cardContentY + (bannerH - dh) / 2;
-              ctx.drawImage(bannerImg, dx, dy, dw, dh);
-              ctx.restore();
-              cardContentY += bannerH;
-            }
-
-            ctx.fillStyle = '#46382E';
-            ctx.font = 'bold 22px -apple-system, sans-serif';
-            ctx.fillText(pool.name, padding + 16, cardContentY + 34);
-
-            const cat = pool.category || '限定';
-            const catTagW = ctx.measureText(cat).width + 16;
-            ctx.fillStyle = '#FFF0EE';
-            ctx.strokeStyle = '#FDD7D0';
-            ctx.lineWidth = 1;
-            drawRoundRect(ctx, padding + 20 + ctx.measureText(pool.name).width + 8, cardContentY + 16, catTagW, 24, 12, true, true);
-            ctx.fillStyle = '#F19E96';
-            ctx.font = 'bold 12px -apple-system, sans-serif';
-            ctx.fillText(cat, padding + 20 + ctx.measureText(pool.name).width + 16, cardContentY + 32);
-
-            ctx.fillStyle = '#8D7B6F';
-            ctx.font = '13px -apple-system, sans-serif';
-            ctx.fillText(`周期: ${pool.dateRange || '未定'}   |   UP: ${pool.upChars || '未设'}`, padding + 16, cardContentY + 60);
-
-            const pullBadgeStr = `${poolPulls} 抽`;
-            ctx.font = 'bold 15px -apple-system, sans-serif';
-            const badgeW = ctx.measureText(pullBadgeStr).width + 20;
-            ctx.fillStyle = '#FFF3F1';
-            ctx.strokeStyle = '#FDD7D0';
-            drawRoundRect(ctx, padding + innerW - badgeW - 16, cardContentY + 22, badgeW, 28, 14, true, true);
-            ctx.fillStyle = '#F19E96';
-            ctx.fillText(pullBadgeStr, padding + innerW - badgeW - 6, cardContentY + 41);
-
-            cardContentY += 80;
-
-            for (let i = 0; i < recs.length; i++) {
-              const rec = recs[i];
-              const col = i % 5;
-              const row = Math.floor(i / 5);
-              const cx = padding + 16 + col * (cardW + cardGap);
-              const cy = cardContentY + row * (cardH + cardGap);
-
-              const isSsr = rec.rarity === '绝密';
-              const isLost = isSsr && !rec.isUp;
-
-              ctx.save();
-              drawRoundRect(ctx, cx, cy, cardW, cardH, 8, false, false);
-              ctx.clip();
-
-              ctx.fillStyle = isSsr ? '#FFF0EE' : '#F8ECD7';
-              ctx.fillRect(cx, cy, cardW, cardH);
-
-              if (rec.avatar) {
-                const avatarImg = await loadImageAsync(rec.avatar);
-                if (avatarImg) {
-                  ctx.drawImage(avatarImg, cx, cy, cardW, cardH);
-                }
-              } else {
-                ctx.fillStyle = '#8D7B6F';
-                ctx.font = 'bold 20px -apple-system, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(rec.name.slice(0, 1), cx + cardW / 2, cy + cardH / 2 + 6);
-                ctx.textAlign = 'left';
-              }
-
-              ctx.fillStyle = 'rgba(0, 0, 0, 0.68)';
-              ctx.fillRect(cx, cy + cardH - 24, cardW, 24);
-              ctx.fillStyle = isLost ? '#FFB3B3' : (isSsr ? '#FFF2A8' : '#FFFFFF');
-              ctx.font = 'bold 12px -apple-system, sans-serif';
-              ctx.textAlign = 'center';
-              ctx.fillText(`${rec.pulls}抽`, cx + cardW / 2, cy + cardH - 7);
-
-              ctx.restore();
-
-              ctx.strokeStyle = isLost ? '#D9534F' : (isSsr ? '#F19E96' : '#EFE4D6');
-              ctx.lineWidth = isSsr ? 2.5 : 1.2;
-              drawRoundRect(ctx, cx, cy, cardW, cardH, 8, false, true);
-
-              if (isLost) {
-                const badgeR = 10;
-                const bx = cx + cardW - badgeR - 2;
-                const by = cy + badgeR + 2;
-                ctx.fillStyle = '#D9534F';
-                ctx.beginPath();
-                ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#FFFFFF';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 11px -apple-system, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('歪', bx, by + 4);
-                ctx.textAlign = 'left';
-              }
-            }
-
-            curY += poolCardH + 30;
-          }
-
-          ctx.fillStyle = '#B2BA69';
-          ctx.font = 'bold 15px -apple-system, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('🌸 代号鸢 · 密探招募录 · 纯自用云端图鉴生成', canvasW / 2, curY + 20);
-
-          const finalCanvas = document.createElement('canvas');
-          finalCanvas.width = canvasW;
-          finalCanvas.height = curY + 50;
-          const finalCtx = finalCanvas.getContext('2d');
-          finalCtx.drawImage(canvas, 0, 0);
-
-          const finalDataUrl = finalCanvas.toDataURL('image/png', 0.95);
-          document.getElementById('atlasExportImg').src = finalDataUrl;
-          document.getElementById('btnDownloadAtlas').href = finalDataUrl;
-          document.getElementById('atlasModal').classList.add('active');
-
-        } catch(err) {
-          alert('图鉴生成异常：' + err.message);
-        } finally {
-          btn.innerText = originalText;
-        }
-      };
-
-      // 系统初始化启动
-      openDatabase()
-        .then(loadData)
-        .then(render)
-        .then(checkAuthSession)
-        .catch(() => {
-          console.error('存储引擎启动异常');
-        });
+      // ==================== 启动 ====================
+      openDatabase().then(loadData).then(render).then(checkAuth).catch(()=>console.error('启动异常'));
     })();
   </script>
 </body>
