@@ -780,7 +780,7 @@
       let formSelectedCategory = "限定";
       let uploadTargetPoolName = ""; 
       let expandedPoolNames = new Set(); 
-      let currentSelectedPool = "ALL"; 
+      let currentSelectedPool = "ALL"; // "ALL" 为画卷流总览，具体名称为单池详情页
 
       function generateAppIcon() {
         const canvas = document.createElement('canvas');
@@ -862,7 +862,6 @@
       const BACKUP_STORAGE_KEY = 'YuanGacha_Dual_Backup_Master';
       let dbInstance = null;
 
-      // 55 个全量权威卡池（支持 GitHub 仓库本地海报映射）
       const MASTER_PRESET_POOLS = [
         { name: "弓剑江东", dateRange: "2023.04.06 - 2023.05.22", upChars: "孙尚香、孙权", category: "孙策地宫" },
         { name: "鬼城之主", dateRange: "2023.04.29 - 2023.05.17", upChars: "张修、干吉", category: "限定" },
@@ -940,15 +939,6 @@
       let formRarity = '绝密';
       let formIsUp = true;
       let currentAvatarBase64 = '';
-
-      // ==================== 获取卡池海报（优先用户自定义，其次 GitHub 仓库默认） ====================
-      function getEffectivePoolBanner(poolName) {
-        if (appData.poolBanners && appData.poolBanners[poolName]) {
-          return appData.poolBanners[poolName];
-        }
-        // 自动检索 GitHub 仓库 banners/ 目录下的默认图片
-        return `./banners/${poolName}.jpg`;
-      }
 
       function openDatabase() {
         return new Promise((resolve, reject) => {
@@ -1504,6 +1494,7 @@
         render();
       };
 
+      // ==================== 核心新增：进入与退出单池独立详情大页 ====================
       window.enterPoolDetail = function(poolName) {
         currentSelectedPool = poolName;
         render();
@@ -1519,7 +1510,7 @@
         return `<span class="bubble-category-tag cat-${c}">${c}</span>`;
       }
 
-      /* 渲染主界面卡池画卷与五个一排密探流（带图片加载容错兜底） */
+      /* 渲染主界面卡池画卷与五个一排密探流 */
       function renderPoolCardStream() {
         const streamContainer = document.getElementById('poolCardStreamContainer');
         streamContainer.innerHTML = '';
@@ -1529,11 +1520,10 @@
           const item = document.createElement('div');
           item.className = `pool-stream-item ${isExpanded ? 'expanded' : ''}`;
 
-          const bannerSrc = getEffectivePoolBanner(pool.name);
-          const bannerHtml = `
-            <img src="${bannerSrc}" alt="${pool.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div class="stream-poster-placeholder" style="display:none;">📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>
-          `;
+          const bannerData = appData.poolBanners[pool.name];
+          const bannerHtml = bannerData 
+            ? `<img src="${bannerData}" alt="${pool.name}">` 
+            : `<div class="stream-poster-placeholder">📷 点击导入海报<br><span style="font-size:11px; color:#A49488;">(自动适配 9:16 竖版或 16:9 横版)</span></div>`;
 
           const poolRecords = appData.limited.filter(r => r.poolName === pool.name);
           poolRecords.sort((a, b) => b.timestamp - a.timestamp);
@@ -1586,9 +1576,10 @@
               <div class="expanded-pool-tools">
                 <div class="expanded-stat-text">共 <b>${poolRecords.length}</b> 位密探 · 点击卡片修改/换图</div>
                 <div style="display:flex; gap:8px; align-items:center;">
+                  <!-- 进独立详情大页通道 -->
                   <button class="btn-view-detail-page" onclick="event.stopPropagation(); window.enterPoolDetail('${pool.name}')">📄 单池详情 ➔</button>
                   <button class="btn-pool-edit-inline" onclick="event.stopPropagation(); window.openEditPoolModalByName('${pool.name}')">✎ 编辑</button>
-                  <button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">清除自定义</button>
+                  ${bannerData ? `<button class="btn-pool-edit-inline" style="color:var(--accent-red);" onclick="event.stopPropagation(); window.removePoolBannerByName('${pool.name}')">移除海报</button>` : ''}
                 </div>
               </div>
               <div class="chars-grid-5">
@@ -1624,6 +1615,7 @@
       }
 
       function renderLimitedView() {
+        // 限定全局统计看板计算
         const allTotal = appData.limited.reduce((acc, r) => acc + Number(r.pulls), 0);
         const allSsr = appData.limited.filter(r => r.rarity === '绝密');
         const allSsrCount = allSsr.length;
@@ -1638,10 +1630,12 @@
         document.getElementById('lmtPityRate').innerText = allSsrCount > 0 ? ((allPityCount / allSsrCount) * 100).toFixed(1) + '%' : '0.0%';
 
         if (currentSelectedPool === "ALL") {
+          // 展示画卷流模式
           document.getElementById('limitedGalleryMode').style.display = 'block';
           document.getElementById('limitedSingleMode').style.display = 'none';
           renderPoolCardStream();
         } else {
+          // 展示单池详情独立大页
           document.getElementById('limitedGalleryMode').style.display = 'none';
           document.getElementById('limitedSingleMode').style.display = 'block';
 
@@ -1660,21 +1654,25 @@
             document.getElementById('detailMetaCategory').innerText = cat;
           }
 
+          // 海报展示
           const img = document.getElementById('detailPosterImg');
           const tip = document.getElementById('detailPosterPlaceholder');
           const delBtn = document.getElementById('btnRemoveDetailBanner');
-          const bannerSrc = getEffectivePoolBanner(currentSelectedPool);
+          const bannerData = appData.poolBanners[currentSelectedPool];
 
-          img.src = bannerSrc;
-          img.style.display = 'block';
-          tip.style.display = 'none';
-          delBtn.style.display = (appData.poolBanners && appData.poolBanners[currentSelectedPool]) ? 'inline-block' : 'none';
-
-          img.onerror = function() {
+          if (bannerData) {
+            img.src = bannerData;
+            img.style.display = 'block';
+            tip.style.display = 'none';
+            delBtn.style.display = 'inline-block';
+          } else {
+            img.src = '';
             img.style.display = 'none';
             tip.style.display = 'block';
-          };
+            delBtn.style.display = 'none';
+          }
 
+          // 单池指标数据统计
           const list = appData.limited.filter(r => r.poolName === currentSelectedPool);
           const poolTotal = list.reduce((acc, r) => acc + Number(r.pulls), 0);
           const poolSsr = list.filter(r => r.rarity === '绝密');
@@ -1987,16 +1985,17 @@
         window.closeModal('createPoolModal');
       };
 
+      // ==================== 核心新增：注销/移除指定卡池 ====================
       window.deleteCurrentPool = function() {
         if (currentSelectedPool === 'ALL') return;
-        if (!confirm(`确认注销并移除卡池「${currentSelectedPool}」？\n注意：该卡池自定义封面及名下的所有抽卡记录将被一并清理！`)) return;
+        if (!confirm(`确认注销并移除卡池「${currentSelectedPool}」？\n注意：该卡池的海报封面及名下的所有抽卡记录将被一并清理！`)) return;
 
         delete appData.poolBanners[currentSelectedPool];
         appData.pools = appData.pools.filter(p => p.name !== currentSelectedPool);
         appData.limited = appData.limited.filter(r => r.poolName !== currentSelectedPool);
         expandedPoolNames.delete(currentSelectedPool);
 
-        currentSelectedPool = 'ALL'; 
+        currentSelectedPool = 'ALL'; // 移除后平滑返回画卷总览
         saveData();
       };
 
@@ -2099,11 +2098,11 @@
       window.generateAtlasImage = async function() {
         const poolsToRender = appData.pools.filter(p => {
           const recs = appData.limited.filter(r => r.poolName === p.name);
-          return recs.length > 0;
+          return recs.length > 0 || appData.poolBanners[p.name];
         });
 
         if (poolsToRender.length === 0) {
-          return alert('当前限定池暂无任何密探招募记录，快去登记几条再生成图鉴吧～');
+          return alert('当前限定池暂无任何密探招募记录或海报，快去登记几条再生成图鉴吧～');
         }
 
         const btn = document.querySelector('.highlight-btn');
@@ -2118,7 +2117,7 @@
           let estimatedH = 340;
           for (const pool of poolsToRender) {
             estimatedH += 30;
-            estimatedH += 320; // 默认均尝试绘制海报区
+            if (appData.poolBanners[pool.name]) estimatedH += 320;
             estimatedH += 80;
             const recs = appData.limited.filter(r => r.poolName === pool.name);
             const rowCount = Math.ceil(recs.length / 5);
@@ -2192,9 +2191,8 @@
             recs.sort((a, b) => b.timestamp - a.timestamp);
             const poolPulls = recs.reduce((acc, r) => acc + Number(r.pulls), 0);
 
-            const bannerSrc = getEffectivePoolBanner(pool.name);
-            const bannerImg = await loadImageAsync(bannerSrc);
-            const bannerH = bannerImg ? 300 : 0;
+            const hasBanner = !!appData.poolBanners[pool.name];
+            const bannerH = hasBanner ? 300 : 0;
             const gridCols = 5;
             const cardGap = 12;
             const cardW = (innerW - 32 - cardGap * 4) / 5;
@@ -2210,29 +2208,32 @@
 
             let cardContentY = curY;
 
-            if (bannerImg) {
-              ctx.save();
-              ctx.beginPath();
-              ctx.moveTo(padding + 16, cardContentY);
-              ctx.lineTo(padding + innerW - 16, cardContentY);
-              ctx.quadraticCurveTo(padding + innerW, cardContentY, padding + innerW, cardContentY + 16);
-              ctx.lineTo(padding + innerW, cardContentY + bannerH);
-              ctx.lineTo(padding, cardContentY + bannerH);
-              ctx.lineTo(padding, cardContentY + 16);
-              ctx.quadraticCurveTo(padding, cardContentY, padding + 16, cardContentY);
-              ctx.closePath();
-              ctx.clip();
+            if (hasBanner) {
+              const bannerImg = await loadImageAsync(appData.poolBanners[pool.name]);
+              if (bannerImg) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(padding + 16, cardContentY);
+                ctx.lineTo(padding + innerW - 16, cardContentY);
+                ctx.quadraticCurveTo(padding + innerW, cardContentY, padding + innerW, cardContentY + 16);
+                ctx.lineTo(padding + innerW, cardContentY + bannerH);
+                ctx.lineTo(padding, cardContentY + bannerH);
+                ctx.lineTo(padding, cardContentY + 16);
+                ctx.quadraticCurveTo(padding, cardContentY, padding + 16, cardContentY);
+                ctx.closePath();
+                ctx.clip();
 
-              ctx.fillStyle = '#FAF3E8';
-              ctx.fillRect(padding, cardContentY, innerW, bannerH);
+                ctx.fillStyle = '#FAF3E8';
+                ctx.fillRect(padding, cardContentY, innerW, bannerH);
 
-              const ratio = Math.min(innerW / bannerImg.width, bannerH / bannerImg.height);
-              const dw = bannerImg.width * ratio;
-              const dh = bannerImg.height * ratio;
-              const dx = padding + (innerW - dw) / 2;
-              const dy = cardContentY + (bannerH - dh) / 2;
-              ctx.drawImage(bannerImg, dx, dy, dw, dh);
-              ctx.restore();
+                const ratio = Math.min(innerW / bannerImg.width, bannerH / bannerImg.height);
+                const dw = bannerImg.width * ratio;
+                const dh = bannerImg.height * ratio;
+                const dx = padding + (innerW - dw) / 2;
+                const dy = cardContentY + (bannerH - dh) / 2;
+                ctx.drawImage(bannerImg, dx, dy, dw, dh);
+                ctx.restore();
+              }
               cardContentY += bannerH;
             }
 
