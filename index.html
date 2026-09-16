@@ -51,6 +51,7 @@
     .cat-袁基地宫{background:#F4F8F1;color:#538A4B;border-color:#D3E8CC}
     .cat-左慈地宫{background:#FBF4FD;color:#8F55A8;border-color:#EED7F7}
     .cat-孙策地宫{background:#FEF7EC;color:#C27429;border-color:#F8DFC0}
+    .cat-重逢{background:#FFF8F0;color:#D4956A;border-color:#F5D5B8}
     .stream-expanded-content{display:none;padding:14px 16px 18px;background:#FDFBFA;border-top:1px dashed var(--border-color)}
     .pool-stream-item.expanded .stream-expanded-content{display:block}
     .expanded-pool-tools{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(239,228,214,.6);flex-wrap:wrap;gap:6px}
@@ -316,7 +317,7 @@
       const supabaseClient = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
       let currentUser = null;
 
-      const CATEGORY_LIST = ["限定","复刻","自选限定","照影","刘辩地宫","傅融地宫","袁基地宫","左慈地宫","孙策地宫"];
+      const CATEGORY_LIST = ["限定","复刻","自选限定","照影","重逢","刘辩地宫","傅融地宫","袁基地宫","左慈地宫","孙策地宫"];
       let formSelectedCategory = "限定";
       let uploadTargetPoolName = "";
       let expandedPoolNames = new Set();
@@ -336,7 +337,7 @@
         "大和丕应":41,"英徽弥亮":42,"动静非我":43,"持心离欲":44,"抱琴载酒":45,
         "洪匀玄机":46,"隋珠弹雀":47,"坐令千霄":48,"东阁待贤":49,"影迹陈陈":50,
         "含明隐迹":51,"松桥辅德":52,"奉天华盖":53,"却月凌风":54,"诚之云孚":55,
-        "周庙之璋":56
+        "周庙之璋":56,"燕金募秀":57,"棺珠折骨":58"棺珠折骨"
       };
 
       function getDefaultBannerUrl(name) {
@@ -459,7 +460,9 @@
         {name:"奉天华盖",dateRange:"2026.07.09 - 2026.07.22",upChars:"董奉、黄盖",category:"复刻"},
         {name:"诚之云孚",dateRange:"2026.07.23 - 2026.09.02",upChars:"司马孚、赵云",category:"傅融地宫"},
         {name:"却月凌风",dateRange:"2026.07.23 - 2026.08.05",upChars:"黄月英、凌统",category:"复刻"},
-        {name:"周庙之璋",dateRange:"2026.09.10 - 2026.10.07",upChars:"周泰、陈琳",category:"限定"}
+        {name:"周庙之璋",dateRange:"2026.09.10 - 2026.10.07",upChars:"周泰、陈琳",category:"限定"},
+        {name:"燕金募秀",dateRange:"2026.09.17 - 2026.10.14",upChars:"重逢池",category:"重逢"},
+        {name:"棺珠折骨",dateRange:"2026.09.17 - 2026.10.28",upChars:"士䵋、魏延",category:"袁基地宫"}
       ];
 
       const BLACKLIST_POOLS = ["游说贤士","琴载酒/洪匀玄"];
